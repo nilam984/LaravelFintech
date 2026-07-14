@@ -120,13 +120,11 @@
      */
     document.addEventListener('DOMContentLoaded', () => {
         // Read session flashes securely from structural templates
-        const sessionSuccess = "success"; // Inject backend success key value here
-        const sessionMessage = "Message"; // Inject backend message key value here
+        const sessionMessage = "Test Message"; // Inject backend message key value here
+        const sessionType = "success"; // Inject backend success key value here
 
-        if (sessionSuccess && sessionSuccess.trim() !== "") {
-            ToastEngine.show(sessionSuccess, 'success');
-        } else if (sessionMessage && sessionMessage.trim() !== "") {
-            ToastEngine.show(sessionMessage, 'info');
+        if (sessionMessage && sessionMessage.trim() !== "") {
+            ToastEngine.show(sessionMessage, sessionType);
         }
     });
 </script>
