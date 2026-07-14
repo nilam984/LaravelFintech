@@ -74,3 +74,8 @@
 
   </div>
 </header>
+
+<!-- ==================== TAILWIND OFFICIAL DESIGN TOASTER ==================== -->
+<div id="toastContainer" aria-live="assertive" class="pointer-events-none fixed inset-0 flex items-start justify-end px-4 py-6 sm:p-6 z-[9999] flex-col gap-3 max-w-sm ml-auto">
+  <!-- Dynamic notifications inject cleanly here -->
+</div>
