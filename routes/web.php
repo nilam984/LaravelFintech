@@ -10,3 +10,7 @@ Route::get('/', function () {
 Route::get('/login', function () {
     return view('Auth.login');
 });
+
+Route::get('/dashboard', function() {
+    return view('dashboard.index');
+});

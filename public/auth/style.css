@@ -14,7 +14,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    /* overflow: hidden; */
     background: linear-gradient(-45deg, #0b1528, #112240, #1a365d, #0f172a);
     background-size: 400% 400%;
     animation: bg 12s ease infinite;
