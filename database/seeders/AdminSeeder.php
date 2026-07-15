@@ -23,8 +23,6 @@ class AdminSeeder extends Seeder
             'status' => 1,
             'email_otp' => NULL,
             'email_otp_expire_at' => NULL,
-            'mobile_otp' => NULL,
-            'mobile_otp_expire_at' => NULL,
             'email_verified_at' => NULL,
             'updated_by' => -1,
         ]);
