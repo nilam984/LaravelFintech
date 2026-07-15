@@ -17,6 +17,11 @@ class AuthController extends Controller
 {
     public function loginPage()
     {
+        if (Auth::check()) {
+            return Auth::user()->role === 'admin'
+                ? redirect()->route('admin.dashboard')
+                : redirect()->route('user.dashboard');
+        }
         return view('Auth.login');
     }
 
@@ -100,11 +105,10 @@ class AuthController extends Controller
             'password.min' => 'Password must be at least 6 characters long.',
         ]);
 
-
-
+        $remember = $request->remember == "on";
         $credentials = $request->only('email', 'password');
 
-        if (!Auth::attempt($credentials)) {
+        if (!Auth::attempt($credentials, $remember)) {
             return response()->json([
                 'status' => false,
                 'message' => 'Invalid email or password'
