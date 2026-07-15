@@ -41,14 +41,57 @@ document.getElementById("toForgotBtn").onclick = () => {
 };
 
 // --- Registration Form Transitions ---
-document.getElementById("mainRegisterForm").onsubmit = (e) => {
+const registerForm = document.getElementById("mainRegisterForm");
+
+registerForm.addEventListener("submit", async function (e) {
+
     e.preventDefault();
-    const simulatedBackendSaved = true; // Simulated validation
-    if (simulatedBackendSaved) {
-        registerFormStep.classList.add("d-none");
-        registerOtpStep.classList.remove("d-none");
+
+    let formData = new FormData(this);
+
+    try {
+
+        let response = await fetch("/register", {
+
+            method: "POST",
+
+            headers: {
+                "X-CSRF-TOKEN": document
+                    .querySelector('meta[name="csrf-token"]')
+                    .getAttribute("content"),
+
+                "Accept": "application/json"
+            },
+
+            body: formData
+
+        });
+
+        let result = await response.json();
+
+        if (result.status) {
+
+            alert(result.message);
+
+            // OTP Screen Show
+            registerFormStep.classList.add("d-none");
+            registerOtpStep.classList.remove("d-none");
+
+        } else {
+
+            alert(result.message);
+
+        }
+
+    } catch (error) {
+
+        console.log(error);
+
+        alert("Something went wrong.");
+
     }
-};
+
+});
 
 document.getElementById("registerOtpForm").onsubmit = (e) => {
     e.preventDefault();
