@@ -117,7 +117,7 @@ document
             error: function (xhr) {
                 if (xhr.status === 422) {
                     let errors = xhr.responseJSON.errors;
-                    ToastEngine.show(Object.values(errors)[0][0], "error");
+                    ToastEngine.show(errors, "error");
                 } else {
                     ToastEngine.show(
                         "Something went wrong. Please try again.",
@@ -130,30 +130,132 @@ document
 
 // --- Forgot Password Multi-Step Form Transitions ---
 // Step 1 -> Step 2 (Email to OTP)
+
 document.getElementById("forgotEmailForm").onsubmit = (e) => {
     e.preventDefault();
-    const simulatedEmailChecked = true;
-    if (simulatedEmailChecked) {
-        forgotEmailStep.classList.add("d-none");
-        forgotOtpStep.classList.remove("d-none");
-    }
+
+    const forgotEmail = document.getElementById("forgotEmail").value;
+
+    $.ajax({
+        url: "/forgot-password",
+        type: "POST",
+        data: {
+            _token: document
+                .querySelector('meta[name="csrf-token"]')
+                .getAttribute("content"),
+            email: forgotEmail,
+        },
+        success: function (response) {
+            if (response.status) {
+                document.getElementById("userEmail").value =
+                    forgotEmail ?? null;
+                forgotEmailStep.classList.add("d-none");
+                forgotOtpStep.classList.remove("d-none");
+                ToastEngine.show(response.message, "success");
+            } else {
+                ToastEngine.show(response.message, "error");
+            }
+        },
+        error: function (xhr) {
+            if (xhr.status === 422) {
+                let errors = xhr.responseJSON.errors;
+                ToastEngine.show(errors, "error");
+            } else {
+                ToastEngine.show(
+                    "Something went wrong. Please try again.",
+                    "error",
+                );
+            }
+        },
+    });
 };
 
 // Step 2 -> Step 3 (OTP to New Password)
 document.getElementById("forgotOtpForm").onsubmit = (e) => {
     e.preventDefault();
-    const simulatedOtpVerified = true;
-    if (simulatedOtpVerified) {
-        forgotOtpStep.classList.add("d-none");
-        forgotNewPasswordStep.classList.remove("d-none");
-    }
+
+    let otp = "";
+
+    document.querySelectorAll(".otp-input").forEach((input) => {
+        otp += input.value;
+    });
+
+    let userEmail = document.getElementById("userEmail").value;
+
+    $.ajax({
+        url: "/verify-otp",
+        type: "POST",
+        data: {
+            _token: document
+                .querySelector('meta[name="csrf-token"]')
+                .getAttribute("content"),
+            otp: otp,
+            email: userEmail,
+            escapeEmailVerify: true,
+        },
+        success: function (response) {
+            if (response.status) {
+                forgotOtpStep.classList.add("d-none");
+                forgotNewPasswordStep.classList.remove("d-none");
+                ToastEngine.show(response.message, "success");
+            } else {
+                ToastEngine.show(response.message, "error");
+            }
+        },
+        error: function (xhr) {
+            if (xhr.status === 422) {
+                let errors = xhr.responseJSON.errors;
+                ToastEngine.show(errors, "error");
+            } else {
+                ToastEngine.show(
+                    "Something went wrong. Please try again.",
+                    "error",
+                );
+            }
+        },
+    });
 };
 
 // Step 3 -> Back to Login
 document.getElementById("forgotNewPasswordForm").onsubmit = (e) => {
     e.preventDefault();
-    alert("Your cryptographic credentials have been updated successfully!");
-    wrapper.className = "wrapper"; // Direct user to clean Sign In panel
+
+    const forgotEmail = document.getElementById("forgotEmail").value;
+    const password = document.getElementById("password").value;
+    const cnfPassword = document.getElementById("cnfPassword").value;
+    console.log(`${forgotEmail} ${password} ${cnfPassword}`);
+
+    $.ajax({
+        url: "/reset-password",
+        type: "POST",
+        data: {
+            _token: document
+                .querySelector('meta[name="csrf-token"]')
+                .getAttribute("content"),
+            email: forgotEmail,
+            password: password,
+            password_confirmation: cnfPassword,
+        },
+        success: function (response) {
+            if (response.status) {
+                wrapper.className = "wrapper";
+                ToastEngine.show(response.message, "success");
+            } else {
+                ToastEngine.show(response.message, "error");
+            }
+        },
+        error: function (xhr) {
+            if (xhr.status === 422) {
+                let errors = xhr.responseJSON.errors;
+                ToastEngine.show(errors, "error");
+            } else {
+                ToastEngine.show(
+                    "Something went wrong. Please try again.",
+                    "error",
+                );
+            }
+        },
+    });
 };
 
 // --- Universal UI Enhancements ---

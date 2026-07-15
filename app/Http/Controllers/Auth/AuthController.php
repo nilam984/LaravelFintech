@@ -141,6 +141,7 @@ class AuthController extends Controller
 
     public function verifyOtp(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'otp' => 'required|digits:4',
@@ -176,11 +177,17 @@ class AuthController extends Controller
             ], 400);
         }
 
-        $user->update([
-            'email_verified_at' => Carbon::now(),
+        $userUpdate = [
             'email_otp' => null,
             'email_otp_expire_at' => null,
-        ]);
+            'email_verified_at' => Carbon::now(),
+        ];
+
+        if ($request->escapeEmailVerify === "true") {
+            unset($userUpdate['email_verified_at']);
+        }
+
+        $user->update($userUpdate);
 
         return response()->json([
             'status' => true,
@@ -201,6 +208,89 @@ class AuthController extends Controller
 
     public function adminDashboard()
     {
-        return view('dashboard.admin');
+        return view('dashboard.admin')->with('success', 'Test');
+    }
+
+
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login.page');
+    }
+
+
+    public function forgotPassword(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|exists:users,email',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors()->first()
+            ], 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found.'
+            ]);
+        }
+
+        $otp = rand(1000, 9999);
+        $user->update([
+            'email_otp' => $otp,
+            'email_otp_expire_at' => Carbon::now()->addMinutes(10),
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'OTP sent successfully.'
+        ]);
+    }
+
+
+    public function resetPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required|min:6|confirmed'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors()->first()
+            ], 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found.'
+            ], 404);
+        }
+
+
+        $user->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Password updated successfully.'
+        ]);
     }
 }

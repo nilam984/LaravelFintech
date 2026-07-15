@@ -111,12 +111,15 @@
     };
 
     document.addEventListener('DOMContentLoaded', () => {
+        const successMessage = @json(session('success'));
+        const errorMessage = @json(session('error'));
 
-        const sessionMessage = "Test Message"; // Inject backend message key value here
-        const sessionType = "success"; // Inject backend success key value here
+        if (successMessage && successMessage.trim() !== "") {
+            ToastEngine.show(successMessage, 'success');
+        }
 
-        if (sessionMessage && sessionMessage.trim() !== "") {
-            ToastEngine.show(sessionMessage, sessionType);
+        if (errorMessage && errorMessage.trim() !== "") {
+            ToastEngine.show(errorMessage, 'error');
         }
     });
 

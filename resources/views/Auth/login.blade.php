@@ -36,10 +36,9 @@
             <div class="subtitle-text">Access your high-yield secure panel</div>
 
             <form id="loginForm" method="POST">
-                @csrf
 
                 <div class="mb-3">
-                    <input type="email" name="email" class="form-control" placeholder="Corporate Email Address" />
+                    <input type="email" name="email" class="form-control" placeholder="Registered Email Address" />
                 </div>
 
                 <div class="input-group mb-3">
@@ -115,10 +114,10 @@
 
                 <form id="registerOtpForm" onsubmit="event.preventDefault();">
                     <div class="otp-container">
-                        <input type="text" maxlength="1" class="otp-input" required />
-                        <input type="text" maxlength="1" class="otp-input" required />
-                        <input type="text" maxlength="1" class="otp-input" required />
-                        <input type="text" maxlength="1" class="otp-input" required />
+                        <input type="text" maxlength="1" class="otp-input" />
+                        <input type="text" maxlength="1" class="otp-input" />
+                        <input type="text" maxlength="1" class="otp-input" />
+                        <input type="text" maxlength="1" class="otp-input" />
                         <input type="hidden" id="userEmail">
                     </div>
 
@@ -145,7 +144,8 @@
 
                 <form id="forgotEmailForm" onsubmit="event.preventDefault();">
                     <div class="mb-4">
-                        <input type="email" class="form-control" placeholder="Registered Email Address" required />
+                        <input type="email" class="form-control" id="forgotEmail"
+                            placeholder="Registered Email Address" />
                     </div>
 
                     <button type="submit" class="btn btn-accent-fintech w-100 btn-fintech mb-4">Request Security
@@ -166,7 +166,7 @@
             <!-- Forgot Step 2: Enter OTP -->
             <div id="forgotOtpStep" class="forgot-step d-none">
                 <h2 class="title">Security Token</h2>
-                <div class="subtitle-text">Enter the 4-digit secure access token dispatched to your email address.
+                <div class="subtitle-text">Enter the 4-digit secure otp dispatched to your email address.
                 </div>
 
                 <form id="forgotOtpForm" onsubmit="event.preventDefault();">
@@ -177,8 +177,7 @@
                         <input type="text" maxlength="1" class="otp-input" required />
                     </div>
 
-                    <button type="submit" class="btn btn-accent-fintech w-100 btn-fintech mb-3">Verify Identity
-                        Token</button>
+                    <button type="submit" class="btn btn-accent-fintech w-100 btn-fintech mb-3">Verify Otp</button>
 
                     <div class="text-center text-white-50 small">
                         No code received?
@@ -194,11 +193,11 @@
 
                 <form id="forgotNewPasswordForm" onsubmit="event.preventDefault();">
                     <div class="input-group mb-3">
-                        <input type="password" class="form-control password" placeholder="New Password" required />
+                        <input type="password" class="form-control password" id="password" placeholder="New Password" required />
                         <span class="input-group-text toggle"><i class="bi bi-eye"></i></span>
                     </div>
                     <div class="mb-4">
-                        <input type="password" class="form-control" placeholder="Confirm New Password" required />
+                        <input type="password" class="form-control" id="cnfPassword" placeholder="Confirm New Password" required />
                     </div>
 
                     <button type="submit" class="btn btn-primary-fintech w-100 btn-fintech">Update
