@@ -54,7 +54,6 @@
         show: function(message, type = 'success', duration = 4000) {
             if (!this.container) return;
 
-            // Config map matching Tailwind UI's exact alert system specs
             const configs = {
                 success: {
                     icon: 'bi-check-circle',
@@ -72,7 +71,6 @@
 
             const config = configs[type] || configs.info;
 
-            // Create Notification Box matching Tailwind UI "Notification Panels"
             const toast = document.createElement('div');
             toast.className =
                 'pointer-events-auto w-full max-w-sm overflow-hidden rounded-xl bg-slate-900 border border-slate-800 shadow-xl ring-1 ring-black ring-opacity-5 transition-all duration-300 transform translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2';
@@ -97,16 +95,13 @@
       </div>
     `;
 
-            // Append and trigger the official transition lifecycle (Slide down / fade in)
             this.container.appendChild(toast);
 
-            // Force browser reflow to compute initial animation matrix layout
             requestAnimationFrame(() => {
                 toast.classList.remove('translate-y-2', 'sm:translate-x-2', 'opacity-0');
                 toast.classList.add('translate-y-0', 'sm:translate-x-0', 'opacity-100');
             });
 
-            // Auto cleanup cycle matching transition timers
             setTimeout(() => {
                 toast.classList.remove('translate-y-0', 'sm:translate-x-0', 'opacity-100');
                 toast.classList.add('translate-y-2', 'sm:translate-x-2', 'opacity-0');
@@ -115,11 +110,8 @@
         }
     };
 
-    /**
-     * Global Session Listener Engine
-     */
     document.addEventListener('DOMContentLoaded', () => {
-        // Read session flashes securely from structural templates
+
         const sessionMessage = "Test Message"; // Inject backend message key value here
         const sessionType = "success"; // Inject backend success key value here
 
@@ -127,4 +119,23 @@
             ToastEngine.show(sessionMessage, sessionType);
         }
     });
+
+
+
+    /**
+     * Toggles Parent-Child Submenus inside the Sidebar view
+     * @param {HTMLElement} element - The parent menu trigger button
+     */
+    function toggleSubmenu(element) {
+        const container = element.nextElementSibling;
+        const chevron = element.querySelector('.submenu-chevron');
+
+        if (container && container.classList.contains('hidden')) {
+            container.classList.remove('hidden');
+            if (chevron) chevron.classList.add('rotate-180');
+        } else if (container) {
+            container.classList.add('hidden');
+            if (chevron) chevron.classList.remove('rotate-180');
+        }
+    }
 </script>
