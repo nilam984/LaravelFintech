@@ -9,6 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="{{ asset('auth/style.css') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 
 <body>
@@ -58,25 +59,31 @@
             <!-- Sub-step A: Initial Form Data -->
             <div id="registerFormStep" class="register-step">
                 <h2 class="title">Create Account</h2>
-                <div class="subtitle-text">Open a clear path to asset growth</div>
+                {{-- <div class="subtitle-text">Open a clear path to asset growth</div> --}}
 
                 <form id="mainRegisterForm" onsubmit="event.preventDefault();">
                     <div class="mb-3">
-                        <input type="text" class="form-control" placeholder="Full Name" required />
+                        <input type="text" name="name" class="form-control" placeholder="Full Name" required />
                     </div>
                     <div class="mb-3">
-                        <input type="email" class="form-control" placeholder="Email Address" required />
+                        <input type="email" name="email" class="form-control" placeholder="Email Address" required />
                     </div>
+
+                    <div class="mb-3">
+                        <input type="text" name="mobile" class="form-control" placeholder="Mobile Number" required />
+                    </div>
+
+
                     <div class="input-group mb-3">
-                        <input type="password" class="form-control password" placeholder="Password" required />
+                        <input type="password" name="password" class="form-control password" placeholder="Password" required />
                         <span class="input-group-text toggle"><i class="bi bi-eye"></i></span>
                     </div>
                     <div class="mb-4">
-                        <input type="password" class="form-control" placeholder="Confirm Password" required />
+                        <input type="password" name="password_confirmation" class="form-control" placeholder="Confirm Password" required />
                     </div>
 
                     <button type="submit" class="btn btn-secondary-fintech w-100 btn-fintech">
-                        Open Free Account
+                       Sign Up & Verify Email
                     </button>
                     <div class="text-center text-white-50 small mt-4">
                         Already registered?
@@ -190,7 +197,7 @@
                 <h1>Welcome to Apex</h1>
                 <p>Experience next-generation asset management, automated investing, and military-grade transactional
                     security.</p>
-                <button class="btn btn-light" id="registerBtn">Get Started</button>
+                <button class="btn btn-light" id="registerBtn">Sign Up</button>
             </div>
         </div>
 
