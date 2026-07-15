@@ -119,6 +119,7 @@
                         <input type="text" maxlength="1" class="otp-input" required />
                         <input type="text" maxlength="1" class="otp-input" required />
                         <input type="text" maxlength="1" class="otp-input" required />
+                        <input type="hidden" id="userEmail">
                     </div>
 
                     <button type="submit" class="btn btn-primary-fintech w-100 btn-fintech mb-3">

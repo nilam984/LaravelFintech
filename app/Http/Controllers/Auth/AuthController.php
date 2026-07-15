@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class AuthController extends Controller
 {
@@ -24,8 +25,15 @@ class AuthController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'mobile' => 'required|string|digit:10',
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('users')->where(function ($query) {
+                    return $query->whereNotNull('email_verified_at');
+                }),
+            ],
+            'mobile' => 'required|string|digits:10',
             'password' => 'required|string|min:6|confirmed',
         ], [
             'name.required' => 'Please enter your name.',
@@ -37,7 +45,6 @@ class AuthController extends Controller
             'password.required' => 'Please enter password.',
             'password.confirmed' => 'Password confirmation does not match.',
             'password.min' => 'Password must be at least 6 characters.',
-            'password.regex' => 'Password must contain uppercase, lowercase, number and special character.'
         ]);
 
         if ($validator->fails()) {
@@ -53,9 +60,10 @@ class AuthController extends Controller
 
             $emailOtp = rand(1000, 9999);
 
-            $user = User::create([
-                'name' => $request->name,
+            $user = User::updateOrCreate([
                 'email' => $request->email,
+            ], [
+                'name' => $request->name,
                 'mobile' => $request->mobile,
                 'password' => Hash::make($request->password),
                 'email_otp' => $emailOtp,
@@ -65,7 +73,7 @@ class AuthController extends Controller
             DB::commit();
             return response()->json([
                 'status' => true,
-                'message' => 'Registration successful. Please verify your email and mobile number.',
+                'message' => 'Registration successful. Please verify your email.',
                 'data' => $user
             ], 201);
         } catch (\Exception $e) {
@@ -128,6 +136,55 @@ class AuthController extends Controller
             'status' => true,
             'message' => 'Login Successful',
             'redirect' => $redirect,
+        ]);
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'otp' => 'required|digits:4',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors()->first()
+            ], 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found.'
+            ], 404);
+        }
+
+        if ($user->email_otp !== $request->otp) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid OTP.'
+            ], 400);
+        }
+
+        if (Carbon::now()->gt($user->email_otp_expire_at)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'OTP has expired.'
+            ], 400);
+        }
+
+        $user->update([
+            'email_verified_at' => Carbon::now(),
+            'email_otp' => null,
+            'email_otp_expire_at' => null,
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'OTP verified successfully.'
         ]);
     }
 

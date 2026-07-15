@@ -12,6 +12,7 @@ Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::controller(AuthController::class)->group(function () {
     Route::get('/login', 'loginPage')->name('login.page');
     Route::post('/login', 'login')->name('login');
+    Route::post('/verify-otp', 'verifyOtp')->name('verify.otp');
 });
 
 // Admin routes

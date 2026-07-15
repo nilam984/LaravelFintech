@@ -66,6 +66,8 @@ registerForm.addEventListener("submit", async function (e) {
         let result = await response.json();
 
         if (result.status) {
+            document.getElementById("userEmail").value =
+                result?.data?.email ?? null;
             ToastEngine.show(result.message, "success");
             registerFormStep.classList.add("d-none");
             registerOtpStep.classList.remove("d-none");
@@ -78,11 +80,53 @@ registerForm.addEventListener("submit", async function (e) {
     }
 });
 
-document.getElementById("registerOtpForm").onsubmit = (e) => {
-    e.preventDefault();
-    alert("Activation Complete! Redirecting to secure panel.");
-    wrapper.className = "wrapper"; // Redirect to Log In View
-};
+document
+    .getElementById("registerOtpForm")
+    .addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        let otp = "";
+
+        document.querySelectorAll(".otp-input").forEach((input) => {
+            otp += input.value;
+        });
+
+        let userEmail = document.getElementById("userEmail").value;
+
+        $.ajax({
+            url: "/verify-otp",
+            type: "POST",
+            data: {
+                _token: document
+                    .querySelector('meta[name="csrf-token"]')
+                    .getAttribute("content"),
+                otp: otp,
+                email: userEmail,
+            },
+            success: function (response) {
+                if (response.status) {
+                    ToastEngine.show(response.message, "success");
+
+                    setTimeout(() => {
+                        wrapper.className = "wrapper";
+                    }, 1000);
+                } else {
+                    ToastEngine.show(response.message, "error");
+                }
+            },
+            error: function (xhr) {
+                if (xhr.status === 422) {
+                    let errors = xhr.responseJSON.errors;
+                    ToastEngine.show(Object.values(errors)[0][0], "error");
+                } else {
+                    ToastEngine.show(
+                        "Something went wrong. Please try again.",
+                        "error",
+                    );
+                }
+            },
+        });
+    });
 
 // --- Forgot Password Multi-Step Form Transitions ---
 // Step 1 -> Step 2 (Email to OTP)
