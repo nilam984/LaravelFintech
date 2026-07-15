@@ -63,7 +63,7 @@
 
 <body class="bg-fintechLightBg text-fintechDarkText font-sans antialiased h-screen flex overflow-hidden">
 
-    @if (1)
+   @if(Auth::check() && Auth::user()->role == 'admin')
         @include('layouts.admin-sidebar')
     @else
         @include('layouts.user-sidebar')
