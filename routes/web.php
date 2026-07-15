@@ -7,18 +7,23 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::post('/register', [AuthController::class, 'register'])->name('register');
 
-Route::get('/login', function () {
-    return view('Auth.login');
+Route::controller(AuthController::class)->group(function () {
+    Route::get('/login', 'loginPage')->name('login.page');
+    Route::post('/login', 'login')->name('login');
+    Route::post('/verify-otp', 'verifyOtp')->name('verify.otp');
+    Route::post('/forgot-password',  'forgotPassword')->name('forgot.password');
+    Route::post('/reset-password',  'resetPassword')->name('reset.password');
+    Route::post('/logout',  'logout')->name('logout')->middleware('auth');
 });
 
-Route::get('admin/dashboard', function () {
-    return view('dashboard.admin');
+// Admin routes
+Route::prefix('admin')->middleware('auth')->controller(AuthController::class)->group(function () {
+    Route::get('/dashboard', 'adminDashboard')->name('admin.dashboard');
 });
 
-Route::get('user/dashboard', function () {
-    return view('dashboard.user');
+// User routes
+Route::prefix('user')->middleware('auth')->controller(AuthController::class)->group(function () {
+    Route::get('/dashboard', 'userDashboard')->name('user.dashboard');
 });
-
-
-Route::post('/register',[AuthController::class,'register'])->name('register');

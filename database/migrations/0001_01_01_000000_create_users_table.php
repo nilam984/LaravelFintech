@@ -15,14 +15,13 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('mobile', 15)->unique();
+            $table->string('mobile');
             $table->string('password');
             $table->enum('role', ['admin', 'user', 'support'])->default('user');
             $table->boolean('status')->default(0);
             $table->string('email_otp', 10)->nullable();
-            $table->timestamp('email_otp_expire_at')->nullable(); 
+            $table->timestamp('email_otp_expire_at')->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->integer('updated_by')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

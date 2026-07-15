@@ -44,15 +44,12 @@ document.getElementById("toForgotBtn").onclick = () => {
 const registerForm = document.getElementById("mainRegisterForm");
 
 registerForm.addEventListener("submit", async function (e) {
-
     e.preventDefault();
 
     let formData = new FormData(this);
 
     try {
-
         let response = await fetch("/register", {
-
             method: "POST",
 
             headers: {
@@ -60,71 +57,205 @@ registerForm.addEventListener("submit", async function (e) {
                     .querySelector('meta[name="csrf-token"]')
                     .getAttribute("content"),
 
-                "Accept": "application/json"
+                Accept: "application/json",
             },
 
-            body: formData
-
+            body: formData,
         });
 
         let result = await response.json();
 
         if (result.status) {
-
-            alert(result.message);
-
-            // OTP Screen Show
+            document.getElementById("userEmail").value =
+                result?.data?.email ?? null;
+            ToastEngine.show(result.message, "success");
             registerFormStep.classList.add("d-none");
             registerOtpStep.classList.remove("d-none");
-
         } else {
-
-            alert(result.message);
-
+            ToastEngine.show(result.message, "error");
         }
-
     } catch (error) {
-
         console.log(error);
-
-        alert("Something went wrong.");
-
+        ToastEngine.show("Something went wrong.", "error");
     }
-
 });
 
-document.getElementById("registerOtpForm").onsubmit = (e) => {
-    e.preventDefault();
-    alert("Activation Complete! Redirecting to secure panel.");
-    wrapper.className = "wrapper"; // Redirect to Log In View
-};
+document
+    .getElementById("registerOtpForm")
+    .addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        let otp = "";
+
+        document.querySelectorAll(".otp-input").forEach((input) => {
+            otp += input.value;
+        });
+
+        let userEmail = document.getElementById("userEmail").value;
+
+        $.ajax({
+            url: "/verify-otp",
+            type: "POST",
+            data: {
+                _token: document
+                    .querySelector('meta[name="csrf-token"]')
+                    .getAttribute("content"),
+                otp: otp,
+                email: userEmail,
+            },
+            success: function (response) {
+                if (response.status) {
+                    ToastEngine.show(response.message, "success");
+
+                    setTimeout(() => {
+                        wrapper.className = "wrapper";
+                    }, 1000);
+                } else {
+                    ToastEngine.show(response.message, "error");
+                }
+            },
+            error: function (xhr) {
+                if (xhr.status === 422) {
+                    let errors = xhr.responseJSON.errors;
+                    ToastEngine.show(errors, "error");
+                } else {
+                    ToastEngine.show(
+                        "Something went wrong. Please try again.",
+                        "error",
+                    );
+                }
+            },
+        });
+    });
 
 // --- Forgot Password Multi-Step Form Transitions ---
 // Step 1 -> Step 2 (Email to OTP)
+
 document.getElementById("forgotEmailForm").onsubmit = (e) => {
     e.preventDefault();
-    const simulatedEmailChecked = true;
-    if (simulatedEmailChecked) {
-        forgotEmailStep.classList.add("d-none");
-        forgotOtpStep.classList.remove("d-none");
-    }
+
+    const forgotEmail = document.getElementById("forgotEmail").value;
+
+    $.ajax({
+        url: "/forgot-password",
+        type: "POST",
+        data: {
+            _token: document
+                .querySelector('meta[name="csrf-token"]')
+                .getAttribute("content"),
+            email: forgotEmail,
+        },
+        success: function (response) {
+            if (response.status) {
+                document.getElementById("userEmail").value =
+                    forgotEmail ?? null;
+                forgotEmailStep.classList.add("d-none");
+                forgotOtpStep.classList.remove("d-none");
+                ToastEngine.show(response.message, "success");
+            } else {
+                ToastEngine.show(response.message, "error");
+            }
+        },
+        error: function (xhr) {
+            if (xhr.status === 422) {
+                let errors = xhr.responseJSON.errors;
+                ToastEngine.show(errors, "error");
+            } else {
+                ToastEngine.show(
+                    "Something went wrong. Please try again.",
+                    "error",
+                );
+            }
+        },
+    });
 };
 
 // Step 2 -> Step 3 (OTP to New Password)
 document.getElementById("forgotOtpForm").onsubmit = (e) => {
     e.preventDefault();
-    const simulatedOtpVerified = true;
-    if (simulatedOtpVerified) {
-        forgotOtpStep.classList.add("d-none");
-        forgotNewPasswordStep.classList.remove("d-none");
-    }
+
+    let otp = "";
+
+    document.querySelectorAll(".otp-input").forEach((input) => {
+        otp += input.value;
+    });
+
+    let userEmail = document.getElementById("userEmail").value;
+
+    $.ajax({
+        url: "/verify-otp",
+        type: "POST",
+        data: {
+            _token: document
+                .querySelector('meta[name="csrf-token"]')
+                .getAttribute("content"),
+            otp: otp,
+            email: userEmail,
+            escapeEmailVerify: true,
+        },
+        success: function (response) {
+            if (response.status) {
+                forgotOtpStep.classList.add("d-none");
+                forgotNewPasswordStep.classList.remove("d-none");
+                ToastEngine.show(response.message, "success");
+            } else {
+                ToastEngine.show(response.message, "error");
+            }
+        },
+        error: function (xhr) {
+            if (xhr.status === 422) {
+                let errors = xhr.responseJSON.errors;
+                ToastEngine.show(errors, "error");
+            } else {
+                ToastEngine.show(
+                    "Something went wrong. Please try again.",
+                    "error",
+                );
+            }
+        },
+    });
 };
 
 // Step 3 -> Back to Login
 document.getElementById("forgotNewPasswordForm").onsubmit = (e) => {
     e.preventDefault();
-    alert("Your cryptographic credentials have been updated successfully!");
-    wrapper.className = "wrapper"; // Direct user to clean Sign In panel
+
+    const forgotEmail = document.getElementById("forgotEmail").value;
+    const password = document.getElementById("password").value;
+    const cnfPassword = document.getElementById("cnfPassword").value;
+    console.log(`${forgotEmail} ${password} ${cnfPassword}`);
+
+    $.ajax({
+        url: "/reset-password",
+        type: "POST",
+        data: {
+            _token: document
+                .querySelector('meta[name="csrf-token"]')
+                .getAttribute("content"),
+            email: forgotEmail,
+            password: password,
+            password_confirmation: cnfPassword,
+        },
+        success: function (response) {
+            if (response.status) {
+                wrapper.className = "wrapper";
+                ToastEngine.show(response.message, "success");
+            } else {
+                ToastEngine.show(response.message, "error");
+            }
+        },
+        error: function (xhr) {
+            if (xhr.status === 422) {
+                let errors = xhr.responseJSON.errors;
+                ToastEngine.show(errors, "error");
+            } else {
+                ToastEngine.show(
+                    "Something went wrong. Please try again.",
+                    "error",
+                );
+            }
+        },
+    });
 };
 
 // --- Universal UI Enhancements ---
@@ -163,3 +294,117 @@ document.querySelectorAll(".toggle").forEach((btn) => {
         }
     };
 });
+
+$.ajaxSetup({
+    headers: {
+        "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+    },
+});
+
+$("#loginForm").submit(function (e) {
+    e.preventDefault();
+    $.ajax({
+        url: "login",
+        type: "POST",
+        data: $(this).serialize(),
+        success: function (response) {
+            ToastEngine.show(response.message, "success");
+
+            setTimeout(function () {
+                window.location.href = response.redirect;
+            }, 1000);
+        },
+        error: function (xhr) {
+            if (xhr.status === 422) {
+                let errors = xhr.responseJSON.errors;
+                let errorText = "";
+
+                $.each(errors, function (key, value) {
+                    errorText += value[0] + "<br>";
+                });
+
+                ToastEngine.show(errorText, "error");
+            } else {
+                ToastEngine.show(xhr.responseJSON.message, "error");
+            }
+        },
+    });
+});
+
+const ToastEngine = {
+    container: document.getElementById("toastContainer"),
+
+    show: function (message, type = "success", duration = 4000) {
+        if (!this.container) return;
+
+        const configs = {
+            success: {
+                icon: "bi-check-circle",
+                iconColor: "text-emerald-400",
+            },
+            error: {
+                icon: "bi-x-circle",
+                iconColor: "text-rose-400",
+            },
+            info: {
+                icon: "bi-info-circle",
+                iconColor: "text-sky-400",
+            },
+        };
+
+        const config = configs[type] || configs.info;
+
+        const toast = document.createElement("div");
+        toast.className =
+            "pointer-events-auto w-full max-w-sm overflow-hidden rounded-xl bg-slate-900 border border-slate-800 shadow-xl ring-1 ring-black ring-opacity-5 transition-all duration-300 transform translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2";
+
+        toast.innerHTML = `
+            <div class="p-4">
+                <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <i class="bi ${config.icon} ${config.iconColor} text-xl"></i>
+                </div>
+                <div class="ml-3 w-0 flex-1 pt-0.5">
+                    <p class="text-sm font-semibold text-white capitalize">${type} Notification</p>
+                    <p class="mt-1 text-sm text-slate-400 leading-normal">${message}</p>
+                </div>
+                <div class="ml-4 flex flex-shrink-0">
+                    <button type="button" class="inline-flex rounded-md bg-slate-900 text-slate-500 hover:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-slate-900 transition" onclick="this.closest('.pointer-events-auto').remove()">
+                    <span class="sr-only">Close</span>
+                    <i class="bi bi-x-lg text-xs p-1"></i>
+                    </button>
+                </div>
+                </div>
+            </div>
+            `;
+
+        this.container.appendChild(toast);
+
+        requestAnimationFrame(() => {
+            toast.classList.remove(
+                "translate-y-2",
+                "sm:translate-x-2",
+                "opacity-0",
+            );
+            toast.classList.add(
+                "translate-y-0",
+                "sm:translate-x-0",
+                "opacity-100",
+            );
+        });
+
+        setTimeout(() => {
+            toast.classList.remove(
+                "translate-y-0",
+                "sm:translate-x-0",
+                "opacity-100",
+            );
+            toast.classList.add(
+                "translate-y-2",
+                "sm:translate-x-2",
+                "opacity-0",
+            );
+            toast.addEventListener("transitionend", () => toast.remove());
+        }, duration);
+    },
+};

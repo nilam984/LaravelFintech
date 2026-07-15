@@ -76,24 +76,24 @@
                 'pointer-events-auto w-full max-w-sm overflow-hidden rounded-xl bg-slate-900 border border-slate-800 shadow-xl ring-1 ring-black ring-opacity-5 transition-all duration-300 transform translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2';
 
             toast.innerHTML = `
-      <div class="p-4">
-        <div class="flex items-start">
-          <div class="flex-shrink-0">
-            <i class="bi ${config.icon} ${config.iconColor} text-xl"></i>
-          </div>
-          <div class="ml-3 w-0 flex-1 pt-0.5">
-            <p class="text-sm font-semibold text-white capitalize">${type} Notification</p>
-            <p class="mt-1 text-sm text-slate-400 leading-normal">${message}</p>
-          </div>
-          <div class="ml-4 flex flex-shrink-0">
-            <button type="button" class="inline-flex rounded-md bg-slate-900 text-slate-500 hover:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-slate-900 transition" onclick="this.closest('.pointer-events-auto').remove()">
-              <span class="sr-only">Close</span>
-              <i class="bi bi-x-lg text-xs p-1"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
+            <div class="p-4">
+                <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <i class="bi ${config.icon} ${config.iconColor} text-xl"></i>
+                </div>
+                <div class="ml-3 w-0 flex-1 pt-0.5">
+                    <p class="text-sm font-semibold text-white capitalize">${type} Notification</p>
+                    <p class="mt-1 text-sm text-slate-400 leading-normal">${message}</p>
+                </div>
+                <div class="ml-4 flex flex-shrink-0">
+                    <button type="button" class="inline-flex rounded-md bg-slate-900 text-slate-500 hover:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-slate-900 transition" onclick="this.closest('.pointer-events-auto').remove()">
+                    <span class="sr-only">Close</span>
+                    <i class="bi bi-x-lg text-xs p-1"></i>
+                    </button>
+                </div>
+                </div>
+            </div>
+            `;
 
             this.container.appendChild(toast);
 
@@ -111,12 +111,15 @@
     };
 
     document.addEventListener('DOMContentLoaded', () => {
+        const successMessage = @json(session('success'));
+        const errorMessage = @json(session('error'));
 
-        const sessionMessage = "Test Message"; // Inject backend message key value here
-        const sessionType = "success"; // Inject backend success key value here
+        if (successMessage && successMessage.trim() !== "") {
+            ToastEngine.show(successMessage, 'success');
+        }
 
-        if (sessionMessage && sessionMessage.trim() !== "") {
-            ToastEngine.show(sessionMessage, sessionType);
+        if (errorMessage && errorMessage.trim() !== "") {
+            ToastEngine.show(errorMessage, 'error');
         }
     });
 

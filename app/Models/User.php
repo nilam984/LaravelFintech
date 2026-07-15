@@ -27,8 +27,7 @@ class User extends Authenticatable
         'status',
         'email_otp',
         'email_otp_expire_at',
-        'email_verified_at',
-        'updated_by',
+        'email_verified_at', 
     ];
 
 

@@ -8,6 +8,10 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <link rel="stylesheet" href="{{ asset('auth/style.css') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
@@ -17,6 +21,13 @@
     <div class="circle"></div>
     <div class="circle"></div>
     <div class="circle"></div>
+    <!-- ==================== TAILWIND OFFICIAL DESIGN TOASTER ==================== -->
+    <div id="toastContainer" aria-live="assertive"
+        class="pointer-events-none fixed inset-0 flex items-start justify-end px-4 py-6 sm:p-6 z-[9999] flex-col gap-3 max-w-sm ml-auto">
+        <!-- Dynamic notifications inject cleanly here -->
+    </div>
+
+
     <div class="wrapper" id="wrapper">
 
         <!-- 1. SIGN IN BOX -->
@@ -24,25 +35,27 @@
             <h2 class="title">Sign In</h2>
             <div class="subtitle-text">Access your high-yield secure panel</div>
 
-            <form onsubmit="event.preventDefault();">
+            <form id="loginForm" method="POST">
+
                 <div class="mb-3">
-                    <input type="email" class="form-control" placeholder="Corporate Email Address" />
+                    <input type="email" name="email" class="form-control" placeholder="Registered Email Address" />
                 </div>
 
                 <div class="input-group mb-3">
-                    <input type="password" class="form-control password" placeholder="Password" />
+                    <input type="password" name="password" class="form-control password" placeholder="Password" />
                     <span class="input-group-text toggle"><i class="bi bi-eye"></i></span>
                 </div>
 
                 <div class="d-flex justify-content-between text-white-50 small mb-4">
                     <div>
-                        <input type="checkbox" id="remember" class="me-1" />
+                        <input type="checkbox" name="remember" id="remember" class="me-1" />
                         <label for="remember" class="text-white">Remember device</label>
                     </div>
                     <span id="toForgotBtn" class="text-link text-decoration-none">Forgot Password?</span>
                 </div>
 
-                <button class="btn btn-primary-fintech w-100 btn-fintech">Secure Login</button>
+                <button class="btn btn-primary-fintech w-100 btn-fintech" type="submit">Secure Login</button>
+
                 <div class="text-center text-white-50 small mt-4">Or Continue With</div>
 
                 <div class="social">
@@ -63,27 +76,28 @@
 
                 <form id="mainRegisterForm" onsubmit="event.preventDefault();">
                     <div class="mb-3">
-                        <input type="text" name="name" class="form-control" placeholder="Full Name" required />
+                        <input type="text" name="name" class="form-control" placeholder="Full Name" />
                     </div>
                     <div class="mb-3">
-                        <input type="email" name="email" class="form-control" placeholder="Email Address" required />
+                        <input type="email" name="email" class="form-control" placeholder="Email Address" />
                     </div>
 
                     <div class="mb-3">
-                        <input type="text" name="mobile" class="form-control" placeholder="Mobile Number" required />
+                        <input type="text" name="mobile" class="form-control" placeholder="Mobile Number" />
                     </div>
 
 
                     <div class="input-group mb-3">
-                        <input type="password" name="password" class="form-control password" placeholder="Password" required />
+                        <input type="password" name="password" class="form-control password" placeholder="Password" />
                         <span class="input-group-text toggle"><i class="bi bi-eye"></i></span>
                     </div>
                     <div class="mb-4">
-                        <input type="password" name="password_confirmation" class="form-control" placeholder="Confirm Password" required />
+                        <input type="password" name="password_confirmation" class="form-control"
+                            placeholder="Confirm Password" />
                     </div>
 
                     <button type="submit" class="btn btn-secondary-fintech w-100 btn-fintech">
-                       Sign Up & Verify Email
+                        Sign Up & Verify Email
                     </button>
                     <div class="text-center text-white-50 small mt-4">
                         Already registered?
@@ -95,14 +109,16 @@
             <!-- Sub-step B: OTP Verification Form -->
             <div id="registerOtpStep" class="register-step d-none">
                 <h2 class="title">Verify Email</h2>
-                <div class="subtitle-text">We have transmitted a 4-digit token security key to your email address.</div>
+                <div class="subtitle-text">We have transmitted a 4-digit token security key to your email address.
+                </div>
 
                 <form id="registerOtpForm" onsubmit="event.preventDefault();">
                     <div class="otp-container">
-                        <input type="text" maxlength="1" class="otp-input" required />
-                        <input type="text" maxlength="1" class="otp-input" required />
-                        <input type="text" maxlength="1" class="otp-input" required />
-                        <input type="text" maxlength="1" class="otp-input" required />
+                        <input type="text" maxlength="1" class="otp-input" />
+                        <input type="text" maxlength="1" class="otp-input" />
+                        <input type="text" maxlength="1" class="otp-input" />
+                        <input type="text" maxlength="1" class="otp-input" />
+                        <input type="hidden" id="userEmail">
                     </div>
 
                     <button type="submit" class="btn btn-primary-fintech w-100 btn-fintech mb-3">
@@ -128,7 +144,8 @@
 
                 <form id="forgotEmailForm" onsubmit="event.preventDefault();">
                     <div class="mb-4">
-                        <input type="email" class="form-control" placeholder="Registered Email Address" required />
+                        <input type="email" class="form-control" id="forgotEmail"
+                            placeholder="Registered Email Address" />
                     </div>
 
                     <button type="submit" class="btn btn-accent-fintech w-100 btn-fintech mb-4">Request Security
@@ -149,7 +166,7 @@
             <!-- Forgot Step 2: Enter OTP -->
             <div id="forgotOtpStep" class="forgot-step d-none">
                 <h2 class="title">Security Token</h2>
-                <div class="subtitle-text">Enter the 4-digit secure access token dispatched to your email address.
+                <div class="subtitle-text">Enter the 4-digit secure otp dispatched to your email address.
                 </div>
 
                 <form id="forgotOtpForm" onsubmit="event.preventDefault();">
@@ -160,8 +177,7 @@
                         <input type="text" maxlength="1" class="otp-input" required />
                     </div>
 
-                    <button type="submit" class="btn btn-accent-fintech w-100 btn-fintech mb-3">Verify Identity
-                        Token</button>
+                    <button type="submit" class="btn btn-accent-fintech w-100 btn-fintech mb-3">Verify Otp</button>
 
                     <div class="text-center text-white-50 small">
                         No code received?
@@ -177,11 +193,11 @@
 
                 <form id="forgotNewPasswordForm" onsubmit="event.preventDefault();">
                     <div class="input-group mb-3">
-                        <input type="password" class="form-control password" placeholder="New Password" required />
+                        <input type="password" class="form-control password" id="password" placeholder="New Password" required />
                         <span class="input-group-text toggle"><i class="bi bi-eye"></i></span>
                     </div>
                     <div class="mb-4">
-                        <input type="password" class="form-control" placeholder="Confirm New Password" required />
+                        <input type="password" class="form-control" id="cnfPassword" placeholder="Confirm New Password" required />
                     </div>
 
                     <button type="submit" class="btn btn-primary-fintech w-100 btn-fintech">Update
@@ -194,7 +210,7 @@
         <!-- SIDE INTERACTIVE OVERLAY -->
         <div class="info">
             <div class="info-content">
-                <h1>Welcome to Apex</h1>
+                <h1>Welcome to Fintech</h1>
                 <p>Experience next-generation asset management, automated investing, and military-grade transactional
                     security.</p>
                 <button class="btn btn-light" id="registerBtn">Sign Up</button>
@@ -202,6 +218,7 @@
         </div>
 
     </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="{{ asset('auth/app.js') }}"></script>
 </body>
 
