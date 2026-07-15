@@ -11,6 +11,10 @@ Route::get('/login', function () {
     return view('Auth.login');
 });
 
-Route::get('/dashboard', function() {
-    return view('dashboard.index');
+Route::get('admin/dashboard', function () {
+    return view('dashboard.admin');
+});
+
+Route::get('user/dashboard', function () {
+    return view('dashboard.user');
 });
