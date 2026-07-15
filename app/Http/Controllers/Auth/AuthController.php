@@ -25,8 +25,8 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'mobile' => 'required|string|max:10',
-            'password' => 'required|string|min:8|confirmed',
+            'mobile' => 'required|string|digit:10',
+            'password' => 'required|string|min:6|confirmed',
         ], [
             'name.required' => 'Please enter your name.',
             'email.required' => 'Please enter email address.',
@@ -36,7 +36,7 @@ class AuthController extends Controller
             'mobile.unique' => 'Mobile number already exists.',
             'password.required' => 'Please enter password.',
             'password.confirmed' => 'Password confirmation does not match.',
-            'password.min' => 'Password must be at least 8 characters.',
+            'password.min' => 'Password must be at least 6 characters.',
             'password.regex' => 'Password must contain uppercase, lowercase, number and special character.'
         ]);
 
@@ -52,20 +52,14 @@ class AuthController extends Controller
         try {
 
             $emailOtp = rand(1000, 9999);
-            $mobileOtp = rand(1000, 9999);
 
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'mobile' => $request->mobile,
                 'password' => Hash::make($request->password),
-                'role' => 'user',
-                'status' => 0,
                 'email_otp' => $emailOtp,
                 'email_otp_expire_at' => Carbon::now()->addMinutes(10),
-                'mobile_otp' => $mobileOtp,
-                'mobile_otp_expire_at' => Carbon::now()->addMinutes(10),
-
             ]);
 
             DB::commit();

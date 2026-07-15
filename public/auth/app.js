@@ -44,15 +44,12 @@ document.getElementById("toForgotBtn").onclick = () => {
 const registerForm = document.getElementById("mainRegisterForm");
 
 registerForm.addEventListener("submit", async function (e) {
-
     e.preventDefault();
 
     let formData = new FormData(this);
 
     try {
-
         let response = await fetch("/register", {
-
             method: "POST",
 
             headers: {
@@ -60,37 +57,25 @@ registerForm.addEventListener("submit", async function (e) {
                     .querySelector('meta[name="csrf-token"]')
                     .getAttribute("content"),
 
-                "Accept": "application/json"
+                Accept: "application/json",
             },
 
-            body: formData
-
+            body: formData,
         });
 
         let result = await response.json();
 
         if (result.status) {
-
-            alert(result.message);
-
-            // OTP Screen Show
+            ToastEngine.show(result.message, "success");
             registerFormStep.classList.add("d-none");
             registerOtpStep.classList.remove("d-none");
-
         } else {
-
-            alert(result.message);
-
+            ToastEngine.show(result.message, "error");
         }
-
     } catch (error) {
-
         console.log(error);
-
-        alert("Something went wrong.");
-
+        ToastEngine.show("Something went wrong.", "error");
     }
-
 });
 
 document.getElementById("registerOtpForm").onsubmit = (e) => {
@@ -164,8 +149,7 @@ document.querySelectorAll(".toggle").forEach((btn) => {
     };
 });
 
-
- $.ajaxSetup({
+$.ajaxSetup({
     headers: {
         "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
     },
@@ -178,11 +162,7 @@ $("#loginForm").submit(function (e) {
         type: "POST",
         data: $(this).serialize(),
         success: function (response) {
-            $("#message").html(
-                '<div class="alert alert-success">' +
-                    response.message +
-                    "</div>",
-            );
+            ToastEngine.show(response.message, "success");
 
             setTimeout(function () {
                 window.location.href = response.redirect;
@@ -197,16 +177,88 @@ $("#loginForm").submit(function (e) {
                     errorText += value[0] + "<br>";
                 });
 
-                $("#message").html(
-                    '<div class="alert alert-danger">' + errorText + "</div>",
-                );
+                ToastEngine.show(errorText, "error");
             } else {
-                $("#message").html(
-                    '<div class="alert alert-danger">' +
-                        xhr.responseJSON.message +
-                        "</div>",
-                );
+                ToastEngine.show(xhr.responseJSON.message, "error");
             }
         },
     });
 });
+
+const ToastEngine = {
+    container: document.getElementById("toastContainer"),
+
+    show: function (message, type = "success", duration = 4000) {
+        if (!this.container) return;
+
+        const configs = {
+            success: {
+                icon: "bi-check-circle",
+                iconColor: "text-emerald-400",
+            },
+            error: {
+                icon: "bi-x-circle",
+                iconColor: "text-rose-400",
+            },
+            info: {
+                icon: "bi-info-circle",
+                iconColor: "text-sky-400",
+            },
+        };
+
+        const config = configs[type] || configs.info;
+
+        const toast = document.createElement("div");
+        toast.className =
+            "pointer-events-auto w-full max-w-sm overflow-hidden rounded-xl bg-slate-900 border border-slate-800 shadow-xl ring-1 ring-black ring-opacity-5 transition-all duration-300 transform translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2";
+
+        toast.innerHTML = `
+            <div class="p-4">
+                <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <i class="bi ${config.icon} ${config.iconColor} text-xl"></i>
+                </div>
+                <div class="ml-3 w-0 flex-1 pt-0.5">
+                    <p class="text-sm font-semibold text-white capitalize">${type} Notification</p>
+                    <p class="mt-1 text-sm text-slate-400 leading-normal">${message}</p>
+                </div>
+                <div class="ml-4 flex flex-shrink-0">
+                    <button type="button" class="inline-flex rounded-md bg-slate-900 text-slate-500 hover:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-slate-900 transition" onclick="this.closest('.pointer-events-auto').remove()">
+                    <span class="sr-only">Close</span>
+                    <i class="bi bi-x-lg text-xs p-1"></i>
+                    </button>
+                </div>
+                </div>
+            </div>
+            `;
+
+        this.container.appendChild(toast);
+
+        requestAnimationFrame(() => {
+            toast.classList.remove(
+                "translate-y-2",
+                "sm:translate-x-2",
+                "opacity-0",
+            );
+            toast.classList.add(
+                "translate-y-0",
+                "sm:translate-x-0",
+                "opacity-100",
+            );
+        });
+
+        setTimeout(() => {
+            toast.classList.remove(
+                "translate-y-0",
+                "sm:translate-x-0",
+                "opacity-100",
+            );
+            toast.classList.add(
+                "translate-y-2",
+                "sm:translate-x-2",
+                "opacity-0",
+            );
+            toast.addEventListener("transitionend", () => toast.remove());
+        }, duration);
+    },
+};

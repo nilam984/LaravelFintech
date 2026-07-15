@@ -8,6 +8,10 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <link rel="stylesheet" href="{{ asset('auth/style.css') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
@@ -17,6 +21,13 @@
     <div class="circle"></div>
     <div class="circle"></div>
     <div class="circle"></div>
+    <!-- ==================== TAILWIND OFFICIAL DESIGN TOASTER ==================== -->
+    <div id="toastContainer" aria-live="assertive"
+        class="pointer-events-none fixed inset-0 flex items-start justify-end px-4 py-6 sm:p-6 z-[9999] flex-col gap-3 max-w-sm ml-auto">
+        <!-- Dynamic notifications inject cleanly here -->
+    </div>
+
+
     <div class="wrapper" id="wrapper">
 
         <!-- 1. SIGN IN BOX -->
@@ -66,27 +77,24 @@
 
                 <form id="mainRegisterForm" onsubmit="event.preventDefault();">
                     <div class="mb-3">
-                        <input type="text" name="name" class="form-control" placeholder="Full Name" required />
+                        <input type="text" name="name" class="form-control" placeholder="Full Name" />
                     </div>
                     <div class="mb-3">
-                        <input type="email" name="email" class="form-control" placeholder="Email Address"
-                            required />
+                        <input type="email" name="email" class="form-control" placeholder="Email Address" />
                     </div>
 
                     <div class="mb-3">
-                        <input type="text" name="mobile" class="form-control" placeholder="Mobile Number"
-                            required />
+                        <input type="text" name="mobile" class="form-control" placeholder="Mobile Number" />
                     </div>
 
 
                     <div class="input-group mb-3">
-                        <input type="password" name="password" class="form-control password" placeholder="Password"
-                            required />
+                        <input type="password" name="password" class="form-control password" placeholder="Password" />
                         <span class="input-group-text toggle"><i class="bi bi-eye"></i></span>
                     </div>
                     <div class="mb-4">
                         <input type="password" name="password_confirmation" class="form-control"
-                            placeholder="Confirm Password" required />
+                            placeholder="Confirm Password" />
                     </div>
 
                     <button type="submit" class="btn btn-secondary-fintech w-100 btn-fintech">
@@ -102,7 +110,8 @@
             <!-- Sub-step B: OTP Verification Form -->
             <div id="registerOtpStep" class="register-step d-none">
                 <h2 class="title">Verify Email</h2>
-                <div class="subtitle-text">We have transmitted a 4-digit token security key to your email address.</div>
+                <div class="subtitle-text">We have transmitted a 4-digit token security key to your email address.
+                </div>
 
                 <form id="registerOtpForm" onsubmit="event.preventDefault();">
                     <div class="otp-container">
@@ -201,7 +210,7 @@
         <!-- SIDE INTERACTIVE OVERLAY -->
         <div class="info">
             <div class="info-content">
-                <h1>Welcome to Apex</h1>
+                <h1>Welcome to Fintech</h1>
                 <p>Experience next-generation asset management, automated investing, and military-grade transactional
                     security.</p>
                 <button class="btn btn-light" id="registerBtn">Sign Up</button>
