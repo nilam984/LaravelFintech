@@ -6,21 +6,28 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
+use Illuminate\Support\Facades\Auth;
+
 class AuthController extends Controller
 {
-    public function register(Request $request){
+    public function loginPage()
+    {
+        return view('Auth.login');
+    }
+
+    public function register(Request $request)
+    {
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'mobile' => 'required|string|max:10',
             'password' => 'required|string|min:8|confirmed',
-        ],[
+        ], [
             'name.required' => 'Please enter your name.',
             'email.required' => 'Please enter email address.',
             'email.unique' => 'Email already exists.',
@@ -42,7 +49,7 @@ class AuthController extends Controller
         }
 
         DB::beginTransaction();
-        try{
+        try {
 
             $emailOtp = rand(1000, 9999);
             $mobileOtp = rand(1000, 9999);
@@ -67,8 +74,6 @@ class AuthController extends Controller
                 'message' => 'Registration successful. Please verify your email and mobile number.',
                 'data' => $user
             ], 201);
-
-
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -77,5 +82,74 @@ class AuthController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function login(Request $request)
+    {
+
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required|min:6',
+        ], [
+            'email.required' => 'Email is required.',
+            'email.email' => 'Please enter a valid email address.',
+            'email.exists' => 'No account was found with this email address.',
+            'password.required' => 'Password is required.',
+            'password.min' => 'Password must be at least 6 characters long.',
+        ]);
+
+
+
+        $credentials = $request->only('email', 'password');
+
+        if (!Auth::attempt($credentials)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid email or password'
+            ], 401);
+        }
+
+        $request->session()->regenerate();
+
+        $user = Auth::user();
+
+        if (!$this->isActive($user)) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'You are inactive. Please contact the administrator.'
+            ], 403);
+        }
+
+        $redirect = route('user.dashboard');
+
+        if ($user->role === 'admin') {
+            $redirect = route('admin.dashboard');
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Login Successful',
+            'redirect' => $redirect,
+        ]);
+    }
+
+    private function isActive($user): bool
+    {
+        return (int) $user->status === 1;
+    }
+
+
+    public function userDashboard()
+    {
+        return view('dashboard.user');
+    }
+
+    public function adminDashboard()
+    {
+        return view('dashboard.admin');
     }
 }

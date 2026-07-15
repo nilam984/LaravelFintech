@@ -24,25 +24,28 @@
             <h2 class="title">Sign In</h2>
             <div class="subtitle-text">Access your high-yield secure panel</div>
 
-            <form onsubmit="event.preventDefault();">
+            <form id="loginForm" method="POST">
+                @csrf
+
                 <div class="mb-3">
-                    <input type="email" class="form-control" placeholder="Corporate Email Address" />
+                    <input type="email" name="email" class="form-control" placeholder="Corporate Email Address" />
                 </div>
 
                 <div class="input-group mb-3">
-                    <input type="password" class="form-control password" placeholder="Password" />
+                    <input type="password" name="password" class="form-control password" placeholder="Password" />
                     <span class="input-group-text toggle"><i class="bi bi-eye"></i></span>
                 </div>
 
                 <div class="d-flex justify-content-between text-white-50 small mb-4">
                     <div>
-                        <input type="checkbox" id="remember" class="me-1" />
+                        <input type="checkbox" name="remember" id="remember" class="me-1" />
                         <label for="remember" class="text-white">Remember device</label>
                     </div>
                     <span id="toForgotBtn" class="text-link text-decoration-none">Forgot Password?</span>
                 </div>
 
-                <button class="btn btn-primary-fintech w-100 btn-fintech">Secure Login</button>
+                <button class="btn btn-primary-fintech w-100 btn-fintech" type="submit">Secure Login</button>
+
                 <div class="text-center text-white-50 small mt-4">Or Continue With</div>
 
                 <div class="social">
@@ -66,24 +69,28 @@
                         <input type="text" name="name" class="form-control" placeholder="Full Name" required />
                     </div>
                     <div class="mb-3">
-                        <input type="email" name="email" class="form-control" placeholder="Email Address" required />
+                        <input type="email" name="email" class="form-control" placeholder="Email Address"
+                            required />
                     </div>
 
                     <div class="mb-3">
-                        <input type="text" name="mobile" class="form-control" placeholder="Mobile Number" required />
+                        <input type="text" name="mobile" class="form-control" placeholder="Mobile Number"
+                            required />
                     </div>
 
 
                     <div class="input-group mb-3">
-                        <input type="password" name="password" class="form-control password" placeholder="Password" required />
+                        <input type="password" name="password" class="form-control password" placeholder="Password"
+                            required />
                         <span class="input-group-text toggle"><i class="bi bi-eye"></i></span>
                     </div>
                     <div class="mb-4">
-                        <input type="password" name="password_confirmation" class="form-control" placeholder="Confirm Password" required />
+                        <input type="password" name="password_confirmation" class="form-control"
+                            placeholder="Confirm Password" required />
                     </div>
 
                     <button type="submit" class="btn btn-secondary-fintech w-100 btn-fintech">
-                       Sign Up & Verify Email
+                        Sign Up & Verify Email
                     </button>
                     <div class="text-center text-white-50 small mt-4">
                         Already registered?
@@ -202,6 +209,7 @@
         </div>
 
     </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="{{ asset('auth/app.js') }}"></script>
 </body>
 

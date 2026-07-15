@@ -163,3 +163,50 @@ document.querySelectorAll(".toggle").forEach((btn) => {
         }
     };
 });
+
+
+ $.ajaxSetup({
+    headers: {
+        "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+    },
+});
+
+$("#loginForm").submit(function (e) {
+    e.preventDefault();
+    $.ajax({
+        url: "login",
+        type: "POST",
+        data: $(this).serialize(),
+        success: function (response) {
+            $("#message").html(
+                '<div class="alert alert-success">' +
+                    response.message +
+                    "</div>",
+            );
+
+            setTimeout(function () {
+                window.location.href = response.redirect;
+            }, 1000);
+        },
+        error: function (xhr) {
+            if (xhr.status === 422) {
+                let errors = xhr.responseJSON.errors;
+                let errorText = "";
+
+                $.each(errors, function (key, value) {
+                    errorText += value[0] + "<br>";
+                });
+
+                $("#message").html(
+                    '<div class="alert alert-danger">' + errorText + "</div>",
+                );
+            } else {
+                $("#message").html(
+                    '<div class="alert alert-danger">' +
+                        xhr.responseJSON.message +
+                        "</div>",
+                );
+            }
+        },
+    });
+});
