@@ -58,6 +58,55 @@
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
             background: #00b4d8;
         }
+
+
+        /* Pagination container */
+        .dt-paging {
+            margin-top: 16px !important;
+        }
+
+        /* All buttons */
+        .dt-paging .dt-paging-button {
+            padding: 4px 10px !important;
+            margin: 0 2px !important;
+            min-width: 32px;
+            height: 32px;
+            border-radius: 8px !important;
+            border: 1px solid #E2E8F0 !important;
+            background: #fff !important;
+            color: #475569 !important;
+            font-size: 13px !important;
+            font-weight: 500;
+            transition: .2s;
+        }
+
+        /* Hover */
+        .dt-paging .dt-paging-button:hover {
+            background: #06B6D4 !important;
+            border-color: #06B6D4 !important;
+            color: #fff !important;
+        }
+
+        /* Active */
+        .dt-paging .dt-paging-button.current {
+            background: #0891B2 !important;
+            border-color: #0891B2 !important;
+            color: #fff !important;
+        }
+
+        /* Disabled */
+        .dt-paging .dt-paging-button.disabled {
+            opacity: .5;
+        }
+
+        .dt-column-order {
+            font-size: 11px !important;
+        }
+
+        table.dataTable thead th {
+            font-size: 13px !important;
+            font-weight: 600;
+        }
     </style>
 
 </head>

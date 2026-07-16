@@ -7,5 +7,7 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    //
+    public function serviceRequest(){
+        return view('user.service-request');
+    }
 }
