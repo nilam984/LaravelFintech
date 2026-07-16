@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard')</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
     <script>
         tailwind.config = {
             theme: {
@@ -33,6 +33,7 @@
             }
         }
     </script>
+
     <style>
         /* Premium Fintech Gradient for Sidebar and Header based on #0b1528 */
         .fintech-gradient {
@@ -63,7 +64,7 @@
 
 <body class="bg-fintechLightBg text-fintechDarkText font-sans antialiased h-screen flex overflow-hidden">
 
-   @if(Auth::check() && Auth::user()->role == 'admin')
+    @if (Auth::check() && Auth::user()->role == 'admin')
         @include('layouts.admin-sidebar')
     @else
         @include('layouts.user-sidebar')
@@ -83,9 +84,13 @@
 
     </div>
 
-    @include('layouts.script')
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-    {{-- @stack('scripts') --}}
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
+    @include('layouts.script')
+    @yield('scripts')
 
 </body>
 
