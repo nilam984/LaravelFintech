@@ -35,8 +35,7 @@
             </button>
             <!-- CHILD MENU HIERARCHY -->
             <div class="hidden pl-9 pr-2 space-y-1 overflow-hidden transition-all duration-300 submenu-container">
-                <a href="#" class="block py-2 text-sm text-white/60 hover:text-fintechCyan transition">Checking
-                    Vaults</a>
+                <a href="{{ route('user.service-request') }}" class="block py-2 text-sm text-white/60 hover:text-fintechCyan transition">Service Request</a>
             </div>
         </div>
 
