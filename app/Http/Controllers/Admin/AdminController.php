@@ -10,7 +10,12 @@ class AdminController extends Controller
 {
     public function allusers()
     {
-        return view('admin-usersmanagement.all-users');
+        return view('admin.all-users');
+    }
+
+    public function globalServices()
+    {
+        return view('admin.global-service');
     }
 
 

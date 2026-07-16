@@ -12,7 +12,7 @@
         <!-- Welcome Title Area -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-fintechDarkText">Console Workspace</h1>
+                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-fintechDarkText">User Dashboard</h1>
                 <p class="text-sm text-fintechMutedText mt-1">Real-time valuation analytics and operational infrastructure
                     tracking.</p>
             </div>
@@ -29,7 +29,7 @@
         </div>
 
         <!-- Cards System Metric Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        {{-- <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
             <div
                 class="bg-fintechLightCard border border-fintechLightBorder p-6 rounded-2xl relative overflow-hidden group shadow-sm">
                 <div
@@ -42,7 +42,7 @@
                     <span
                         class="text-fintechGreen bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full text-[10px] font-bold">+12.4%</span>
                 </div>
-                <div class="text-3xl font-bold tracking-tight mt-3 text-fintechDarkText"> ₹1,248,390<span
+                <div class="text-3xl font-bold tracking-tight mt-3 text-fintechDarkText">₹1,248,390<span
                         class="text-fintechCyan">.50</span></div>
                 <p class="text-xs text-fintechMutedText mt-2 flex items-center gap-1">
                     <i class="bi bi-check2-circle text-fintechGreen"></i> Vault settlement confirmed
@@ -87,10 +87,10 @@
                     <i class="bi bi-shield-lock-fill text-fintechCyan"></i> Protected by Apex Insurance
                 </p>
             </div>
-        </div>
+        </div> --}}
 
         <!-- Performance Graphics Analytics Split Content -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {{-- <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div
                 class="lg:col-span-2 bg-fintechLightCard border border-fintechLightBorder p-6 rounded-2xl flex flex-col justify-between shadow-sm">
                 <div class="flex justify-between items-center mb-6">
@@ -195,7 +195,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
     </main>
 

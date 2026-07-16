@@ -26,6 +26,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/all-users', [AdminController::class, 'allusers'])->name('admin.all-users');
     Route::post('/datatable/{table}', [DataTableController::class, 'index'])->name('datatable');
     Route::post('/users/change-status', [AdminController::class, 'changeUserStatus'])->name('users.change-status');
+    Route::get('/global/services', [AdminController::class, 'globalServices'])->name('admin.global.services');
+   
 });
 
 // User routes
