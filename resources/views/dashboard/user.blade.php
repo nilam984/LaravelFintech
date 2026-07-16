@@ -42,7 +42,7 @@
                     <span
                         class="text-fintechGreen bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full text-[10px] font-bold">+12.4%</span>
                 </div>
-                <div class="text-3xl font-bold tracking-tight mt-3 text-fintechDarkText">$1,248,390<span
+                <div class="text-3xl font-bold tracking-tight mt-3 text-fintechDarkText"> ₹1,248,390<span
                         class="text-fintechCyan">.50</span></div>
                 <p class="text-xs text-fintechMutedText mt-2 flex items-center gap-1">
                     <i class="bi bi-check2-circle text-fintechGreen"></i> Vault settlement confirmed
@@ -62,7 +62,7 @@
                         class="text-cyan-600 bg-cyan-50 border border-cyan-200 px-2 py-0.5 rounded-full text-[10px] font-bold">APY
                         8.42%</span>
                 </div>
-                <div class="text-3xl font-bold tracking-tight mt-3 text-fintechDarkText">$84,120<span
+                <div class="text-3xl font-bold tracking-tight mt-3 text-fintechDarkText"> ₹84,120<span
                         class="text-fintechCyan">.00</span></div>
                 <p class="text-xs text-fintechMutedText mt-2 flex items-center gap-1">
                     <i class="bi bi-lightning-charge-fill text-amber-500"></i> Accruing interest compound live
@@ -155,7 +155,7 @@
                             </div>
                         </div>
                         <div class="text-right">
-                            <p class="text-xs font-bold text-emerald-600">+$4,290.00</p>
+                            <p class="text-xs font-bold text-emerald-600">+₹4,290.00</p>
                             <p class="text-[9px] text-fintechMutedText">Just Now</p>
                         </div>
                     </div>
@@ -172,7 +172,7 @@
                             </div>
                         </div>
                         <div class="text-right">
-                            <p class="text-xs font-bold text-rose-600">-$1,100.00</p>
+                            <p class="text-xs font-bold text-rose-600">-₹1,100.00</p>
                             <p class="text-[9px] text-fintechMutedText">4 min ago</p>
                         </div>
                     </div>
@@ -189,7 +189,7 @@
                             </div>
                         </div>
                         <div class="text-right">
-                            <p class="text-xs font-bold text-emerald-600">+$182.40</p>
+                            <p class="text-xs font-bold text-emerald-600">+₹182.40</p>
                             <p class="text-[9px] text-fintechMutedText">1 hr ago</p>
                         </div>
                     </div>

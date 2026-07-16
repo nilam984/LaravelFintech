@@ -17,15 +17,21 @@
     <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto custom-scrollbar">
         <div class="text-xs font-semibold text-white/30 px-3 mb-2 tracking-wider uppercase">Overview</div>
 
-        <a href="#"
+        <a href="{{ route('admin.dashboard') }}"
             class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gradient-to-r from-fintechCyan/20 to-transparent border border-fintechCyan/30 text-white font-medium transition duration-200">
             <i class="bi bi-grid-1x2-fill text-fintechCyan"></i> Dashboard
         </a>
 
         <!-- PARENT MENU ITEM: User Management -->
         <div class="space-y-1">
-            <button onclick="toggleSubmenu(this)"
-                class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition duration-200 group">
+            @php
+                $userManagementActive = request()->routeIs([
+                    'admin.all-users'
+                ]);
+            @endphp
+           <button onclick="toggleSubmenu(this)"
+                class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition duration-200 group
+                {{ $userManagementActive ? 'bg-white/10 text-white' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                 <div class="flex items-center gap-3">
                     <i class="bi bi-wallet2"></i>
                     <span>User Management</span>
@@ -34,8 +40,8 @@
                     class="bi bi-chevron-down text-xs text-white/40 group-hover:text-white/80 transition-transform duration-200 submenu-chevron"></i>
             </button>
             <!-- CHILD MENU HIERARCHY -->
-            <div class="hidden pl-9 pr-2 space-y-1 overflow-hidden transition-all duration-300 submenu-container">
-                <a href="{{ route('admin.all-users') }}" class="block py-2 text-sm text-white/60 hover:text-fintechCyan transition">All Users</a>
+            <div class="pl-9 pr-2 space-y-1 overflow-hidden transition-all duration-300 submenu-container {{ $userManagementActive ? '' : 'hidden' }}">
+                <a href="{{ route('admin.all-users') }}" class="block px-3 py-2 rounded-lg text-sm transition {{ request()->routeIs('admin.all-users') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}"> All Users </a>
                 <a href="#" class="block py-2 text-sm text-white/60 hover:text-fintechCyan transition">Active Users</a>
                 <a href="#" class="block py-2 text-sm text-white/60 hover:text-fintechCyan transition">Inactive Users</a>
             </div>

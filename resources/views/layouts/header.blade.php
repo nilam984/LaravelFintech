@@ -7,9 +7,9 @@
             <i class="bi bi-list text-2xl"></i>
         </button>
         <div class="hidden md:flex items-center gap-2 text-sm text-white/40">
-            <span>Enterprise Secure Portal</span>
+            {{-- <span>Enterprise Secure Portal</span>
             <i class="bi bi-chevron-right text-xs"></i>
-            <span class="text-white/80 font-medium">Core Console</span>
+            <span class="text-white/80 font-medium">Core Console</span> --}}
         </div>
     </div>
 
