@@ -22,25 +22,22 @@
             <i class="bi bi-grid-1x2-fill text-fintechCyan"></i> Dashboard
         </a>
 
-        <!-- PARENT MENU ITEM: Ledger Accounts -->
+        <!-- PARENT MENU ITEM: User Management -->
         <div class="space-y-1">
             <button onclick="toggleSubmenu(this)"
                 class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition duration-200 group">
                 <div class="flex items-center gap-3">
                     <i class="bi bi-wallet2"></i>
-                    <span>Ledger Accounts</span>
+                    <span>User Management</span>
                 </div>
                 <i
                     class="bi bi-chevron-down text-xs text-white/40 group-hover:text-white/80 transition-transform duration-200 submenu-chevron"></i>
             </button>
             <!-- CHILD MENU HIERARCHY -->
             <div class="hidden pl-9 pr-2 space-y-1 overflow-hidden transition-all duration-300 submenu-container">
-                <a href="#" class="block py-2 text-sm text-white/60 hover:text-fintechCyan transition">Checking
-                    Vaults</a>
-                <a href="#" class="block py-2 text-sm text-white/60 hover:text-fintechCyan transition">Savings
-                    Aggregator</a>
-                <a href="#" class="block py-2 text-sm text-white/60 hover:text-fintechCyan transition">Corporate
-                    Escrow</a>
+                <a href="{{ route('admin.all-users') }}" class="block py-2 text-sm text-white/60 hover:text-fintechCyan transition">All Users</a>
+                <a href="#" class="block py-2 text-sm text-white/60 hover:text-fintechCyan transition">Active Users</a>
+                <a href="#" class="block py-2 text-sm text-white/60 hover:text-fintechCyan transition">Inactive Users</a>
             </div>
         </div>
 
