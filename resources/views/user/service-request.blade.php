@@ -10,11 +10,11 @@
 
             <div>
                 <h1 class="text-2xl font-bold text-fintechDarkText">
-                    Global Services
+                    Service Request
                 </h1>
 
                 <p class="text-sm text-fintechMutedText mt-1">
-                    Manage all global services.
+                    Manage Service request.
                 </p>
             </div>
 
@@ -101,7 +101,7 @@
                 searching: true,
                 ordering: true,
                 ajax: {
-                    url: "{{ route('datatable.data', 'serviceRequests') }}",
+                    url: "{{ route('datatable', 'serviceRequests') }}",
                     type: "POST",
                     data: function(d) {
                         d._token = "{{ csrf_token() }}";
@@ -112,12 +112,10 @@
                         data: 'id',
                         name: 'id'
                     },
-
                     {
-                        data: 'service_name',
-                        name: 'service_name'
-                    },
-                    {
+                        data: 'service.service_name',
+                        name: 'service.service_name'
+                    }, {
                         data: 'status',
                         name: 'status',
                         render: function(data) {

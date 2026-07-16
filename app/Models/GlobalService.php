@@ -11,4 +11,9 @@ class GlobalService extends Model
         'status',
         'is_api_enabled'
     ];
+
+    public function service()
+    {
+        return $this->belongsTo(GlobalService::class, 'service_id');
+    }
 }

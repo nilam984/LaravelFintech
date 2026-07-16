@@ -28,7 +28,7 @@
                 class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition duration-200 group">
                 <div class="flex items-center gap-3">
                     <i class="bi bi-wallet2"></i>
-                    <span>Ledger Accounts</span>
+                    <span>Service</span>
                 </div>
                 <i
                     class="bi bi-chevron-down text-xs text-white/40 group-hover:text-white/80 transition-transform duration-200 submenu-chevron"></i>
