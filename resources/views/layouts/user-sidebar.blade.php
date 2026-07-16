@@ -17,7 +17,7 @@
     <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto custom-scrollbar">
         <div class="text-xs font-semibold text-white/30 px-3 mb-2 tracking-wider uppercase">Overview</div>
 
-        <a href="#"
+        <a href="{{ route('user.dashboard') }}"
             class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gradient-to-r from-fintechCyan/20 to-transparent border border-fintechCyan/30 text-white font-medium transition duration-200">
             <i class="bi bi-grid-1x2-fill text-fintechCyan"></i> Dashboard
         </a>
