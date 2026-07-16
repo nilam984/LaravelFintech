@@ -101,7 +101,7 @@
                 searching: true,
                 ordering: true,
                 ajax: {
-                    url: "{{ route('datatable', 'users') }}",
+                    url: "{{ route('datatable', 'globalServices') }}",
                     type: "POST",
                     data: function(d) {
                         d._token = "{{ csrf_token() }}";
@@ -114,8 +114,8 @@
                     },
 
                     {
-                        data: 'name',
-                        name: 'name'
+                        data: 'service_name',
+                        name: 'service_name'
                     },
                     {
                         data: 'status',
@@ -143,7 +143,7 @@
                         render: function(data, type, row) {
                             return `
                                     <select
-                                        class="user-status w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition"
+                                        class="service-status w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition"
                                         data-id="${row.id}" 
                                         data-status="${data}">
 
@@ -178,8 +178,8 @@
         });
 
         // For Change user status
-        $(document).on('change', '.user-status', function() {
-            changeStatus(this, "{{ route('users.change-status') }}", "User", table);
+        $(document).on('change', '.service-status', function() {
+            changeStatus(this, "{{ route('global.service.change.status') }}", "Service", table);
         });
     </script>
 @endsection

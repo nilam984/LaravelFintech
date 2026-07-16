@@ -62,7 +62,7 @@
             </button>
             <!-- CHILD MENU HIERARCHY -->
             <div
-                class="pl-9 pr-2 space-y-1 overflow-hidden transition-all duration-300 submenu-container {{ $userManagementActive ? '' : 'hidden' }}">
+                class="pl-9 pr-2 space-y-1 overflow-hidden transition-all duration-300 submenu-container {{ $service ? '' : 'hidden' }}">
                 <a href="{{ route('admin.global.services') }}"
                     class="block px-3 py-2 rounded-lg text-sm transition {{ request()->routeIs('admin.global.services') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}">
                     Global Services </a>

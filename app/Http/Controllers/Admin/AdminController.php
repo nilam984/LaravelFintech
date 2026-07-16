@@ -17,29 +17,4 @@ class AdminController extends Controller
     {
         return view('admin.global-service');
     }
-
-
-    public function changeUserStatus(Request $request)
-    {
-        $request->validate([
-            'id' => 'required|exists:users,id',
-        ]);
-
-        $user = User::findOrFail($request->id);
-
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User not found.'
-            ]);
-        }
-
-        $user->status = $request->status;
-        $user->save();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'User status updated successfully.'
-        ]);
-    }
 }
