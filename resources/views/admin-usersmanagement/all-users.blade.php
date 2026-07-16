@@ -156,7 +156,8 @@
                             return `
                                     <select
                                         class="user-status w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition"
-                                        data-id="${row.id}">
+                                        data-id="${row.id}" 
+                                        data-status="${data}">
 
                                         <option value="1" ${data == 1 ? 'selected' : ''}>
                                             Active
@@ -188,39 +189,9 @@
             });
         });
 
-
+        // For Change user status
         $(document).on('change', '.user-status', function() {
-            let userId = $(this).data('id');
-            $.ajax({
-                url: "{{ route('users.change-status') }}",
-                type: 'POST',
-                data: {
-                    _token: $('meta[name="csrf-token"]').attr('content'),
-                    id: userId,
-                },
-                success: function(response) {
-                    if (response.success) {
-                        table.ajax.reload();
-                        ToastEngine.show(response.message, "success");
-                    } else {
-                        ToastEngine.show(response.message, "error");
-                    }
-                },
-                error: function(xhr) {
-                    if (xhr.status === 422) {
-                        let errors = xhr.responseJSON.errors;
-                        let errorText = "";
-
-                        $.each(errors, function(key, value) {
-                            errorText += value[0] + "<br>";
-                        });
-
-                        ToastEngine.show(errorText, "error");
-                    } else {
-                        ToastEngine.show(xhr.responseJSON.message, "error");
-                    }
-                }
-            });
+            changeStatus(this, "{{ route('users.change-status') }}", "User", table);
         });
     </script>
 @endsection

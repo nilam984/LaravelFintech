@@ -29,7 +29,7 @@ class AdminController extends Controller
             ]);
         }
 
-        $user->status = $user->status == 1 ? 0 : 1;
+        $user->status = $request->status;
         $user->save();
 
         return response()->json([

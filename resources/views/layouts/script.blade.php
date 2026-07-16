@@ -167,4 +167,63 @@
 
         return `${month}-${day}-${year} ${hours}:${minutes} ${ampm}`;
     }
+
+
+    function changeStatus(element, route, text, table) {
+        let id = $(element).data('id');
+        let status = $(element).val();
+        let oldStatus = $(element).data('status');
+        console.log(`${id} ${status} ${oldStatus}`);
+
+        Swal.fire({
+            title: 'Change Status',
+            text: `Are you sure you want to change the status of ${text}?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No'
+        }).then((result) => {
+            if (!result.isConfirmed) {
+                $(element).val(oldStatus);
+                return;
+            }
+            $.ajax({
+                url: route,
+                type: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    id: id,
+                    status: status
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $(element).data('status', status);
+                        if (table) {
+                            table.ajax.reload(null, false);
+                        }
+                        ToastEngine.show(response.message, "success");
+                    } else {
+                        $(element).val(oldStatus);
+                        ToastEngine.show(response.message, "error");
+                    }
+                },
+
+                error: function() {
+                    $(element).val(oldStatus);
+                    if (xhr.status === 422) {
+                        let errors = xhr.responseJSON.errors;
+                        let errorText = "";
+                        $.each(errors, function(key, value) {
+                            errorText += value[0] + "<br>";
+                        });
+                        ToastEngine.show(errorText, "error");
+                    } else {
+                        ToastEngine.show(xhr.responseJSON.message, "error");
+                    }
+                }
+            });
+
+        });
+
+    }
 </script>
