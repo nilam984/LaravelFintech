@@ -23,8 +23,9 @@ Route::controller(AuthController::class)->group(function () {
 // Admin routes
 Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/dashboard', [AuthController::class, 'adminDashboard'])->name('admin.dashboard');
-    Route::get('all-users', [AdminController::class, 'allusers'])->name('admin.all-users');
+    Route::get('/all-users', [AdminController::class, 'allusers'])->name('admin.all-users');
     Route::post('/datatable/{table}', [DataTableController::class, 'index'])->name('datatable');
+    Route::post('/users/change-status', [AdminController::class, 'changeUserStatus'])->name('users.change-status');
 });
 
 // User routes
