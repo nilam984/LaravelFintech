@@ -92,6 +92,7 @@
                         <th>Name</th>
                         <th>Status</th>
                         <th>Created</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
             </table>
@@ -147,7 +148,34 @@
                         render: function(data) {
                             return formatDateTime(data);
                         }
+                    },
+                    {
+                        data: 'status',
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center',
+                        render: function(data, type, row) {
+                            return `
+                                <select
+                                    class="service-status w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition"
+                                    data-id="${row.id}"
+                                    data-status="${data}">
+
+                                    <option value="active" ${data === 'active' ? 'selected' : ''}>
+                                        Active
+                                    </option>
+
+                                    <option value="inactive" ${data === 'inactive' ? 'selected' : ''}>
+                                        Inactive
+                                    </option>
+                                     <option value="pending" ${data === 'pending' ? 'selected' : ''}>
+                                        Pending
+                                    </option>
+                                </select>
+                            `;
+                        }
                     }
+
                 ]
 
             });
@@ -169,26 +197,10 @@
 
         // For Change user status
         $(document).on('change', '.service-status', function() {
-            changeStatus(this, "{{ route('global.service.change.status') }}", "Service", table);
+            changeStatus(this, "{{ route('service-requests.change-status') }}", "Service", table);
         });
 
         $(function() {
-
-            // Open modal
-            $('#openServiceModal').on('click', function() {
-                $('#serviceModal')
-                    .removeClass('hidden')
-                    .addClass('flex');
-            });
-
-            // Close modal
-            $('#closeServiceModal, #serviceModal').on('click', function(e) {
-                if (e.target.id === 'serviceModal' || e.target.id === 'closeServiceModal') {
-                    $('#serviceModal')
-                        .removeClass('flex')
-                        .addClass('hidden');
-                }
-            });
 
             // Request service
             $(document).on('click', '.request-service-btn', function() {
