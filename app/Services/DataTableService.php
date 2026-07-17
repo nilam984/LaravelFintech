@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\GlobalService;
+use App\Models\ServiceRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
@@ -63,6 +64,22 @@ class DataTableService
             'model' => GlobalService::class,
 
             'with' => [],
+
+            'query' => function ($query, $request) {
+
+                return $query;
+            }
+
+        ];
+    }
+
+    protected function serviceRequests()
+    {
+        return [
+
+            'model' => ServiceRequest::class,
+
+            'with' => ['service'],
 
             'query' => function ($query, $request) {
 

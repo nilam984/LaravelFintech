@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\GlobalService;
+use App\Models\ServiceRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -13,6 +14,10 @@ class StatusChangeController extends Controller
     {
         $request->validate([
             'id' => 'required|exists:users,id',
+            'status' => 'required'
+        ], [
+            'id.required' => 'Id is required',
+            'status.required' => 'Status is required',
         ]);
 
         $user = User::findOrFail($request->id);
@@ -37,9 +42,42 @@ class StatusChangeController extends Controller
     {
         $request->validate([
             'id' => 'required|exists:global_services,id',
+            'status' => 'required'
+        ], [
+            'id.required' => 'Id is required',
+            'status.required' => 'Status is required',
         ]);
 
         $service = GlobalService::findOrFail($request->id);
+
+        if (!$service) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Service not found.'
+            ]);
+        }
+
+        $service->status = $request->status;
+        $service->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Service status updated successfully.'
+        ]);
+    }
+
+    public function changeServiceRequest(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:global_services,id',
+            'status' => 'required|in:active,inactive'
+        ], [
+            'id.required' => 'Id is required',
+            'status.required' => 'Status is required',
+            'status.in' => 'Invalid Status',
+        ]);
+
+        $service = ServiceRequest::findOrFail($request->id);
 
         if (!$service) {
             return response()->json([

@@ -22,6 +22,11 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('/logout',  'logout')->name('logout')->middleware('auth');
 });
 
+// Fetch Data Using Datatable
+Route::middleware('auth')->group(function () {
+    Route::post('/datatable/{table}', [DataTableController::class, 'index'])->name('datatable');
+});
+
 // Admin routes
 Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/dashboard', [AuthController::class, 'adminDashboard'])->name('admin.dashboard');
