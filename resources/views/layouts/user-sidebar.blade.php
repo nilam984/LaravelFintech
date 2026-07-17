@@ -22,23 +22,31 @@
             <i class="bi bi-grid-1x2-fill"></i> Dashboard
         </a>
 
-        <!-- PARENT MENU ITEM: Ledger Accounts -->
+        <!-- PARENT MENU ITEM: Service -->
         <div class="space-y-1">
+            @php
+                $serviceActive = request()->routeIs(['user.service-request']);
+            @endphp
             <button onclick="toggleSubmenu(this)"
-                class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition duration-200 group">
+                class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition duration-200 group
+                {{ $serviceActive ? 'bg-white/10 text-white' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                 <div class="flex items-center gap-3">
                     <i class="bi bi-wallet2"></i>
                     <span>Service</span>
                 </div>
                 <i
-                    class="bi bi-chevron-down text-xs text-white/40 group-hover:text-white/80 transition-transform duration-200 submenu-chevron"></i>
+                    class="bi bi-chevron-down text-xs text-white/40 group-hover:text-white/80 transition-transform duration-200 submenu-chevron {{ $serviceActive ? 'rotate-180' : '' }}"></i>
             </button>
+
             <!-- CHILD MENU HIERARCHY -->
-            <div class="hidden pl-9 pr-2 space-y-1 overflow-hidden transition-all duration-300 submenu-container">
-                <a href="{{ route('user.service-request') }}" class="block py-2 text-sm text-white/60 hover:text-fintechCyan transition">Service Request</a>
+            <div
+                class="pl-9 pr-2 space-y-1 overflow-hidden transition-all duration-300 submenu-container {{ $serviceActive ? '' : 'hidden' }}">
+                <a href="{{ route('user.service-request') }}"
+                    class="block px-3 py-2 rounded-lg text-sm transition {{ request()->routeIs('user.service-request') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}">
+                    Service Request
+                </a>
             </div>
         </div>
-
 
         <a href="#"
             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition duration-200">

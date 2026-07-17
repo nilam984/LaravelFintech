@@ -1,4 +1,3 @@
-<!-- ==================== SIDEBAR MASTER COMPONENT WITH SUBMENUS ==================== -->
 <aside id="sidebarPanel"
     class="fixed inset-y-0 left-0 z-40 w-64 h-full fintech-gradient text-white border-r border-white/10 transform -translate-x-full lg:translate-x-0 lg:static flex flex-col transition-transform duration-300 ease-in-out flex-shrink-0">
     <!-- Brand Area -->
@@ -15,7 +14,6 @@
 
     <!-- Navigation Links Container -->
     <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto custom-scrollbar">
-        {{-- <div class="text-xs font-semibold text-white/30 px-3 mb-2 tracking-wider uppercase">Overview</div> --}}
 
         <a href="{{ route('admin.dashboard') }}"
             class="flex items-center gap-3 px-3 py-2.5 rounded-xl to-transparent text-white font-medium transition duration-200 {{ request()->routeIs('admin.dashboard') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}">
@@ -35,47 +33,47 @@
                     <span>User Management</span>
                 </div>
                 <i
-                    class="bi bi-chevron-down text-xs text-white/40 group-hover:text-white/80 transition-transform duration-200 submenu-chevron"></i>
+                    class="bi bi-chevron-down text-xs text-white/40 group-hover:text-white/80 transition-transform duration-200 submenu-chevron {{ $userManagementActive ? 'rotate-180' : '' }}"></i>
             </button>
             <!-- CHILD MENU HIERARCHY -->
             <div
                 class="pl-9 pr-2 space-y-1 overflow-hidden transition-all duration-300 submenu-container {{ $userManagementActive ? '' : 'hidden' }}">
                 <a href="{{ route('admin.all-users') }}"
                     class="block px-3 py-2 rounded-lg text-sm transition {{ request()->routeIs('admin.all-users') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}">
-                    All Users </a>
+                    All Users
+                </a>
             </div>
         </div>
 
+        <!-- PARENT MENU ITEM: Service -->
         <div class="space-y-1">
             @php
-                $service = request()->routeIs(['admin.global.services', 'admin.service-request']);
+                $serviceActive = request()->routeIs(['admin.global.services', 'admin.service-request']);
             @endphp
             <button onclick="toggleSubmenu(this)"
                 class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition duration-200 group
-                {{ $service ? 'bg-white/10 text-white' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+                {{ $serviceActive ? 'bg-white/10 text-white' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                 <div class="flex items-center gap-3">
                     <i class="bi bi-wallet2"></i>
                     <span>Service</span>
                 </div>
                 <i
-                    class="bi bi-chevron-down text-xs text-white/40 group-hover:text-white/80 transition-transform duration-200 submenu-chevron"></i>
+                    class="bi bi-chevron-down text-xs text-white/40 group-hover:text-white/80 transition-transform duration-200 submenu-chevron {{ $serviceActive ? 'rotate-180' : '' }}"></i>
             </button>
-            <!-- CHILD MENU HIERARCHY -->
+
+            <!-- FIXED: Both child items are now encapsulated cleanly inside ONE submenu wrapper container -->
             <div
-                class="pl-9 pr-2 space-y-1 overflow-hidden transition-all duration-300 submenu-container {{ $service ? '' : 'hidden' }}">
+                class="pl-9 pr-2 space-y-1 overflow-hidden transition-all duration-300 submenu-container {{ $serviceActive ? '' : 'hidden' }}">
                 <a href="{{ route('admin.global.services') }}"
                     class="block px-3 py-2 rounded-lg text-sm transition {{ request()->routeIs('admin.global.services') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}">
-                    Global Services </a>
-            </div>
-
-            <div
-                class="pl-9 pr-2 space-y-1 overflow-hidden transition-all duration-300 submenu-container {{ $service ? '' : 'hidden' }}">
+                    Global Services
+                </a>
                 <a href="{{ route('admin.service-request') }}"
                     class="block px-3 py-2 rounded-lg text-sm transition {{ request()->routeIs('admin.service-request') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}">
-                    Service Request </a>
+                    Service Request
+                </a>
             </div>
         </div>
-
 
         <a href="#"
             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition duration-200">
@@ -95,7 +93,6 @@
         </div>
     </div>
 </aside>
-
 <!-- Mobile Overlay Layer -->
 <div id="sidebarOverlay" onclick="toggleSidebar()"
     class="fixed inset-0 bg-black/60 z-30 hidden lg:hidden backdrop-blur-sm"></div>
