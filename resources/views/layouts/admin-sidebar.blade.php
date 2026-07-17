@@ -48,7 +48,7 @@
 
         <div class="space-y-1">
             @php
-                $service = request()->routeIs(['admin.global.services']);
+                $service = request()->routeIs(['admin.global.services', 'admin.service-request']);
             @endphp
             <button onclick="toggleSubmenu(this)"
                 class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition duration-200 group
@@ -66,6 +66,13 @@
                 <a href="{{ route('admin.global.services') }}"
                     class="block px-3 py-2 rounded-lg text-sm transition {{ request()->routeIs('admin.global.services') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}">
                     Global Services </a>
+            </div>
+
+            <div
+                class="pl-9 pr-2 space-y-1 overflow-hidden transition-all duration-300 submenu-container {{ $service ? '' : 'hidden' }}">
+                <a href="{{ route('admin.service-request') }}"
+                    class="block px-3 py-2 rounded-lg text-sm transition {{ request()->routeIs('admin.service-request') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}">
+                    Service Request </a>
             </div>
         </div>
 

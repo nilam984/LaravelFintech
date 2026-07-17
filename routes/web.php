@@ -35,10 +35,12 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('/users/change-status', [StatusChangeController::class, 'changeUserStatus'])->name('users.change-status');
     Route::post('/global/service/change-status', [StatusChangeController::class, 'changeGlobalServiceStatus'])->name('global.service.change.status');
     Route::get('/global/services', [AdminController::class, 'globalServices'])->name('admin.global.services');
+     Route::get('/service-request', [AdminController::class, 'serviceRequest'])->name('admin.service-request');
 });
 
 // User routes
 Route::prefix('user')->middleware('auth')->group(function () {
     Route::get('/dashboard', [AuthController::class, 'userDashboard'])->name('user.dashboard');
     Route::get('/service-request', [UserController::class, 'serviceRequest'])->name('user.service-request');
+    Route::post('/request-service', [UserController::class, 'userServiceRequest'])->name('user.request-service');
 });

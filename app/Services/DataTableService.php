@@ -6,6 +6,7 @@ use App\Models\GlobalService;
 use App\Models\ServiceRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class DataTableService
@@ -79,11 +80,18 @@ class DataTableService
 
             'model' => ServiceRequest::class,
 
-            'with' => ['service'],
+            'with' => ['service', 'user'],
 
             'query' => function ($query, $request) {
 
-                return $query;
+                $user = Auth::user();
+
+                if ($user->role === 'admin') {
+                    return $query;
+                }
+
+                $userId = Auth::user()->id;
+                return $query->where('user_id', $userId);
             }
 
         ];

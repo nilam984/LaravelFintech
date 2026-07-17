@@ -177,11 +177,12 @@
 
         Swal.fire({
             title: 'Change Status',
-            text: `Are you sure you want to change the status of ${text}?`,
+            html: `Are you sure you want to change the status of <b>${text}</b>?`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes',
-            cancelButtonText: 'No'
+            cancelButtonText: 'No',
+            confirmButtonColor: '#06B6D4'
         }).then((result) => {
             if (!result.isConfirmed) {
                 $(element).val(oldStatus);
@@ -208,7 +209,7 @@
                     }
                 },
 
-                error: function() {
+                error: function(xhr) {
                     $(element).val(oldStatus);
                     if (xhr.status === 422) {
                         let errors = xhr.responseJSON.errors;
