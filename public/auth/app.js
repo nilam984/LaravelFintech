@@ -120,7 +120,7 @@ document
                     ToastEngine.show(errors, "error");
                 } else {
                     ToastEngine.show(
-                        "Something went wrong. Please try again.",
+                        xhr.responseJSON.message ?? "Something went wrong.",
                         "error",
                     );
                 }
@@ -162,7 +162,7 @@ document.getElementById("forgotEmailForm").onsubmit = (e) => {
                 ToastEngine.show(errors, "error");
             } else {
                 ToastEngine.show(
-                    "Something went wrong. Please try again.",
+                    xhr.responseJSON.message ?? "Something went wrong.",
                     "error",
                 );
             }
@@ -208,7 +208,7 @@ document.getElementById("forgotOtpForm").onsubmit = (e) => {
                 ToastEngine.show(errors, "error");
             } else {
                 ToastEngine.show(
-                    "Something went wrong. Please try again.",
+                    xhr.responseJSON.message ?? "Something went wrong.",
                     "error",
                 );
             }
@@ -250,7 +250,7 @@ document.getElementById("forgotNewPasswordForm").onsubmit = (e) => {
                 ToastEngine.show(errors, "error");
             } else {
                 ToastEngine.show(
-                    "Something went wrong. Please try again.",
+                    xhr.responseJSON.message ?? "Something went wrong.",
                     "error",
                 );
             }
