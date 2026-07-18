@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\BussinesInfo;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Carbon\Carbon;
@@ -93,7 +94,6 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-
         $request->validate([
             'email' => 'required|email|exists:users,email',
             'password' => 'required|min:6',
@@ -106,35 +106,47 @@ class AuthController extends Controller
         ]);
 
         $remember = $request->remember == "on";
-        $credentials = $request->only('email', 'password');
 
-        if (!Auth::attempt($credentials, $remember)) {
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
             return response()->json([
                 'status' => false,
-                'message' => 'Invalid email or password'
-            ], 401);
+                'message' => 'No account was found with this email address.'
+            ], 404);
         }
 
-        $request->session()->regenerate();
+        if (is_null($user->email_verified_at)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Your email is not verified. Register again with the same email.'
+            ], 403);
+        }
 
-        $user = Auth::user();
 
         if (!$this->isActive($user)) {
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
             return response()->json([
                 'status' => false,
                 'message' => 'You are inactive. Please contact the administrator.'
             ], 403);
         }
 
-        $redirect = route('user.dashboard');
 
-        if ($user->role === 'admin') {
-            $redirect = route('admin.dashboard');
+        if (!Auth::attempt(['email' => $request->email, 'password' => $request->password,], $remember)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid email or password.'
+            ], 401);
         }
+
+        // Prevent session fixation
+        $request->session()->regenerate();
+
+        $user = Auth::user();
+
+        $redirect = $user->role === 'admin'
+            ? route('admin.dashboard')
+            : route('user.dashboard');
 
         return response()->json([
             'status' => true,
@@ -143,8 +155,10 @@ class AuthController extends Controller
         ]);
     }
 
+
     public function verifyOtp(Request $request)
     {
+        DB::beginTransaction();
 
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
@@ -158,45 +172,59 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $user = User::where('email', $request->email)->first();
+        try {
 
-        if (!$user) {
+            $user = User::where('email', $request->email)->first();
+
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not found.'
+                ], 404);
+            }
+
+            if ($user->email_otp !== $request->otp) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid OTP.'
+                ], 400);
+            }
+
+            if (Carbon::now()->gt($user->email_otp_expire_at)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'OTP has expired.'
+                ], 400);
+            }
+
+            $userUpdate = [
+                'email_otp' => null,
+                'email_otp_expire_at' => null,
+                'email_verified_at' => Carbon::now(),
+            ];
+
+            if ($request->escapeEmailVerify === "true") {
+                unset($userUpdate['email_verified_at']);
+            } else {
+                BussinesInfo::create(['user_id' => $user->id]);
+            }
+
+            $user->update($userUpdate);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'OTP verified successfully.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
             return response()->json([
                 'status' => false,
-                'message' => 'User not found.'
-            ], 404);
+                'message' => 'Error : ' . $e->getMessage(),
+            ], 500);
         }
-
-        if ($user->email_otp !== $request->otp) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Invalid OTP.'
-            ], 400);
-        }
-
-        if (Carbon::now()->gt($user->email_otp_expire_at)) {
-            return response()->json([
-                'status' => false,
-                'message' => 'OTP has expired.'
-            ], 400);
-        }
-
-        $userUpdate = [
-            'email_otp' => null,
-            'email_otp_expire_at' => null,
-            'email_verified_at' => Carbon::now(),
-        ];
-
-        if ($request->escapeEmailVerify === "true") {
-            unset($userUpdate['email_verified_at']);
-        }
-
-        $user->update($userUpdate);
-
-        return response()->json([
-            'status' => true,
-            'message' => 'OTP verified successfully.'
-        ]);
     }
 
     private function isActive($user): bool
