@@ -69,8 +69,8 @@ class StatusChangeController extends Controller
     public function changeServiceRequest(Request $request)
     {
         $request->validate([
-            'id' => 'required|exists:global_services,id',
-            'status' => 'required|in:active,inactive'
+            'id' => 'required|exists:service_requests,service_id',
+            'status' => 'required|in:active,inactive,pending'
         ], [
             'id.required' => 'Id is required',
             'status.required' => 'Status is required',
