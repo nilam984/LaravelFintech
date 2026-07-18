@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class GlobalService extends Model
 {
@@ -12,8 +13,9 @@ class GlobalService extends Model
         'is_api_enabled'
     ];
 
-    public function service()
+    public function serviceRequest()
     {
-        return $this->belongsTo(GlobalService::class, 'service_id');
+        $userId = Auth::user()->id;
+        return $this->hasOne(ServiceRequest::class, 'service_id')->where('user_id', $userId);
     }
 }

@@ -85,7 +85,8 @@
                         <th>Mobile</th>
                         <th>Status</th>
                         <th>Created</th>
-                        <th width="120">Action</th>
+                        <th>Email Verified</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
             </table>
@@ -145,6 +146,13 @@
                         name: 'created_at',
                         render: function(data) {
                             return formatDateTime(data);
+                        }
+                    },
+                    {
+                        data: 'email_verified_at',
+                        name: 'email_verified_at',
+                        render: function(data) {
+                            return formatDateTime(data) == '----' ? '<span class="px-2 py-1 rounded bg-yellow-100 text-yellow-700 text-xs">NO</span>' : formatDateTime(data);
                         }
                     },
                     {

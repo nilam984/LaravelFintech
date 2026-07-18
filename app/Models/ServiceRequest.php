@@ -13,20 +13,13 @@ class ServiceRequest extends Model
         'updated_by'
     ];
 
-    /**
-     * Relationship: A service request belongs to a user
-     */
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    /**
-     * Relationship: A service request belongs to a service
-     */
     public function service()
     {
         return $this->belongsTo(GlobalService::class, 'service_id');
     }
-    
 }

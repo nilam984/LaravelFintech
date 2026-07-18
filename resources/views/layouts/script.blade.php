@@ -125,23 +125,22 @@
 
 
 
-    /**
-     * Toggles Parent-Child Submenus inside the Sidebar view
-     * @param {HTMLElement} element - The parent menu trigger button
-     */
     function toggleSubmenu(element) {
         const container = element.nextElementSibling;
         const chevron = element.querySelector('.submenu-chevron');
 
-        if (container && container.classList.contains('hidden')) {
-            container.classList.remove('hidden');
-            if (chevron) chevron.classList.add('rotate-180');
-        } else if (container) {
-            container.classList.add('hidden');
-            if (chevron) chevron.classList.remove('rotate-180');
+        if (container) {
+            const isCurrentlyHidden = container.classList.contains('hidden');
+
+            if (isCurrentlyHidden) {
+                container.classList.remove('hidden');
+                if (chevron) chevron.classList.add('rotate-180');
+            } else {
+                container.classList.add('hidden');
+                if (chevron) chevron.classList.remove('rotate-180');
+            }
         }
     }
-
 
     // Format daeTime like  formatDateTime(dateValue) => Jan-27 2026 03:14 pm
     function formatDateTime(dateValue) {
@@ -177,11 +176,12 @@
 
         Swal.fire({
             title: 'Change Status',
-            text: `Are you sure you want to change the status of ${text}?`,
+            html: `Are you sure you want to change the status of <b>${text}</b>?`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes',
-            cancelButtonText: 'No'
+            cancelButtonText: 'No',
+            confirmButtonColor: '#06B6D4'
         }).then((result) => {
             if (!result.isConfirmed) {
                 $(element).val(oldStatus);
@@ -208,7 +208,7 @@
                     }
                 },
 
-                error: function() {
+                error: function(xhr) {
                     $(element).val(oldStatus);
                     if (xhr.status === 422) {
                         let errors = xhr.responseJSON.errors;

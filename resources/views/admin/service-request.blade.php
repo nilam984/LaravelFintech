@@ -18,11 +18,11 @@
                 </p>
             </div>
 
-            <a href="javascript:void(0)" id="openServiceModal"
+            {{-- <a href="javascript:void(0)" id="openServiceModal"
                 class="bg-fintechCyan hover:bg-fintechCyanHover text-white px-4 py-2 rounded-lg">
                 <i class="bi bi-gear"></i>
                 Services
-            </a>
+            </a> --}}
 
         </div>
 
@@ -42,11 +42,21 @@
                     <select id="status"
                         class="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm bg-white focus:border-fintechCyan focus:ring-2 focus:ring-fintechCyan/20 outline-none">
 
-                        <option value="">All Status</option>
+                        <option value="">-- All Status --</option>
                         <option value="pending">Pending</option>
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
 
+                    </select>
+                </div>
+
+                <div>
+                    <select id="user"
+                        class="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm bg-white focus:border-fintechCyan focus:ring-2 focus:ring-fintechCyan/20 outline-none">
+                        <option value="">-- All User --</option>
+                        @foreach ($users as $user)
+                            <option value="{{$user->id}}">{{$user->name}}</option>
+                        @endforeach
                     </select>
                 </div>
 
@@ -78,6 +88,7 @@
                 <thead>
                     <tr>
                         <th>ID</th>
+                        <th>User</th>
                         <th>Name</th>
                         <th>Status</th>
                         <th>Created</th>
@@ -87,75 +98,6 @@
         </div>
     </main>
 
-
-    <!-- Open Modal Button -->
-    {{-- <button id="openServiceModal" class="bg-fintechCyan hover:bg-fintechCyanHover text-white px-4 py-2 rounded-lg">
-        Request Service
-    </button> --}}
-
-    <!-- Service Request Modal -->
-    <div id="serviceModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50">
-
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl mx-4 overflow-hidden">
-
-            <!-- Modal Header -->
-            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200">
-                <div>
-                    <h2 class="text-lg font-semibold text-slate-800">Request Services</h2>
-                    <p class="text-sm text-slate-500">Select a service and send a request.</p>
-                </div>
-
-                <button id="closeServiceModal" class="text-slate-400 hover:text-slate-600 text-xl">
-                    &times;
-                </button>
-            </div>
-
-            <!-- Service List -->
-            <div class="max-h-96 overflow-y-auto divide-y divide-slate-100">
-
-                @foreach ($services as $service)
-                    <div class="flex items-center justify-between px-6 py-4 hover:bg-slate-50">
-                        <div>
-                            <h3 class="font-medium text-slate-800">
-                                {{ $service->service_name }}
-                            </h3>
-                        </div>
-
-                        @if (isset($service->serviceRequest) && !empty($service->serviceRequest))
-                            @php
-                                $status = strtolower($service->serviceRequest->status);
-                                switch ($status) {
-                                    case 'active':
-                                        $statusColor = 'bg-green-600 text-white';
-                                        break;
-                                    case 'inactive':
-                                        $statusColor = 'bg-rose-600 text-white';
-                                        break;
-                                    case 'pending':
-                                    default:
-                                        $statusColor = 'bg-amber-500 text-black';
-                                        break;
-                                }
-                            @endphp
-
-                            <span
-                                class="inline-block px-4 py-2 rounded-lg text-sm font-medium capitalize {{ $statusColor }}">
-                                {{ $service->serviceRequest->status }}
-                            </span>
-                        @else
-                            <button
-                                class="request-service-btn bg-fintechCyan hover:bg-fintechCyanHover text-white px-4 py-2 rounded-lg text-sm font-medium"
-                                data-id="{{ $service->id }}" data-name="{{ $service->service_name }}">
-                                Request
-                            </button>
-                        @endif
-                    </div>
-                @endforeach
-
-            </div>
-
-        </div>
-    </div>
 
 @section('scripts')
     <script>
@@ -180,9 +122,14 @@
                         name: 'id'
                     },
                     {
+                        data: 'user.name',
+                        name: 'user.name'
+                    },
+                    {
                         data: 'service.service_name',
                         name: 'service.service_name'
-                    }, {
+                    },
+                    {
                         data: 'status',
                         name: 'status',
                         render: function(data) {
