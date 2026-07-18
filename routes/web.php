@@ -44,4 +44,5 @@ Route::prefix('user')->middleware('auth')->group(function () {
     Route::get('/dashboard', [AuthController::class, 'userDashboard'])->name('user.dashboard');
     Route::get('/service-request', [UserController::class, 'serviceRequest'])->name('user.service-request');
     Route::post('/request-service', [UserController::class, 'userServiceRequest'])->name('user.request-service');
+    Route::get('/user-profile', [UserController::class, 'userprofile'])->name('user.user-profile');
 });
