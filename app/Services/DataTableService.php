@@ -86,9 +86,15 @@ class DataTableService
 
                 $user = Auth::user();
 
+                if ($request->user_id) {
+                    $query = $query->where('user_id', $request->user_id);
+                }
+
                 if ($user->role === 'admin') {
                     return $query;
                 }
+
+
 
                 $userId = Auth::user()->id;
                 return $query->where('user_id', $userId);

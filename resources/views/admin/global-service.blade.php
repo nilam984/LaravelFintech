@@ -83,12 +83,50 @@
                         <th>Name</th>
                         <th>Status</th>
                         <th>Created</th>
+                        <th>Add Product</th>
                         <th width="120">Action</th>
                     </tr>
                 </thead>
             </table>
         </div>
     </main>
+
+
+    {{-- Product Modal  --}}
+    <div id="productModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div class="w-full max-w-2xl rounded-2xl bg-white shadow-2xl">
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b px-6 py-4">
+                <div>
+                    <h2 class="text-xl font-semibold text-slate-800">
+                        Manage Products
+                    </h2>
+                    <p class="text-sm text-slate-500">
+                        Add or update products for <b id="serviceName"></b> service.
+                    </p>
+                </div>
+                <button id="closeModal" class="rounded-lg p-2 hover:bg-gray-100">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6">
+                <input type="hidden" id="service_id">
+                <div id="productRows" class="space-y-3">
+                </div>
+            </div>
+            <!-- Footer -->
+            <div class="flex justify-end gap-3 border-t bg-gray-50 px-6 py-4">
+                <button id="closeModal2" class="rounded-lg border border-gray-300 px-5 py-2 hover:bg-gray-100">
+                    Cancel
+                </button>
+                <button id="saveProducts" class="rounded-lg bg-cyan-600 px-5 py-2 text-white hover:bg-cyan-700">
+                    Save Products
+                </button>
+            </div>
+        </div>
+    </div>
 
 @section('scripts')
     <script>
@@ -133,6 +171,19 @@
                         name: 'created_at',
                         render: function(data) {
                             return formatDateTime(data);
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function(data, type, row) {
+                            return `
+                            <button
+                                class="addProducts bg-cyan-600 hover:bg-cyan-700 text-white px-3 py-2 rounded-lg"
+                                data-id="${row.id}"
+                                data-name="${row.service_name}">
+                                <i class="bi bi-plus-circle"></i>
+                            </button>
+                        `;
                         }
                     },
                     {
@@ -181,6 +232,144 @@
         $(document).on('change', '.service-status', function() {
             changeStatus(this, "{{ route('global.service.change.status') }}", "Service", table);
         });
+
+        function appendRow(id = '', product = '') {
+
+            $('#productRows').append(`
+            <div class="product-row flex items-center gap-3">
+
+                <input type="hidden"
+                    class="product-id"
+                    value="${id}">
+
+                <input
+                    type="text"
+                    class="product-name flex-1 rounded-lg border border-slate-300 px-4 py-2 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none"
+                    placeholder="Enter product name"
+                    value="${product}">
+
+                <button
+                    type="button"
+                    class="addMore h-10 w-10 rounded-lg bg-green-500 text-white hover:bg-green-600">
+                    +
+                </button>
+                <button
+                    type="button"
+                    class="removeRow h-10 w-10 rounded-lg bg-red-500 text-white hover:bg-red-600">
+                    −
+                </button>
+            </div>
+            `);
+
+            toggleRemoveButton();
+        }
+
+
+        $(document).on('click', '.addProducts', function() {
+            $('#service_id').val($(this).data('id'));
+            $('#serviceName').html($(this).data('name'));
+            $('#productRows').empty();
+            loadProducts($(this).data('id'));
+            $('#productModal')
+                .removeClass('hidden')
+                .addClass('flex');
+        });
+
+        // Close Modal
+        $('#closeModal,#closeModal2').click(function() {
+            $('#productModal')
+                .removeClass('flex')
+                .addClass('hidden');
+        });
+
+        // Add Row
+        $(document).on('click', '.addMore', function() {
+            appendRow();
+        });
+
+        // Remove Row
+        $(document).on('click', '.removeRow', function() {
+            if ($('.product-row').length == 1) {
+                return;
+            }
+            $(this).closest('.product-row').remove();
+            toggleRemoveButton();
+        });
+
+        // Save Record 
+        $('#saveProducts').click(function() {
+            let products = [];
+            $('.product-row').each(function() {
+                products.push({
+                    product_name: $(this).find('.product-name').val()
+                });
+            });
+
+            $.ajax({
+                url: "{{ route('add.products') }}",
+                type: 'POST',
+                data: {
+                    _token: $('meta[name=csrf-token]').attr('content'),
+                    service_id: $('#service_id').val(),
+                    products: products
+                },
+                success: function(response) {
+                    $('#productModal').addClass('hidden');
+                    if (response.status) {
+                        ToastEngine.show(response.message, "success");
+                    } else {
+                        ToastEngine.show(response.message, "error");
+                    }
+                    table.ajax.reload(null, false);
+                },
+                error: function(xhr) {
+                    if (xhr.status === 422) {
+                        let errors = xhr.responseJSON.errors;
+                        let errorText = "";
+
+                        $.each(errors, function(key, value) {
+                            errorText += value[0] + "<br>";
+                        });
+
+                        ToastEngine.show(errorText, "error");
+                    } else {
+                        ToastEngine.show(xhr.responseJSON.message, "error");
+                    }
+                },
+            });
+
+        });
+
+        function loadProducts(service_id) {
+            const url = "{{ route('get.products', ['service_id' => ':service_id']) }}".replace(':service_id', service_id)
+            $.ajax({
+                url: url,
+                type: "GET",
+                success: function(response) {
+                    $('#productRows').empty();
+                    if (response.length > 0) {
+                        response.forEach(function(product) {
+                            appendRow(product.id, product.product_name);
+                        });
+                    } else {
+                        appendRow();
+                    }
+                }
+            });
+
+        }
+
+        function toggleRemoveButton() {
+            if ($('.product-row').length == 1) {
+                $('.removeRow')
+                    .prop('disabled', true)
+                    .addClass('opacity-40 cursor-not-allowed');
+            } else {
+                $('.removeRow')
+                    .prop('disabled', false)
+                    .removeClass('opacity-40 cursor-not-allowed');
+            }
+        }
     </script>
 @endsection
 @endsection
