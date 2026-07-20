@@ -64,26 +64,27 @@
                 <i class="bi bi-chevron-down text-xs text-white/40 hidden sm:block"></i>
             </button>
 
+            @php
+                if (auth()->user()->role == 'admin') {
+                    $route = 'javascript:void(0)';
+                } else {
+                    $route = route('user.user-profile');
+                }
+            @endphp
+
             <div id="profileMenu"
                 class="hidden absolute right-0 mt-3 w-56 bg-fintechDropdownBg border border-white/10 rounded-2xl shadow-2xl p-2 z-50">
-                @if(auth()->user()->role == "admin")
-                <a href="#"
+                <a href="{{ $route }}"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/70 hover:text-white hover:bg-white/5 transition">
                     <i class="bi bi-person text-base text-fintechCyan"></i> Profile Config
                 </a>
-                @elseif(auth()->user()->role == "user")
-                <a href="{{ route('user.user-profile') }}"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/70 hover:text-white hover:bg-white/5 transition">
-                    <i class="bi bi-person text-base text-fintechCyan"></i> Profile Config
-                </a>
-                @endif
                 <a href="#"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/70 hover:text-white hover:bg-white/5 transition">
                     <i class="bi bi-shield-lock text-base text-fintechCyan"></i> API Access Keys
                 </a>
                 <hr class="border-white/10 my-1">
                 <form method="POST" action="{{ route('logout') }}">
-                  @csrf
+                    @csrf
                     <button type="submit"
                         class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 transition text-left">
                         <i class="bi bi-box-arrow-right text-base"></i> Close Secure Session
