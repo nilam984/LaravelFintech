@@ -116,6 +116,7 @@
                     data: function(d) {
                         d._token = "{{ csrf_token() }}";
                         d.status = $('#status').val();
+                        d.user_id = $('#user').val();
                     }
                 },
                 columns: [{
@@ -185,6 +186,10 @@
             });
 
             $('#status').change(function() {
+                table.ajax.reload();
+            });
+
+            $('#user').change(function() {
                 table.ajax.reload();
             });
 
