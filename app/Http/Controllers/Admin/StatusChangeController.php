@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\GlobalService;
+use App\Models\Scheme;
 use App\Models\ServiceRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -92,6 +93,35 @@ class StatusChangeController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Service status updated successfully.'
+        ]);
+    }
+
+
+    public function changeSchemeStatus(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:schemes,id',
+            'status' => 'required'
+        ], [
+            'id.required' => 'Id is required',
+            'status.required' => 'Status is required',
+        ]);
+
+        $service = Scheme::findOrFail($request->id);
+
+        if (!$service) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Scheme not found.'
+            ]);
+        }
+
+        $service->status = $request->status;
+        $service->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Scheme status updated successfully.'
         ]);
     }
 }

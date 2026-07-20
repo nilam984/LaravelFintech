@@ -29,7 +29,7 @@
                 class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition duration-200 group
                 {{ $userManagementActive ? 'bg-white/10 text-white' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                 <div class="flex items-center gap-3">
-                    <i class="bi bi-wallet2"></i>
+                    <i class="bi bi-people"></i>
                     <span>User Management</span>
                 </div>
                 <i
@@ -54,7 +54,7 @@
                 class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition duration-200 group
                 {{ $serviceActive ? 'bg-white/10 text-white' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                 <div class="flex items-center gap-3">
-                    <i class="bi bi-wallet2"></i>
+                    <i class="bi bi-gear-fill"></i>
                     <span>Service</span>
                 </div>
                 <i
@@ -77,14 +77,14 @@
 
         <div class="space-y-1">
             @php
-                $schemeActive = request()->routeIs(['admin.global.services', 'admin.service-request']);
+                $schemeActive = request()->routeIs(['scheme']);
             @endphp
             <button onclick="toggleSubmenu(this)"
                 class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition duration-200 group
                 {{ $schemeActive ? 'bg-white/10 text-white' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                 <div class="flex items-center gap-3">
                     <i class="bi bi-wallet2"></i>
-                    <span>Service</span>
+                    <span>Scheme</span>
                 </div>
                 <i
                     class="bi bi-chevron-down text-xs text-white/40 group-hover:text-white/80 transition-transform duration-200 submenu-chevron {{ $serviceActive ? 'rotate-180' : '' }}"></i>
@@ -94,8 +94,8 @@
             <div
                 class="pl-9 pr-2 space-y-1 overflow-hidden transition-all duration-300 submenu-container {{ $schemeActive ? '' : 'hidden' }}">
 
-                <a href="{{ route('admin.service-request') }}"
-                    class="block px-3 py-2 rounded-lg text-sm transition {{ request()->routeIs('admin.service-request') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}">
+                <a href="{{ route('scheme') }}"
+                    class="block px-3 py-2 rounded-lg text-sm transition {{ request()->routeIs('scheme') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}">
                     Scheme
                 </a>
             </div>

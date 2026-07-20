@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('scheme_rules', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('scheme_id');
             $table->bigInteger('service_id');
             $table->bigInteger('product_id');
             $table->enum('fee_type', ['Fixed', 'Percent']);

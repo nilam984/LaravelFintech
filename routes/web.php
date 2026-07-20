@@ -3,9 +3,11 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\SchemeController;
 use App\Http\Controllers\Admin\StatusChangeController;
 use App\Http\Controllers\DataTableController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\User\ProfileController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -25,6 +27,7 @@ Route::controller(AuthController::class)->group(function () {
 // Fetch Data Using Datatable
 Route::middleware('auth')->group(function () {
     Route::post('/datatable/{table}', [DataTableController::class, 'index'])->name('datatable');
+    Route::post('/profile', [ProfileController::class, 'businessinfo'])->name('businessinfo.profile');
 });
 
 // Admin routes
@@ -39,6 +42,13 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('/service-requests/change-status', [StatusChangeController::class, 'changeServiceRequest'])->name('service-requests.change-status');
     Route::get('/get-products/{service_id}', [AdminController::class, 'getProducts'])->name('get.products');
     Route::post('/add-products', [AdminController::class, 'addProduct'])->name('add.products');
+    Route::post('/global-service/store', [AdminController::class, 'store'])->name('global.service.store');
+
+    // Scheme 
+    Route::get('scheme', [SchemeController::class, 'scheme'])->name('scheme');
+    Route::post('/scheme/save',  [SchemeController::class, 'storeOrUpdate'])->name('scheme.save');
+    Route::get('/scheme/{id}', [SchemeController::class, 'edit'])->name('scheme.edit');
+    Route::post('/scheme/change-status', [StatusChangeController::class, 'changeSchemeStatus'])->name('scheme.change.status');
 });
 
 // User routes

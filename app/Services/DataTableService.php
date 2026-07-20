@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\GlobalService;
+use App\Models\Scheme;
 use App\Models\ServiceRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -98,6 +99,22 @@ class DataTableService
 
                 $userId = Auth::user()->id;
                 return $query->where('user_id', $userId);
+            }
+
+        ];
+    }
+
+    protected function schemes()
+    {
+        return [
+
+            'model' => Scheme::class,
+
+            'with' => ['rules'],
+
+            'query' => function ($query, $request) {
+
+                return $query ;
             }
 
         ];
