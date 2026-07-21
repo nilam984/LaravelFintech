@@ -35,6 +35,58 @@ class AdminController extends Controller
             ->get();
     }
 
+    public function store(Request $request)
+    {
+        try {
+
+            $request->validate([
+                'service_name' => 'required|string|max:255|unique:global_services,service_name',
+                'status' => 'required|boolean',
+            ]);
+
+            GlobalService::create([
+                'service_name' => $request->service_name,
+                'status' => $request->status,
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Global Service Added Successfully.',
+            ], 200);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Global Service Store Error: '.$e->getMessage());
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong. Please try again.',
+            ], 500);
+        }
+    }
+
+    public function update(Request $request)
+    {
+        $request->validate([
+            'service_name' => 'required|unique:global_services,service_name,'.$request->id,
+            'status' => 'required',
+        ]);
+        $service = GlobalService::findOrFail($request->id);
+        $service->update([
+            'service_name' => $request->service_name,
+            'status' => $request->status,
+        ]);
+        return response()->json([
+            'status' => true,
+            'message' => 'Service Updated Successfully.',
+        ]);
+    }
+
 
     public function addProduct(Request $request)
     {
