@@ -4,8 +4,8 @@
 
 @section('content')
 
-    <div class="min-h-screen bg-gray-100 py-6">
-        <div class="flex items-center justify-between mb-6 px-5">
+    <div class="min-h-screen bg-gray-100 py-6 px-5">
+        <div class="flex items-center justify-between mb-6">
             <div>
                 <h1 class="text-2xl font-bold text-fintechDarkText">OAuth API Credentials</h1>
                 <p class="text-sm text-fintechMutedText mt-1">Generate Client ID & Client Secret</p>
