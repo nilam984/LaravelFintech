@@ -3,9 +3,11 @@
 namespace App\Services;
 
 use App\Models\GlobalService;
+use App\Models\OauthUser;
 use App\Models\Scheme;
 use App\Models\ServiceRequest;
 use App\Models\User;
+use App\Models\AssignedScheme;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
@@ -14,7 +16,7 @@ class DataTableService
 {
     public function make($table, Request $request)
     {
-        if (!method_exists($this, $table)) {
+        if (! method_exists($this, $table)) {
             abort(404);
         }
 
@@ -22,11 +24,11 @@ class DataTableService
 
         $query = $config['model']::query();
 
-        if (!empty($config['with'])) {
+        if (! empty($config['with'])) {
             $query->with($config['with']);
         }
 
-        if (!empty($config['query'])) {
+        if (! empty($config['query'])) {
             $query = $config['query']($query, $request);
         }
 
@@ -42,7 +44,6 @@ class DataTableService
             ->toJson();
     }
 
-
     protected function users()
     {
         return [
@@ -54,7 +55,7 @@ class DataTableService
             'query' => function ($query, $request) {
 
                 return $query->where('role', 'user');
-            }
+            },
 
         ];
     }
@@ -70,7 +71,7 @@ class DataTableService
             'query' => function ($query, $request) {
 
                 return $query;
-            }
+            },
 
         ];
     }
@@ -95,11 +96,10 @@ class DataTableService
                     return $query;
                 }
 
-
-
                 $userId = Auth::user()->id;
+
                 return $query->where('user_id', $userId);
-            }
+            },
 
         ];
     }
@@ -114,7 +114,46 @@ class DataTableService
 
             'query' => function ($query, $request) {
 
-                return $query ;
+                return $query;
+            },
+
+        ];
+    }
+
+    protected function oauthUsers()
+    {
+        return [
+            'model' => OauthUser::class,
+            'with' => ['user', 'service'],
+            'query' => function ($query, $request) {
+                $user = Auth::user();
+                if ($user->role === 'admin') {
+                    return $query;
+                }
+                return $query->where('user_id', $user->id);
+            },
+        ];
+    }
+
+    protected function assignedScheme()
+    {
+        return [
+
+            'model' => AssignedScheme::class,
+
+            'with' => ['user', 'scheme', 'updatedBy'],
+
+            'query' => function ($query, $request) {
+
+                if ($request->user_id) {
+                    $query = $query->where('user_id', $request->user_id);
+                }
+
+                if ($request->scheme_id) {
+                    $query = $query->where('scheme_id', $request->scheme_id);
+                }
+
+                return $query;
             }
 
         ];

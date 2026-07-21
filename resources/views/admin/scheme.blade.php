@@ -15,8 +15,7 @@
                     Manage all schemes.
                 </p>
             </div>
-            <a href="javascript:void(0)"
-                class="addScheme bg-fintechCyan hover:bg-fintechCyanHover text-white px-4 py-2 rounded-lg">
+            <a href="javascript:void(0)" class="addScheme bg-btn">
                 <i class="bi bi-plus-lg"></i>
                 Scheme
             </a>
@@ -73,12 +72,84 @@
                     <tr>
                         <th>ID</th>
                         <th>Name</th>
+                        <th>Is Assigned</th>
                         <th>Created</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
             </table>
+        </div>
+
+
+        <div class="bg-white border rounded-xl overflow-hidden p-4">
+            <!-- Header Section: Title on Left, Button on Right -->
+            <div class="flex items-center justify-between pb-4 mb-2 border-b border-gray-100">
+                <h2 class="text-xl font-semibold text-gray-800">Assigned Scheme</h2>
+                <button type="button" class="bg-btn" onclick="openAssignModal()">
+                    Assign
+                </button>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4">
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    {{-- 
+                    <div>
+                        <input type="text" id="search1" placeholder="Search..."
+                            class="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm focus:border-fintechCyan focus:ring-2 focus:ring-fintechCyan/20 outline-none">
+                    </div> --}}
+
+                    <div>
+                        <select id="user1"
+                            class="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm bg-white focus:border-fintechCyan focus:ring-2 focus:ring-fintechCyan/20 outline-none">
+                            <option value="" disabled selected>-- Select a User --</option>
+                            @foreach ($users as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <select id="scheme1"
+                            class="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm bg-white focus:border-fintechCyan focus:ring-2 focus:ring-fintechCyan/20 outline-none">
+                            <option value="" disabled selected>-- Select a Scheme --</option>
+                            @foreach ($schemes as $scheme)
+                                <option value="{{ $scheme->id }}">{{ $scheme->name }} -
+                                    [{{ $scheme->is_assigned ? 'Assigned' : 'Not Assigned' }}]</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+
+                        <button id="btnReset1"
+                            class="border border-slate-300 hover:bg-slate-100 px-5 py-2 rounded-lg transition">
+                            Reset
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Table Container -->
+            <div class="overflow-x-auto">
+                <table id="assignedScheme" class="min-w-full">
+                    <thead>
+                        <tr>
+                            <th>ID </th>
+                            <th> User</th>
+                            <th> Scheme</th>
+                            <th> Assigned At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Row data goes here -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
 
@@ -130,6 +201,68 @@
         </div>
     </div>
 
+    <!-- Assign Scheme Modal -->
+    <div id="assignSchemeModal"
+        class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden transform transition-all">
+
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                <h3 class="text-lg font-semibold text-gray-800">Assign Scheme</h3>
+                <button type="button" onclick="closeAssignModal()"
+                    class="text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
+            </div>
+
+            <!-- Modal Form -->
+            <form id="assignSchemeForm">
+                @csrf
+
+                <div class="p-6 space-y-4">
+                    <!-- User Select Dropdown -->
+                    <div>
+                        <label for="user_id" class="block text-sm font-medium text-gray-700 mb-1">Select User</label>
+                        <select id="user_id" name="user_id"
+                            class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-fintechCyan outline-none"
+                            required>
+                            <option value="" disabled selected>-- Select a User --</option>
+                            @foreach ($users as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                        <span id="error_user_id" class="text-xs text-rose-500 mt-1 block"></span>
+                    </div>
+
+                    <!-- Scheme Select Dropdown -->
+                    <div>
+                        <label for="scheme_id" class="block text-sm font-medium text-gray-700 mb-1">Select Scheme</label>
+                        <select id="scheme_id" name="scheme_id"
+                            class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-fintechCyan outline-none"
+                            required>
+                            <option value="" disabled selected>-- Select a Scheme --</option>
+                            @foreach ($schemes as $scheme)
+                                <option value="{{ $scheme->id }}">{{ $scheme->name }} -
+                                    [{{ $scheme->is_assigned ? 'Assigned' : 'Not Assigned' }}]</option>
+                            @endforeach
+                        </select>
+                        <span id="error_scheme_id" class="text-xs text-rose-500 mt-1 block"></span>
+                    </div>
+                </div>
+
+                <!-- Modal Footer Buttons -->
+                <div class="flex items-center justify-end gap-2 px-6 py-4 bg-gray-50 border-t border-gray-100">
+                    <button type="button" onclick="closeAssignModal()"
+                        class="px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-100 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" id="btnSubmit" class="bg-btn">
+                        Assign
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
 @section('scripts')
     <script>
         let table = null
@@ -155,6 +288,21 @@
                     {
                         data: 'name',
                         name: 'name'
+                    },
+                    {
+                        data: 'is_assigned',
+                        name: 'is_assigned',
+                        render: function(data, type, row) {
+                            if (data == 1) {
+                                return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                    Assigned
+                                </span>`;
+                            }
+
+                            return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800 border border-rose-200">
+                                Not Assigned
+                            </span>`;
+                        }
                     },
                     {
                         data: 'created_at',
@@ -218,9 +366,120 @@
             });
         });
 
+
+        $(function() {
+            let table1 = $('#assignedScheme').DataTable({
+                processing: true,
+                serverSide: true,
+                responsive: true,
+                searching: true,
+                ordering: true,
+                ajax: {
+                    url: "{{ route('datatable', 'assignedScheme') }}",
+                    type: "POST",
+                    data: function(d) {
+                        d._token = "{{ csrf_token() }}";
+                        d.user_id = $('#user1').val();
+                        d.scheme_id = $('#scheme1').val();
+                    }
+                },
+                columns: [{
+                        data: 'id',
+                        name: 'id'
+                    },
+                    {
+                        data: 'user.name',
+                        name: 'user.name'
+                    },
+                    {
+                        data: 'scheme.name',
+                        name: 'scheme.name'
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'created_at',
+                        render: function(data) {
+                            return formatDateTime(data);
+                        }
+                    }
+                ]
+            });
+
+
+            $('#user1').change(function() {
+                table1.ajax.reload();
+            });
+
+            $('#scheme1').change(function() {
+                table1.ajax.reload();
+            });
+
+            $('#btnReset1').click(function() {
+                $('#user1').val('');
+                $('#scheme1').val('');
+                table1.search('').ajax.reload();
+            });
+        });
+
         // For Change status
         $(document).on('change', '.service-status', function() {
             changeStatus(this, "{{ route('scheme.change.status') }}", "Scheme", table);
+        });
+
+
+        function openAssignModal() {
+            $('#assignSchemeForm')[0].reset();
+            $('#error_user_id').text('');
+            $('#error_scheme_id').text('');
+            $('#assignSchemeModal').removeClass('hidden');
+        }
+
+        function closeAssignModal() {
+            $('#assignSchemeModal').addClass('hidden');
+        }
+
+        $('#assignSchemeForm').on('submit', function(e) {
+            e.preventDefault();
+
+            let submitBtn = $('#btnSubmit');
+            submitBtn.prop('disabled', true).text('Assigning...');
+
+            $('#error_user_id').text('');
+            $('#error_scheme_id').text('');
+
+            $.ajax({
+                url: "{{ route('assign.scheme') }}",
+                type: "POST",
+                data: $(this).serialize(),
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    submitBtn.prop('disabled', false).text('Assign');
+
+                    if (response.status === 'success') {
+                        if ($.fn.DataTable.isDataTable('#assignedScheme')) {
+                            $('#assignedScheme').DataTable().ajax.reload(null, false);
+                        }
+                        closeAssignModal();
+                        ToastEngine.show(response.message, "success");
+                    } else {
+                        ToastEngine.show(response.message, "error");
+                    }
+                },
+                error: function(xhr) {
+                    submitBtn.prop('disabled', false).text('Assign');
+                    if (xhr.status === 422) {
+                        let errors = xhr.responseJSON.errors;
+                        if (errors.user_id) $('#error_user_id').text(errors.user_id[0]);
+                        if (errors.scheme_id) $('#error_scheme_id').text(errors.scheme_id[0]);
+                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                        ToastEngine.show(xhr.responseJSON.message, "error");
+                    } else {
+                        ToastEngine.show('Something went wrong. Please try again.', "error");
+                    }
+                }
+            });
         });
 
 
@@ -381,90 +640,86 @@
 
             $('#ruleRows').append(`
 
-                <div class="rule-row grid grid-cols-10 gap-2 items-center">
+    <div class="rule-row grid grid-cols-10 gap-2 items-center">
 
-                    <select class="service h-9 border rounded px-2 text-sm">
+        <select class="service h-9 border rounded px-2 text-sm">
 
-                        <option value="">
-                            Service
-                        </option>
+            <option value="">
+                Service
+            </option>
 
-                        @foreach ($services as $service)
+            @foreach ($services as $service)
+                <option value="{{ $service->id }}">
+                    {{ $service->service_name }}
+                </option>
+            @endforeach
 
-                        <option value="{{ $service->id }}">
-                            {{ $service->service_name }}
-                        </option>
-
-                        @endforeach
-
-                    </select>
+        </select>
 
 
-                    <select class="product h-9 border rounded px-2 text-sm">
+        <select class="product h-9 border rounded px-2 text-sm">
 
-                        <option value="">
-                            Product
-                        </option>
+            <option value="">
+                Product
+            </option>
 
-                    </select>
-
-
-                    <select class="fee_type h-9 border rounded px-2 text-sm">
-
-                        <option value="Fixed">
-                            Fixed
-                        </option>
-
-                        <option value="Percent">
-                            Percent
-                        </option>
-
-                    </select>
+        </select>
 
 
-                    <input class="start h-9 border rounded px-2 text-sm">
+        <select class="fee_type h-9 border rounded px-2 text-sm">
 
-                    <input class="end h-9 border rounded px-2 text-sm">
+            <option value="Fixed">
+                Fixed
+            </option>
 
-                    <input class="fee h-9 border rounded px-2 text-sm">
+            <option value="Percent">
+                Percent
+            </option>
 
-                    <input class="min_fee h-9 border rounded px-2 text-sm">
-
-                    <input class="max_fee h-9 border rounded px-2 text-sm">
-
-
-                    <select class="status h-9 border rounded px-2 text-sm">
-
-                        <option value="1">
-                            Active
-                        </option>
-
-                        <option value="0">
-                            Inactive
-                        </option>
-
-                    </select>
+        </select>
 
 
-                    <div class="flex gap-1">
+        <input class="start h-9 border rounded px-2 text-sm">
 
-                        <button type="button"
-                            class="addRuleRow h-9 w-9 bg-green-600 text-white rounded">
-                            +
-                        </button>
+        <input class="end h-9 border rounded px-2 text-sm">
 
+        <input class="fee h-9 border rounded px-2 text-sm">
 
-                        <button type="button"
-                            class="removeRule h-9 w-9 bg-red-600 text-white rounded">
-                            -
-                        </button>
+        <input class="min_fee h-9 border rounded px-2 text-sm">
 
-                    </div>
+        <input class="max_fee h-9 border rounded px-2 text-sm">
 
 
-                </div>
+        <select class="status h-9 border rounded px-2 text-sm">
 
-                `);
+            <option value="1">
+                Active
+            </option>
+
+            <option value="0">
+                Inactive
+            </option>
+
+        </select>
+
+
+        <div class="flex gap-1">
+
+            <button type="button" class="addRuleRow h-9 w-9 bg-green-600 text-white rounded">
+                +
+            </button>
+
+
+            <button type="button" class="removeRule h-9 w-9 bg-red-600 text-white rounded">
+                -
+            </button>
+
+        </div>
+
+
+    </div>
+
+    `);
 
             setRemoveButton();
 
@@ -594,14 +849,13 @@
 
                     productElement.append(`
 
-            <option value="${item.id}"
-            ${selectedProduct == item.id ? 'selected':''}>
+    <option value="${item.id}" ${selectedProduct==item.id ? 'selected' :''}>
 
-                ${item.product_name}
+        ${item.product_name}
 
-            </option>
+    </option>
 
-            `);
+    `);
 
 
                 });

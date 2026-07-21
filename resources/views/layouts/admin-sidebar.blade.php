@@ -20,7 +20,6 @@
             <i class="bi bi-grid-1x2-fill"></i> Dashboard
         </a>
 
-        <!-- PARENT MENU ITEM: User Management -->
         <div class="space-y-1">
             @php
                 $userManagementActive = request()->routeIs(['admin.all-users']);
@@ -45,7 +44,6 @@
             </div>
         </div>
 
-        <!-- PARENT MENU ITEM: Service -->
         <div class="space-y-1">
             @php
                 $serviceActive = request()->routeIs(['admin.global.services', 'admin.service-request']);
@@ -75,31 +73,10 @@
             </div>
         </div>
 
-        <div class="space-y-1">
-            @php
-                $schemeActive = request()->routeIs(['scheme']);
-            @endphp
-            <button onclick="toggleSubmenu(this)"
-                class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition duration-200 group
-                {{ $schemeActive ? 'bg-white/10 text-white' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
-                <div class="flex items-center gap-3">
-                    <i class="bi bi-wallet2"></i>
-                    <span>Scheme</span>
-                </div>
-                <i
-                    class="bi bi-chevron-down text-xs text-white/40 group-hover:text-white/80 transition-transform duration-200 submenu-chevron {{ $serviceActive ? 'rotate-180' : '' }}"></i>
-            </button>
-
-            <!-- FIXED: Both child items are now encapsulated cleanly inside ONE submenu wrapper container -->
-            <div
-                class="pl-9 pr-2 space-y-1 overflow-hidden transition-all duration-300 submenu-container {{ $schemeActive ? '' : 'hidden' }}">
-
-                <a href="{{ route('scheme') }}"
-                    class="block px-3 py-2 rounded-lg text-sm transition {{ request()->routeIs('scheme') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}">
-                    Scheme
-                </a>
-            </div>
-        </div>
+        <a href="{{ route('scheme') }}"
+            class="flex items-center gap-3 px-3 py-2.5 rounded-xl to-transparent text-white font-medium transition duration-200 {{ request()->routeIs('scheme') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}">
+            <i class="bi bi-wallet2"></i> Scheme
+        </a>
 
     </nav>
 
