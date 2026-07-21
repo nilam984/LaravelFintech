@@ -44,7 +44,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/get-products/{service_id}', [AdminController::class, 'getProducts'])->name('get.products');
     Route::post('/add-products', [AdminController::class, 'addProduct'])->name('add.products');
     Route::post('/global-service/store', [AdminController::class, 'store'])->name('global.service.store');
-    Route::post('/global-service/update',[AdminController::class,'update'])->name('global.service.update');
+    Route::post('/global-service/update', [AdminController::class, 'update'])->name('global.service.update');
 
     // Scheme 
     Route::get('scheme', [SchemeController::class, 'scheme'])->name('scheme');

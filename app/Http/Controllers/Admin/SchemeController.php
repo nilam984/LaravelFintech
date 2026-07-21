@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 
 use App\Http\Controllers\Controller;
+use App\Models\AssignedScheme;
 use App\Models\GlobalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,14 +15,16 @@ use App\Models\SchemeRules;
 use App\Models\ServiceProduct;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class SchemeController extends Controller
 {
     public function scheme()
     {
         $users = User::where('role', 'user')->orderBy('id', 'desc')->get();
+        $schemes = Scheme::where('status', 1)->latest()->get();
         $services = GlobalService::where('status', 1)->latest()->get();
-        return view('admin.scheme', compact('users', 'services'));
+        return view('admin.scheme', compact('users', 'services', 'schemes'));
     }
 
 
@@ -136,5 +139,58 @@ class SchemeController extends Controller
             'status' => true,
             'scheme' => $scheme
         ]);
+    }
+
+
+
+    public function assignScheme(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'user_id'   => 'required|exists:users,id',
+            'scheme_id' => 'required|exists:schemes,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $exists = AssignedScheme::where('user_id', $request->user_id)
+            ->where('scheme_id', $request->scheme_id)
+            ->exists();
+
+        if ($exists) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'This scheme is already assigned to the selected user.'
+            ], 400);
+        }
+
+        $scheme = Scheme::find($request->scheme_id);
+
+        if (!$scheme) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Scheme not found.'
+            ], 400);
+        }
+
+        AssignedScheme::create([
+            'user_id'     => $request->user_id,
+            'scheme_id'   => $request->scheme_id,
+            'updated_by'  => Auth::user()->id
+        ]);
+
+        $scheme->is_assigned = 1;
+        $scheme->save();
+
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Scheme Assigned Successfully',
+        ], 200);
     }
 }

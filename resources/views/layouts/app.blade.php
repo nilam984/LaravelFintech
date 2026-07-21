@@ -35,6 +35,14 @@
         }
     </script>
 
+    <style type="text/tailwindcss">
+        @layer components {
+            .bg-btn {
+                @apply bg-fintechCyan hover:bg-fintechCyanHover text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors duration-200 inline-flex items-center justify-center;
+            }
+        }
+    </style>
+
     <style>
         /* Premium Fintech Gradient for Sidebar and Header based on #0b1528 */
         .fintech-gradient {
