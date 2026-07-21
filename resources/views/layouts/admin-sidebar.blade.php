@@ -78,6 +78,11 @@
             <i class="bi bi-wallet2"></i> Scheme
         </a>
 
+        <a href="{{ route('gateway.routing') }}"
+            class="flex items-center gap-3 px-3 py-2.5 rounded-xl to-transparent text-white font-medium transition duration-200 {{ request()->routeIs('gateway.routing') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}">
+            <i class="bi bi-shuffle"></i> Gateway & Routing
+        </a>
+
     </nav>
 
     <!-- Status Box Footer -->
