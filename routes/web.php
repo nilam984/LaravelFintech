@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\StatusChangeController;
 use App\Http\Controllers\DataTableController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\ProfileController;
+use App\Http\Controllers\User\OauthUserController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -43,12 +44,14 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/get-products/{service_id}', [AdminController::class, 'getProducts'])->name('get.products');
     Route::post('/add-products', [AdminController::class, 'addProduct'])->name('add.products');
     Route::post('/global-service/store', [AdminController::class, 'store'])->name('global.service.store');
+    Route::post('/global-service/update',[AdminController::class,'update'])->name('global.service.update');
 
     // Scheme 
     Route::get('scheme', [SchemeController::class, 'scheme'])->name('scheme');
     Route::post('/scheme/save',  [SchemeController::class, 'storeOrUpdate'])->name('scheme.save');
     Route::get('/scheme/{id}', [SchemeController::class, 'edit'])->name('scheme.edit');
     Route::post('/scheme/change-status', [StatusChangeController::class, 'changeSchemeStatus'])->name('scheme.change.status');
+    Route::post('/assign-scheme', [SchemeController::class, 'assignScheme'])->name('assign.scheme');
 });
 
 // User routes
@@ -57,4 +60,6 @@ Route::prefix('user')->middleware('auth')->group(function () {
     Route::get('/service-request', [UserController::class, 'serviceRequest'])->name('user.service-request');
     Route::post('/request-service', [UserController::class, 'userServiceRequest'])->name('user.request-service');
     Route::get('/user-profile', [UserController::class, 'userprofile'])->name('user.user-profile');
+    Route::get('/oauth-user', [OauthUserController::class, 'index'])->name('user.oauthuser');
+    Route::post('/oauth-user/store', [OauthUserController::class, 'generateClientCredentials'])->name('generate.client.credentials');
 });

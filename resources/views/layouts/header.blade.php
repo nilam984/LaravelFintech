@@ -78,10 +78,13 @@
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/70 hover:text-white hover:bg-white/5 transition">
                     <i class="bi bi-person text-base text-fintechCyan"></i> Profile Config
                 </a>
-                <a href="#"
+                @if(auth()->check() && auth()->user()->role == 'user')
+                <a href="{{ route('user.oauthuser') }}"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/70 hover:text-white hover:bg-white/5 transition">
                     <i class="bi bi-shield-lock text-base text-fintechCyan"></i> API Access Keys
                 </a>
+                @endif
+                
                 <hr class="border-white/10 my-1">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
