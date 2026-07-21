@@ -377,11 +377,9 @@
                         $('button[type=submit]')
                             .prop('disabled', false).text('Save Profile');
                         if (response.status) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success',
-                                text: response.message
-                            });
+                            ToastEngine.show(response.message, "success");
+                        } else {
+                            ToastEngine.show(response.message, "error");
                         }
                     },
                     error: function(xhr) {
@@ -395,11 +393,7 @@
                                     '</span>');
                             });
                         } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: xhr.responseJSON.message
-                            });
+                            ToastEngine.show(xhr.responseJSON.message, "error");
                         }
                     }
                 });
