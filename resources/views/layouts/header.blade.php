@@ -55,10 +55,10 @@
                 class="flex items-center gap-3 p-1.5 rounded-xl hover:bg-white/5 transition text-left">
                 <div
                     class="w-9 h-9 rounded-xl bg-gradient-to-br from-fintechCyan to-fintechGreen flex items-center justify-center font-bold text-fintechDark text-sm">
-                    JD
+                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                 </div>
                 <div class="hidden sm:block text-xs">
-                    <p class="font-bold leading-none text-white/90">John Doe</p>
+                    <p class="font-bold leading-none text-white/90">{{ Auth::user()->name }}</p>
                     <p class="text-[10px] text-white/40 mt-0.5">Premium Account</p>
                 </div>
                 <i class="bi bi-chevron-down text-xs text-white/40 hidden sm:block"></i>

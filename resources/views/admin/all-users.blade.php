@@ -103,6 +103,7 @@
                 responsive: true,
                 searching: true,
                 ordering: true,
+                scrollX: true,
                 ajax: {
                     url: "{{ route('datatable', 'users') }}",
                     type: "POST",
