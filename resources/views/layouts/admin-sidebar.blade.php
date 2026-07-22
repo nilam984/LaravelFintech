@@ -41,6 +41,10 @@
                     class="block px-3 py-2 rounded-lg text-sm transition {{ request()->routeIs('admin.all-users') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}">
                     All Users
                 </a>
+                <a href="{{ route('admin.load.money') }}"
+                    class="block px-3 py-2 rounded-lg text-sm transition {{ request()->routeIs('admin.load.money') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}">
+                    Load Money
+                </a>
             </div>
         </div>
 

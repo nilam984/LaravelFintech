@@ -25,9 +25,12 @@ class User extends Authenticatable
         'password',
         'role',
         'status',
+        'main_wallet',
+        'payin_wallet',
+        'payout_wallet',
         'email_otp',
         'email_otp_expire_at',
-        'email_verified_at', 
+        'email_verified_at',
     ];
 
 
@@ -51,6 +54,24 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+        ];
+    }
+
+
+    public function getWalletSummaryAttribute()
+    {
+        if ($this->role === 'admin') {
+            return [
+                'main_wallet'   => (float) User::where('role', 'user')->sum('main_wallet'),
+                'payin_wallet'  => (float) User::where('role', 'user')->sum('payin_wallet'),
+                'payout_wallet' => (float) User::where('role', 'user')->sum('payout_wallet'),
+            ];
+        }
+
+        return [
+            'main_wallet'   => (float) ($this->main_wallet ?? 0),
+            'payin_wallet'  => (float) ($this->payin_wallet ?? 0),
+            'payout_wallet' => (float) ($this->payout_wallet ?? 0),
         ];
     }
 }

@@ -4,7 +4,6 @@
 
 @section('content')
     <main class="p-4 sm:p-8 space-y-6">
-
         {{-- Page Header --}}
         <div>
             <h1 class="text-2xl font-bold text-fintechDarkText">
@@ -17,13 +16,18 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            <div class="bg-white border rounded-xl p-6 shadow-sm flex flex-col justify-between space-y-6">
+            <div class="bg-white border border-cyan-500 rounded-xl p-6 shadow-sm flex flex-col justify-between space-y-6">
                 <div class="space-y-4">
                     {{-- Header --}}
                     <div class="flex items-center justify-between border-b pb-3">
                         <h2 class="text-lg font-semibold text-fintechDarkText">
                             Payin Routing
                         </h2>
+                        <span
+                            class="inline-flex items-center rounded-full bg-cyan-500 px-3 py-1 text-xs font-medium text-white">
+                            {{ $payinCurrentRouteId?->gatewayName?->gateway_name ?? '----' }}
+                        </span>
+
                     </div>
 
                     {{-- Form / Selection --}}
@@ -41,7 +45,7 @@
                                 <option value="" disabled selected>Choose a gateway...</option>
                                 @foreach ($payinGateways as $gateway)
                                     <option value="{{ $gateway->id }}"
-                                        {{ $gateway->id == $payinCurrentRouteId->id ? 'selected' : '' }}>
+                                        {{ $gateway->id == $payinCurrentRouteId->payment_gateway_id ? 'selected' : '' }}>
                                         {{ $gateway->gateway_name }}
                                     </option>
                                 @endforeach
@@ -62,13 +66,17 @@
                 </div>
             </div>
 
-            <div class="bg-white border rounded-xl p-6 shadow-sm flex flex-col justify-between space-y-6">
+            <div class="bg-white border border-cyan-500 rounded-xl p-6 shadow-sm flex flex-col justify-between space-y-6">
                 <div class="space-y-4">
                     {{-- Header --}}
                     <div class="flex items-center justify-between border-b pb-3">
                         <h2 class="text-lg font-semibold text-fintechDarkText">
                             Payout Routing
                         </h2>
+                        <span
+                            class="inline-flex items-center rounded-full bg-cyan-500 px-3 py-1 text-xs font-medium text-white">
+                            {{ $payoutCurrentRouteId?->gatewayName?->gateway_name ?? '----' }}
+                        </span>
                     </div>
 
                     {{-- Form / Selection --}}
@@ -85,7 +93,7 @@
                                 <option value="" disabled selected>Choose a gateway...</option>
                                 @foreach ($payoutGateways as $gateway)
                                     <option value="{{ $gateway->id }}"
-                                        {{ $gateway->id == $payoutCurrentRouteId->id ? 'selected' : '' }}>
+                                        {{ $gateway->id == $payoutCurrentRouteId->payment_gateway_id ? 'selected' : '' }}>
                                         {{ $gateway->gateway_name }}
                                     </option>
                                 @endforeach

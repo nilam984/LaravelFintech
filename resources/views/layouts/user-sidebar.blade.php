@@ -48,6 +48,11 @@
             </div>
         </div>
 
+        <a href="{{ route('user.load.money') }}"
+            class="flex items-center gap-3 px-3 py-2.5 rounded-xl to-transparent text-white font-medium transition duration-200 {{ request()->routeIs('user.load.money') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}">
+            <i class="bi bi-wallet2"></i> Load Money
+        </a>
+
         <a href="#"
             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition duration-200">
             <i class="bi bi-shield-check"></i> Security Protocols
