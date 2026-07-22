@@ -52,6 +52,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/scheme/{id}', [SchemeController::class, 'edit'])->name('scheme.edit');
     Route::post('/scheme/change-status', [StatusChangeController::class, 'changeSchemeStatus'])->name('scheme.change.status');
     Route::post('/assign-scheme', [SchemeController::class, 'assignScheme'])->name('assign.scheme');
+    Route::get('gateway-routing', [AdminController::class, 'gatewayRouting'])->name('gateway.routing');
+    Route::post('switch-gateway-routing', [AdminController::class, 'switchGatewayRoute'])->name('switch.gateway.routing');
 });
 
 // User routes

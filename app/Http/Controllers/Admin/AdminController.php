@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\GatewayRouting;
 use App\Models\GlobalService;
+use App\Models\PaymentGateway;
 use App\Models\ServiceProduct;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Log;
 
 class AdminController extends Controller
 {
@@ -53,7 +56,6 @@ class AdminController extends Controller
                 'status' => true,
                 'message' => 'Global Service Added Successfully.',
             ], 200);
-
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => false,
@@ -61,7 +63,7 @@ class AdminController extends Controller
                 'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
-            \Log::error('Global Service Store Error: '.$e->getMessage());
+            \Log::error('Global Service Store Error: ' . $e->getMessage());
 
             return response()->json([
                 'status' => false,
@@ -73,7 +75,7 @@ class AdminController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'service_name' => 'required|unique:global_services,service_name,'.$request->id,
+            'service_name' => 'required|unique:global_services,service_name,' . $request->id,
             'status' => 'required',
         ]);
         $service = GlobalService::findOrFail($request->id);
@@ -123,5 +125,64 @@ class AdminController extends Controller
         }
     }
 
-    
+
+    public function gatewayRouting()
+    {
+        $payinGateways = PaymentGateway::where('gateway_type', 'payin')->where('status', 1)->latest()->get();
+        $payoutGateways = PaymentGateway::where('gateway_type', 'payout')->where('status', 1)->latest()->get();
+        $payinCurrentRouteId = GatewayRouting::select('payment_gateway_id as id')->where('gateway_type', 'payin')->first();
+        $payoutCurrentRouteId = GatewayRouting::select('payment_gateway_id as id')->where('gateway_type', 'payout')->first();
+
+        return view('admin.gateway-routing', compact('payinGateways', 'payoutGateways', 'payinCurrentRouteId', 'payoutCurrentRouteId'));
+    }
+
+    public function switchGatewayRoute(Request $request)
+    {
+        try {
+            if (!in_array($request->gateway_type, ['payin', 'payout'])) {
+                return redirect()->back()->with('error', 'Invalid Gateway type');
+            }
+
+            if ($request->gateway_type == 'payin') {
+
+                $request->validate([
+                    'payin_gateway_id' => 'required|exists:payment_gateways,id',
+                ]);
+
+                $gatewayId = $request->payin_gateway_id;
+                $gatewayType = 'payin';
+            } else {
+
+                $request->validate([
+                    'payout_gateway_id' => 'required|exists:payment_gateways,id',
+                ]);
+
+                $gatewayId = $request->payout_gateway_id;
+                $gatewayType = 'payout';
+            }
+
+            $updatedBy = Auth::user()->id;
+
+            $created = DB::transaction(function () use ($gatewayType, $gatewayId, $updatedBy) {
+                return GatewayRouting::updateOrCreate(
+
+                    ['gateway_type' => $gatewayType],
+
+                    [
+                        'payment_gateway_id' => $gatewayId,
+                        'updated_by' => $updatedBy
+                    ]
+                );
+            });
+
+            if ($created) {
+                return redirect()->back()->with('success', 'Gateway Switched Successfully');
+            } else {
+                return redirect()->back()->with('error', 'Some Error Occured');
+            }
+        } catch (\Exception $e) {
+            Log::error('Gateway switch error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error : ' . $e->getMessage());
+        }
+    }
 }
