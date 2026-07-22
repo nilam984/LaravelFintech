@@ -11,26 +11,39 @@
         <div class="bg-white rounded-xl shadow">
             <div class="bg-white rounded-2xl  p-3 mb-6">
                 <div class="flex flex-wrap gap-3">
-                    <button class="profile-tab active flex items-center gap-2 px-5 py-3 rounded-xl transition-all duration-300 bg-cyan-600 text-white shadow-md"
+                    <button
+                        class="profile-tab active flex items-center gap-2 px-5 py-3 rounded-xl transition-all duration-300 bg-cyan-600 text-white shadow-md"
                         data-tab="user-details">
                         <i class="bi bi-person-circle"></i>
                         <span>User Details</span>
                     </button>
-                    <button class="profile-tab flex items-center gap-2 px-5 py-3 rounded-xl bg-gray-100 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-all duration-300"
+                    <button
+                        class="profile-tab flex items-center gap-2 px-5 py-3 rounded-xl bg-gray-100 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-all duration-300"
                         data-tab="business-details">
                         <i class="bi bi-building"></i>
                         <span>Business Details</span>
                     </button>
-                    <button class="profile-tab flex items-center gap-2 px-5 py-3 rounded-xl bg-gray-100 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-all duration-300"
+                    <button
+                        class="profile-tab flex items-center gap-2 px-5 py-3 rounded-xl bg-gray-100 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-all duration-300"
                         data-tab="bank-details">
                         <i class="bi bi-bank"></i>
                         <span>Bank Details</span>
                     </button>
-                    <button class="profile-tab flex items-center gap-2 px-5 py-3 rounded-xl bg-gray-100 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-all duration-300"
+                    <button
+                        class="profile-tab flex items-center gap-2 px-5 py-3 rounded-xl bg-gray-100 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-all duration-300"
                         data-tab="user-onboarding">
                         <i class="bi bi-file-earmark-check"></i>
                         <span>User Onboarding</span>
                     </button>
+
+                    <button
+                        class="profile-tab flex items-center gap-2 px-5 py-3 rounded-xl bg-gray-100 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-all duration-300"
+                        data-tab="webhook-url">
+                        <i class="bi bi-file-earmark-check"></i>
+                        <span>WebHook Url</span>
+                    </button>
+
+
                 </div>
 
             </div>
@@ -44,6 +57,11 @@
                 <div id="bank-details" class="tab-content hidden">
                     @include('user.bank-details')
                 </div>
+
+                <div id="webhook-url" class="tab-content hidden">
+                    @include('user.webhook-url')
+                </div>
+
                 <div id="user-onboarding" class="tab-content hidden">
                     <div class="max-w-7xl mx-auto px-4">
                         <form id="profileForm" action="" method="POST" enctype="multipart/form-data">
@@ -173,7 +191,7 @@
                                             @endif
                                         </div>
                                         <input id="owner_pan_image" type="file" name="owner_pan_image"
-                                                            class="w-full border rounded-lg p-1.5 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold
+                                            class="w-full border rounded-lg p-1.5 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold
                                             file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100">
                                     </div>
                                     <div>
@@ -191,7 +209,9 @@
                                                 </button>
                                             @endif
                                         </div>
-                                        <input id="owner_aadhar_image_front" type="file" name="owner_aadhar_image_front" class="w-full border rounded-lg p-1.5 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-cyan-50 file:text-cyan-700
+                                        <input id="owner_aadhar_image_front" type="file"
+                                            name="owner_aadhar_image_front"
+                                            class="w-full border rounded-lg p-1.5 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-cyan-50 file:text-cyan-700
                                            hover:file:bg-cyan-100">
                                     </div>
                                     <div>
@@ -209,7 +229,8 @@
                                                 </button>
                                             @endif
                                         </div>
-                                        <input id="owner_aadhar_image_back" type="file" name="owner_aadhar_image_back" class="w-full border rounded-lg p-1.5 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100">
+                                        <input id="owner_aadhar_image_back" type="file" name="owner_aadhar_image_back"
+                                            class="w-full border rounded-lg p-1.5 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100">
                                     </div>
                                 </div>
                             </div>
@@ -433,6 +454,157 @@
                     }
                 });
             });
+        });
+    </script>
+
+    {{-- webhook Url Script code --}}
+    <script>
+        $(document).on('submit', '#webhookForm', function(e) {
+            e.preventDefault();
+            let form = $(this);
+            let id = $('#webhook_id').val();
+            let url = id ? "/user/webhookurl/update/" + id : "{{ route('webhookurl.store') }}";
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: form.serialize(),
+                beforeSend: function() {
+                    form.find('button[type="submit"]')
+                        .prop('disabled', true)
+                        .text(id ? 'Updating...' : 'Saving...');
+                },
+                success: function(response) {
+                    form.find('button[type="submit"]')
+                        .prop('disabled', false)
+                        .text('Save Webhook');
+                    if (response.status) {
+                        ToastEngine.show(response.message, "success");
+                        form.trigger('reset');
+                        $('#webhook_id').val('');
+                        $('#webhookModal h3').text('Add Webhook URL');
+                        form.find('button[type="submit"]').text('Save Webhook');
+                        closeWebhookModal();
+                        $('#webhookTable').DataTable().ajax.reload(null, false);
+                    } else {
+                        ToastEngine.show(response.message, "error");
+                    }
+                },
+
+                error: function(xhr) {
+                    form.find('button[type="submit"]')
+                        .prop('disabled', false)
+                        .text('Save Webhook');
+                    $('.text-danger').remove();
+                    if (xhr.status == 422) {
+                        $.each(xhr.responseJSON.errors, function(key, value) {
+                            $('[name="' + key + '"]').after(
+                                '<span class="text-danger text-red-500 text-sm">' + value[0] + '</span>'
+                            );
+                        });
+                    } else {
+                        let message = "Something went wrong.";
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            message = xhr.responseJSON.message;
+                        }
+                        ToastEngine.show(message, "error");
+                    }
+                }
+            });
+        });
+        $(document).on('click', '.editWebhook', function() {
+            let id = $(this).data('id');
+            $.ajax({
+                url: "{{ route('webhookurl.edit', ':id') }}".replace(':id', id),
+                type: "GET",
+                success: function(response) {
+                    if (response.status) {
+                        $('#webhook_id').val(response.data.id);
+                        $('[name="service_id"]').val(response.data.service_id);
+                        $('[name="webhook_url"]').val(response.data.webhook_url);
+                        $('[name="status"]').val(response.data.status);
+                        $('#webhookModal h3').text('Update Webhook');
+                        $('#webhookForm button[type="submit"]').text('Update Webhook');
+                        $('#webhookModal').removeClass('hidden').addClass('flex');
+                    }
+                }
+            });
+
+        });
+        $('#webhookTable').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "{{ route('datatable', 'webHookUrls') }}",
+                type: "POST",
+                data: function(d) {
+                    d._token = "{{ csrf_token() }}";
+                    d.table = "webHookUrls";
+                }
+            },
+            columns: [
+                {
+                    data: 'id',
+                    name: 'id'
+                },
+                {
+                    data: 'service.service_name',
+                    name: 'service.service_name'
+                },
+                {
+                    data: 'webhook_url',
+                    name: 'webhook_url'
+                },
+                {
+                    data: 'status',
+                    name: 'status',
+                    render: function(data) {
+                        return data == 1 ?
+                            '<span class="px-2 py-1 rounded-full bg-green-100 text-green-700">Active</span>' :
+                            '<span class="px-2 py-1 rounded-full bg-red-100 text-red-700">Inactive</span>';
+                    }
+                },
+                {
+                    data: null,
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row) {
+
+                    console.log(row);
+
+                    return `
+                        <button
+                            class="editWebhook bg-yellow-500 text-white px-3 py-2 rounded"
+                            data-id="${row.id}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                    `;
+                }
+                }
+            ]
+        });
+
+        function openWebhookModal() {
+            $('#webhookForm')[0].reset();
+            $('#webhook_id').val('');
+            $('#webhookModal h3').text('Add Webhook URL');
+            $('#webhookForm button[type="submit"]').text('Save Webhook');
+            $('#webhookModal').removeClass('hidden').addClass('flex');
+        }
+
+        function closeWebhookModal() {
+            const modal = document.getElementById('webhookModal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+        document.getElementById('webhookModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeWebhookModal();
+            }
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeWebhookModal();
+            }
         });
     </script>
 @endsection

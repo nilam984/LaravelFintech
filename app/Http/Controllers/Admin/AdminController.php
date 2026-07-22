@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\BankDetail;
+use App\Models\BussinessInfo;
 use App\Models\GatewayRouting;
 use App\Models\GlobalService;
 use App\Models\PaymentGateway;
@@ -130,9 +132,8 @@ class AdminController extends Controller
     {
         $payinGateways = PaymentGateway::where('gateway_type', 'payin')->where('status', 1)->latest()->get();
         $payoutGateways = PaymentGateway::where('gateway_type', 'payout')->where('status', 1)->latest()->get();
-        $payinCurrentRouteId = GatewayRouting::select('payment_gateway_id as id')->where('gateway_type', 'payin')->first();
-        $payoutCurrentRouteId = GatewayRouting::select('payment_gateway_id as id')->where('gateway_type', 'payout')->first();
-
+        $payinCurrentRouteId = GatewayRouting::with('gatewayName')->where('gateway_type', 'payin')->first();
+        $payoutCurrentRouteId = GatewayRouting::with('gatewayName')->where('gateway_type', 'payout')->first();
         return view('admin.gateway-routing', compact('payinGateways', 'payoutGateways', 'payinCurrentRouteId', 'payoutCurrentRouteId'));
     }
 
@@ -184,5 +185,20 @@ class AdminController extends Controller
             Log::error('Gateway switch error: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Error : ' . $e->getMessage());
         }
+    }
+
+
+    public function loadMoney()
+    {
+        $users = User::where('role', 'user')->orderBy('id', 'desc')->get();
+        return view('admin.load-money', compact('users'));
+    }
+
+    public function adminprofile()
+    {
+        $userId = auth()->id();
+        $business = BussinessInfo::where('user_id', $userId)->first();
+        $bank = BankDetail::where('user_id', $userId)->first();
+        return view('admin.admin-profile', compact('business', 'bank'));
     }
 }

@@ -15,6 +15,46 @@
 
     <div class="flex items-center gap-3 sm:gap-4">
 
+        {{-- Wallet Balance Badges --}}
+        <div class="flex items-center gap-2">
+
+            {{-- Main Wallet (Always Visible) --}}
+            <div class="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2" title="Main Wallet">
+                <i class="bi bi-wallet2 text-fintechCyan"></i>
+                <div class="text-xs">
+                    {{-- <p class="text-white/40">Main</p> --}}
+                    <p class="font-semibold text-white" >
+                        ₹{{ number_format(auth()->user()->wallet_summary['main_wallet'], 2) }}
+                    </p>
+                </div>
+            </div>
+
+            {{-- Payin Wallet (Hidden Mobile) --}}
+            <div class="hidden md:flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2" title="Payin">
+                <i class="bi bi-arrow-down-circle text-fintechGreen"></i>
+                <div class="text-xs">
+                    {{-- <p class="text-white/40">Payin</p> --}}
+                    <p class="font-semibold text-white">
+                        ₹{{ number_format(auth()->user()->wallet_summary['payin_wallet'], 2) }}
+                    </p>
+                </div>
+            </div>
+
+            {{-- Payout Wallet (Hidden Mobile) --}}
+            <div class="hidden md:flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2" title="Payout Wallet">
+                <i class="bi bi-arrow-up-circle text-yellow-400"></i>
+                <div class="text-xs">
+                    {{-- <p class="text-white/40">Payout</p> --}}
+                    <p class="font-semibold text-white">
+                        ₹{{ number_format(auth()->user()->wallet_summary['payout_wallet'] ?? 0, 2) }}
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+
+
         <!-- Notifications Menu Menu Dropdown Anchor -->
         <div class="relative">
             <button onclick="toggleNotificationMenu()"
@@ -66,7 +106,7 @@
 
             @php
                 if (auth()->user()->role == 'admin') {
-                    $route = 'javascript:void(0)';
+                    $route = route('admin.profile');
                 } else {
                     $route = route('user.user-profile');
                 }
@@ -78,13 +118,13 @@
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/70 hover:text-white hover:bg-white/5 transition">
                     <i class="bi bi-person text-base text-fintechCyan"></i> Profile Config
                 </a>
-                @if(auth()->check() && auth()->user()->role == 'user')
-                <a href="{{ route('user.oauthuser') }}"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/70 hover:text-white hover:bg-white/5 transition">
-                    <i class="bi bi-shield-lock text-base text-fintechCyan"></i> API Access Keys
-                </a>
+                @if (auth()->check() && auth()->user()->role == 'user')
+                    <a href="{{ route('user.oauthuser') }}"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/70 hover:text-white hover:bg-white/5 transition">
+                        <i class="bi bi-shield-lock text-base text-fintechCyan"></i> API Access Keys
+                    </a>
                 @endif
-                
+
                 <hr class="border-white/10 my-1">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
