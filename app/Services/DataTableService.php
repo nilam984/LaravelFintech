@@ -2,12 +2,14 @@
 
 namespace App\Services;
 
+use App\Models\AssignedScheme;
 use App\Models\GlobalService;
+use App\Models\LoadMoney;
 use App\Models\OauthUser;
 use App\Models\Scheme;
 use App\Models\ServiceRequest;
 use App\Models\User;
-use App\Models\AssignedScheme;
+use App\Models\WebHookUrl;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
@@ -130,6 +132,7 @@ class DataTableService
                 if ($user->role === 'admin') {
                     return $query;
                 }
+
                 return $query->where('user_id', $user->id);
             },
         ];
@@ -154,7 +157,59 @@ class DataTableService
                 }
 
                 return $query;
-            }
+            },
+
+        ];
+    }
+
+    protected function webHookUrls()
+    {
+        return [
+
+            'model' => WebHookUrl::class,
+
+            'with' => ['service'],
+
+            'query' => function ($query, $request) {
+
+                $user = Auth::user();
+
+                if ($user->role === 'admin') {
+                    return $query;
+                }
+
+                return $query->where('user_id', $user->id);
+            },
+
+        ];
+    }
+
+    protected function loadMoney()
+    {
+        return [
+
+            'model' => LoadMoney::class,
+
+            'with' => ['user', 'updatedBy'],
+
+            'query' => function ($query, $request) {
+
+                $user = Auth::user();
+
+                if ($user->role === 'admin') {
+                    if ($request->user_id) {
+                        $query = $query->where('user_id', $request->user_id);
+                    }
+
+                    return $query;
+                }
+
+                $userId = Auth::user()->id;
+
+                $query = $query->where('user_id', $userId);
+
+                return $query;
+            },
 
         ];
     }
