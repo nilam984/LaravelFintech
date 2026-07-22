@@ -343,20 +343,7 @@
                             </div>
                         </form>
                     </div>
-                    {{-- image preview modal --}}
-                    <div id="imagePreviewModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50">
-                        <div class="bg-white rounded-xl shadow-xl w-11/12 md:w-3/4 lg:w-1/2 relative">
-                            <div class="flex justify-between items-center border-b p-4">
-                                <h3 id="previewTitle" class="text-lg font-semibold"></h3>
-                                <button type="button" id="closePreview"
-                                    class="text-gray-500 hover:text-red-500 text-2xl">
-                                    &times;
-                                </button>
-                            </div>
-                            <div id="previewBody" class="p-4 text-center">
-                            </div>
-                        </div>
-                    </div>
+                   
                 </div>
             </div>
         </div>
@@ -377,40 +364,7 @@
             });
         });
     </script>
-    <script>
-        $(document).on('click', '.previewImage', function() {
-            let src = $(this).data('src');
-            let title = $(this).data('title');
-            $('#previewTitle').text(title);
-            let extension = src.split('.').pop().toLowerCase();
-            if (extension === 'pdf') {
-                $('#previewBody').html(`
-            <iframe src="${src}"
-                class="w-[700px] h-[600px] mx-auto rounded-lg border">
-            </iframe> `);
-            } else {
-                $('#previewBody').html(`
-            <div class="flex justify-center items-center p-4">
-                <img src="${src}"
-                    class="w-[450px] h-[300px] object-contain border rounded-lg bg-gray-100">
-            </div> `);
-            }
-            $('#imagePreviewModal')
-                .removeClass('hidden')
-                .addClass('flex');
-
-        });
-        $('#closePreview').click(function() {
-            $('#imagePreviewModal')
-                .removeClass('flex')
-                .addClass('hidden');
-        });
-        $('#imagePreviewModal').click(function(e) {
-            if (e.target === this) {
-                $(this).removeClass('flex').addClass('hidden');
-            }
-        });
-    </script>
+   
     <script>
         $(document).ready(function() {
             $('#profileForm').submit(function(e) {

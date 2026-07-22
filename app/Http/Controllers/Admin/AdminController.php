@@ -7,6 +7,7 @@ use App\Models\BankDetail;
 use App\Models\BussinessInfo;
 use App\Models\GatewayRouting;
 use App\Models\GlobalService;
+use App\Models\LoadMoney;
 use App\Models\PaymentGateway;
 use App\Models\ServiceProduct;
 use App\Models\User;
@@ -14,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
@@ -200,5 +202,93 @@ class AdminController extends Controller
         $business = BussinessInfo::where('user_id', $userId)->first();
         $bank = BankDetail::where('user_id', $userId)->first();
         return view('admin.admin-profile', compact('business', 'bank'));
+    }
+
+
+    public function loadMoneyAction(Request $request)
+    {
+        $validated = $request->validate([
+            'id' => ['required', 'integer', 'exists:load_money,id'],
+            'status' => ['required', Rule::in(['approved', 'rejected'])],
+            'remark' => ['nullable', 'string', 'max:300'],
+        ]);
+
+        if ($validated['status'] === 'rejected' &&   blank($validated['remark'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Remark is required for rejection.'
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+            $loadRequest = LoadMoney::lockForUpdate()->findOrFail($validated['id']);
+
+            if ($loadRequest->status !== 'pending') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This request has already been processed.'
+                ], 422);
+            }
+
+            $userId = Auth::user()->id;
+
+            if ($validated['status'] === 'rejected') {
+
+                $loadRequest->update([
+                    'status' => 'rejected',
+                    'rejection_remark' => $validated['remark'],
+                    'updated_by' => $userId,
+                ]);
+
+                DB::commit();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Request rejected successfully.'
+                ]);
+            }
+
+
+            $user = $loadRequest->user()->lockForUpdate()->first();
+
+            $amount = $loadRequest->amount;
+
+            $user->increment('main_wallet', $amount);
+
+
+            // Ledger Record
+            // WalletTransaction::create([
+            //     'user_id'        => $user->id,
+            //     'amount'         => $amount,
+            //     'type'           => 'credit',
+            //     'wallet_type'    => 'main_wallet',
+            //     'reference_id'   => $loadRequest->id,
+            //     'reference_type' => 'service_request',
+            //     'remark'         => 'Service request approved',
+            // ]);
+
+            $loadRequest->update([
+                'status' => 'approved',
+                'updated_by' => $userId,
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Request approved successfully.'
+            ]);
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error : ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
