@@ -57,6 +57,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('switch-gateway-routing', [AdminController::class, 'switchGatewayRoute'])->name('switch.gateway.routing');
 
     Route::get('load-money', [AdminController::class, 'loadMoney'])->name('admin.load.money');
+    Route::post('load-money', [AdminController::class, 'loadMoneyAction'])->name('action.load.money');
+    
 });
 
 // User routes

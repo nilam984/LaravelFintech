@@ -128,8 +128,17 @@
                         }
                     },
                     {
-                        data: 'pay_receipt',
-                        name: 'pay_receipt'
+                        data: 'receipt_image',
+                        name: 'receipt_image',
+                        render: function(data) {
+                            return `
+                                <span class="previewImage text-cyan-600 hover:text-cyan-800"
+                                    data-title="Payment Receipt"
+                                    data-src="${data}">
+                                    <i class="bi bi-eye-fill"></i>
+                                </span>
+                            `;
+                        }
                     },
                     {
                         data: 'created_at',
@@ -155,7 +164,7 @@
                             } else if (data === 'rejected') {
                                 badgeClass = 'bg-red-100 text-red-700 border-red-200';
                             } else {
-                                badgeClass = 'bg-yellow-100 text-white-700 border-yellow-200';
+                                badgeClass = 'bg-yellow-100 text-yellow-700 border-yellow-200';
                             }
 
                             return `

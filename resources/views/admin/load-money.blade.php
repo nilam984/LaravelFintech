@@ -152,8 +152,17 @@
                         }
                     },
                     {
-                        data: 'pay_receipt',
-                        name: 'pay_receipt'
+                        data: 'receipt_image',
+                        name: 'receipt_image',
+                        render: function(data) {
+                            return `
+                                <span class="previewImage text-cyan-600 hover:text-cyan-800"
+                                    data-title="Payment Receipt"
+                                    data-src="${data}">
+                                    <i class="bi bi-eye-fill"></i>
+                                </span>
+                            `;
+                        }
                     },
                     {
                         data: 'created_at',
@@ -174,9 +183,14 @@
                             if (data === 'pending') {
                                 return `
                                 <select
-                                    class="service-status w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition"
+                                    class="loadMoney w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition"
                                     data-id="${row.id}"
                                     data-status="${data}">
+
+                                    <option value="pending">
+                                        Pending
+                                    </option>
+
 
                                     <option value="approved">
                                         Approved
@@ -229,67 +243,53 @@
             });
         });
 
-        // For Change user status
-        $(document).on('change', '.service-status', function() {
-            changeStatus(this, "{{ route('service-requests.change-status') }}", "Service", table);
-        });
-
-        $(function() {
-
-            // Request service
-            $(document).on('click', '.request-service-btn', function() {
 
 
-                let serviceId = $(this).data('id');
-                let serviceName = $(this).data('name');
-                Swal.fire({
-                    title: 'Confirm Request',
-                    html: `Are you sure you want to request the <b>${serviceName}</b> service?`,
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes',
-                    cancelButtonText: 'Cancel',
-                    confirmButtonColor: '#06B6D4'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: "{{ route('user.request-service') }}",
-                            type: 'POST',
-                            data: {
-                                _token: $('meta[name="csrf-token"]').attr('content'),
-                                service_id: serviceId
-                            },
-                            success: function(response) {
-                                if (response.success) {
-                                    $('#serviceModal')
-                                        .removeClass('flex')
-                                        .addClass('hidden');
+        $(document).on('change', '.loadMoney', function() {
 
-                                    ToastEngine.show(response.message, "success");
-                                    setTimeout(() => {
-                                        location.reload();
-                                    }, 2000);
-                                } else {
-                                    ToastEngine.show(response.message, "error");
-                                }
-                            },
-                            error: function(xhr) {
-                                if (xhr.status === 422) {
-                                    let errors = xhr.responseJSON.errors;
-                                    let errorText = "";
-                                    $.each(errors, function(key, value) {
-                                        errorText += value[0] + "<br>";
-                                    });
-                                    ToastEngine.show(errorText, "error");
-                                } else {
-                                    ToastEngine.show(xhr.responseJSON.message, "error");
-                                }
-                            }
-                        });
+            let select = $(this),
+                id = select.data('id'),
+                oldStatus = 'pending',
+                status = select.val();
+
+            Swal.fire({
+                title: `${status === 'approved' ? 'Approve' : 'Reject'} Request`,
+                icon: status === 'approved' ? 'question' : 'warning',
+                input: status === 'rejected' ? 'textarea' : null,
+                inputPlaceholder: 'Enter rejection remark...',
+                inputValidator: value =>
+                    status === 'rejected' && !value ? 'Remark is required.' : undefined,
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#06B6D4'
+            }).then(result => {
+
+                if (!result.isConfirmed) {
+                    return select.val(oldStatus);
+                }
+                $.post("{{ route('action.load.money') }}", {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    id: id,
+                    status: status,
+                    remark: result.value ?? ''
+                }, function(res) {
+
+                    ToastEngine.show(res.message, res.success ? 'success' : 'error');
+
+                    if (res.success) {
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        select.val(oldStatus);
                     }
+
+                }).fail(function(xhr) {
+
+                    select.val(oldStatus);
+                    ToastEngine.show(xhr.responseJSON?.message || 'Something went wrong.', 'error');
+
                 });
             });
-
         });
     </script>
 @endsection
