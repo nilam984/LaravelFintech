@@ -74,4 +74,5 @@ Route::prefix('user')->middleware('auth')->group(function () {
     Route::post('/webhookurl/update/{id}', [UserController::class,'update'])->name('webhookurl.update');
 
     Route::get('load-money', [UserController::class, 'loadMoney'])->name('user.load.money');
+    Route::post('/load-money/store', [UserController::class, 'loadmoneystore'])->name('load-money.store');
 });

@@ -155,13 +155,18 @@
                         data: 'receipt_image',
                         name: 'receipt_image',
                         render: function(data) {
+
+                            if (!data) {
+                                return '<span class="text-gray-400">No Receipt</span>';
+                            }
+
                             return `
-                                <span class="previewImage text-cyan-600 hover:text-cyan-800"
-                                    data-title="Payment Receipt"
-                                    data-src="${data}">
-                                    <i class="bi bi-eye-fill"></i>
-                                </span>
-                            `;
+                            <span class="previewImage cursor-pointer text-cyan-600"
+                                data-title="Payment Receipt"
+                                data-src="${data}">
+                                <i class="bi bi-eye-fill text-lg"></i>
+                            </span>
+                        `;
                         }
                     },
                     {

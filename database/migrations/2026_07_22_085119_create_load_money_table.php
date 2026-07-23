@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('user_id');
             $table->decimal('amount', 13, 2,);
-            $table->string('utr');
+            $table->string('utr')->nullable();
             $table->string('request_id')->unique();
             $table->enum('mode', ['cash', 'online']);
             $table->string('pay_receipt')->nullable();
