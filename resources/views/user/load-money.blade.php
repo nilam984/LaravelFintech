@@ -208,7 +208,22 @@
                     },
                     {
                         data: 'rejection_remark',
-                        name: 'rejection_remark'
+                        name: 'rejection_remark',
+                        render: function(data, type, row) {
+                            if (!data) {
+                                return '-';
+                            }
+
+                            return `
+                                <button
+                                    type="button"
+                                    class="view-remark cursor-pointer text-cyan-600"
+                                    data-remark="${$('<div>').text(data).html()}"
+                                    title="View Remark">
+                                    <i class="bi bi-eye-fill text-lg"></i>
+                                </button>
+                            `;
+                        }
                     },
                     {
                         data: 'status',
