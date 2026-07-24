@@ -8,10 +8,12 @@ use App\Models\BussinessInfo;
 use App\Models\GlobalService;
 use App\Models\ServiceRequest;
 use App\Models\WebHookUrl;
+use App\Models\LoadMoney;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -182,5 +184,64 @@ class UserController extends Controller
     public function loadMoney()
     {
         return view('user.load-money');
+    }
+
+    public function loadmoneystore(Request $request)
+    {
+
+        try {
+            $validator = Validator::make($request->all(), [
+                'amount' => 'required|numeric|min:1',
+                'mode' => 'required|in:cash,online',
+                'utr' => 'required_if:mode,online|nullable|string|max:100|unique:load_money,utr',
+                'pay_receipt' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            $receipt = null;
+            $utr = null;
+
+            if ($request->mode == 'online') {
+                $utr = $request->utr;
+                if ($request->hasFile('pay_receipt')) {
+                    $file = $request->file('pay_receipt');
+                    $fileName = time().'_'.$file->getClientOriginalName();
+                    $file->move(public_path('uploads/load-money'), $fileName);
+                    $receipt = 'uploads/load-money/'.$fileName;
+                }
+            }
+            $loadMoney = LoadMoney::create([
+                'user_id' => Auth::id(),
+                'amount' => $request->amount,
+                'utr' => $utr,
+                'request_id' => 'LM'.date('YmdHis').rand(100, 999),
+                'mode' => $request->mode,
+                'pay_receipt' => $receipt,
+                'status' => 'pending',
+                'updated_by' => Auth::id(),
+                'rejection_remark' => null,
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Load Money Request Submitted Successfully.',
+                'data' => $loadMoney,
+            ]);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+
+        }
+
     }
 }

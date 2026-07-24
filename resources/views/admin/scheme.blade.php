@@ -15,7 +15,7 @@
                     Manage all schemes.
                 </p>
             </div>
-            <a href="javascript:void(0)" class="addScheme bg-btn">
+            <a href="javascript:void(0)" class="bg-cyan-600 hover:bg-cyan-700 text-white px-5 py-2.5 rounded-lg shadow transition addScheme bg-btn">
                 <i class="bi bi-plus-lg"></i>
                 Scheme
             </a>
@@ -86,7 +86,7 @@
             <!-- Header Section: Title on Left, Button on Right -->
             <div class="flex items-center justify-between pb-4 mb-2 border-b border-gray-100">
                 <h2 class="text-xl font-semibold text-gray-800">Assigned Scheme</h2>
-                <button type="button" class="bg-btn" onclick="openAssignModal()">
+                <button type="button" class="bg-cyan-600 hover:bg-cyan-700 text-white px-5 py-2.5 rounded-lg shadow transition" onclick="openAssignModal()">
                     Assign
                 </button>
             </div>
@@ -254,7 +254,7 @@
                         class="px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-100 transition-colors">
                         Cancel
                     </button>
-                    <button type="submit" id="btnSubmit" class="bg-btn">
+                    <button type="submit" id="btnSubmit" class="bg-cyan-600 hover:bg-cyan-700 text-white px-5 py-2.5 rounded-lg shadow transition">
                         Assign
                     </button>
                 </div>

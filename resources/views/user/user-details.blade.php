@@ -35,6 +35,17 @@
                     </h4>
                 </div>
             </div>
+             <div class="flex items-center gap-4 p-4  rounded-xl hover:shadow-md transition">
+                <div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
+                    <i class="bi bi-phone-fill text-green-600 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Main Wallet</p>
+                    <h4 class="font-semibold text-gray-800">
+                        {{ auth()->user()->main_wallet ?? 'N/A' }}
+                    </h4>
+                </div>
+            </div>
             <div class="flex items-center gap-4 p-4  rounded-xl hover:shadow-md transition">
                 <div class="w-12 h-12 rounded-lg bg-teal-100 flex items-center justify-center">
                     <i class="bi bi-check-circle-fill text-teal-600 text-xl"></i>

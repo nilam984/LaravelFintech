@@ -19,7 +19,7 @@
             </div>
 
             <a href="javascript:void(0)" id="openServiceModal"
-                class="bg-fintechCyan hover:bg-fintechCyanHover text-white px-4 py-2 rounded-lg">
+                class="bg-cyan-600 hover:bg-cyan-700 text-white px-5 py-2.5 rounded-lg shadow transition">
                 <i class="bi bi-gear"></i>
                 Services
             </a>

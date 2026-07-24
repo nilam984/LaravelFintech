@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class LoadMoney extends Model
 {
     protected $appends = ['receipt_image'];
+
     protected $fillable = ['user_id', 'amount', 'utr', 'request_id', 'mode', 'pay_receipt', 'status', 'updated_by', 'rejection_remark'];
 
     public function user()
@@ -21,6 +22,6 @@ class LoadMoney extends Model
 
     public function getReceiptImageAttribute()
     {
-        return $this->pay_receipt ? asset('storage/' . $this->pay_receipt)  : null;
+        return $this->pay_receipt ? asset($this->pay_receipt) : null;
     }
 }
