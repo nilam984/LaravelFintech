@@ -5,7 +5,7 @@
     <div class="h-20 flex items-center justify-between px-6 border-b border-white/10 flex-shrink-0">
         <div class="flex items-center gap-2">
             <i class="bi bi-cpu text-fintechCyan text-2xl"></i>
-            <span class="text-xl font-bold tracking-tight">APEX (User)<span class="text-fintechCyan"></span></span>
+            <span class="text-xl font-bold tracking-tight">Fintech<span class="text-fintechCyan"></span></span>
         </div>
         <button onclick="toggleSidebar()"
             class="lg:hidden text-white/80 hover:text-white p-1 rounded-lg hover:bg-white/10">
