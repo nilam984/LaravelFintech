@@ -86,6 +86,7 @@
                         <th>Status</th>
                         <th>Created</th>
                         <th>Email Verified</th>
+                        <th>View</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -153,7 +154,24 @@
                         data: 'email_verified_at',
                         name: 'email_verified_at',
                         render: function(data) {
-                            return formatDateTime(data) == '----' ? '<span class="px-2 py-1 rounded bg-yellow-100 text-yellow-700 text-xs">NO</span>' : formatDateTime(data);
+                            return formatDateTime(data) == '----' ?
+                                '<span class="px-2 py-1 rounded bg-yellow-100 text-yellow-700 text-xs">NO</span>' :
+                                formatDateTime(data);
+                        }
+                    },
+                    {
+                        data: null,
+                        name: null,
+                        render: function(data, type, row) {
+
+                            let url = "{{ route('user.detail', ['id' => ':id']) }}";
+                            url = url.replace(':id', row.id);
+
+                            return `
+                                <a href="${url}" class="text-primary" title="View User">
+                                    <i class="bi bi-eye-fill text-lg text-cyan-600"></i>
+                                </a>
+                            `;
                         }
                     },
                     {
