@@ -25,7 +25,8 @@ return new class extends Migration
             $table->decimal('fee', 15, 2)->default(0);
             $table->decimal('tax', 15, 2)->default(0);
             $table->decimal('final_amount', 15, 2)->default(0);
-           $table->enum('status', ['initiated','pending','processing','success','failed','expired'])->default('initiated');
+            $table->enum('status', ['initiated','pending','processing','success','failed','expired'])->default('initiated');
+            $table->string('type')->nullable();
             $table->boolean('callback_received')->default(false);
             $table->boolean('is_auto_settlement')->default(false);
             $table->json('request_payload')->nullable();

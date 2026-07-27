@@ -43,7 +43,43 @@ class DataTableService
                 if ($request->filled('status')) {
                     $query->where('status', $request->status);
                 }
-            }, true) // <-- Keep DataTables global search enabled
+
+                if ($request->filled('user_id')) {
+                    $query->where('user_id', $request->user_id);
+                }
+
+                if ($request->filled('from_date') && $request->filled('to_date')) {
+
+                    $query->whereBetween('created_at', [
+                        $request->from_date.' 00:00:00',
+                        $request->to_date.' 23:59:59',
+                    ]);
+
+                } elseif ($request->filled('from_date')) {
+
+                    $query->whereDate('created_at', '>=', $request->from_date);
+
+                } elseif ($request->filled('to_date')) {
+
+                    $query->whereDate('created_at', '<=', $request->to_date);
+                }
+
+                if ($request->filled('search_key')) {
+
+                    $key = $request->search_key;
+
+                    $query->where(function ($q) use ($key) {
+
+                        $q->where('payer_name', 'like', "%{$key}%")
+                            ->orWhere('payer_email', 'like', "%{$key}%")
+                            ->orWhere('payer_mobile', 'like', "%{$key}%")
+                            ->orWhere('user_order_id', 'like', "%{$key}%")
+                            ->orWhere('payment_reference_id', 'like', "%{$key}%")
+                            ->orWhere('utr', 'like', "%{$key}%");
+                    });
+                }
+
+            }, true)
             ->toJson();
     }
 
