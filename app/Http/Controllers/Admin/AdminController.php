@@ -8,9 +8,11 @@ use App\Models\BussinessInfo;
 use App\Models\GatewayRouting;
 use App\Models\GlobalService;
 use App\Models\LoadMoney;
+use App\Models\OauthUser;
 use App\Models\PaymentGateway;
 use App\Models\ServiceProduct;
 use App\Models\User;
+use App\Models\WebHookUrl;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -290,5 +292,17 @@ class AdminController extends Controller
                 'message' => 'Error : ' . $e->getMessage()
             ], 500);
         }
+    }
+
+
+    public function userDetails($Id)
+    {
+
+        $user = User::find($Id);
+        $business = BussinessInfo::where('user_id', $Id)->first();
+        $bank = BankDetail::where('user_id', $Id)->first();
+        $webhooks = WebHookUrl::with('service')->where('user_id', $Id)->latest()->get();
+        $keyDetails = OauthUser::with('service')->where('user_id', $Id)->latest()->get();
+        return view('admin.user-details', compact('business', 'bank', 'webhooks', 'keyDetails', 'user'));
     }
 }
