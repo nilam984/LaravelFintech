@@ -56,7 +56,7 @@
 
 
         <!-- Notifications Menu Menu Dropdown Anchor -->
-        <div class="relative">
+        {{-- <div class="relative">
             <button onclick="toggleNotificationMenu()"
                 class="w-10 h-10 rounded-full flex items-center justify-center relative hover:bg-white/5 transition text-white/80 hover:text-white">
                 <i class="bi bi-bell text-xl"></i>
@@ -87,7 +87,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         <!-- Custom User Profile Menu Dropdown Anchor -->
         <div class="relative">
@@ -99,7 +99,7 @@
                 </div>
                 <div class="hidden sm:block text-xs">
                     <p class="font-bold leading-none text-white/90">{{ Auth::user()->name }}</p>
-                    <p class="text-[10px] text-white/40 mt-0.5">Premium Account</p>
+                    {{-- <p class="text-[10px] text-white/40 mt-0.5">Premium Account</p> --}}
                 </div>
                 <i class="bi bi-chevron-down text-xs text-white/40 hidden sm:block"></i>
             </button>

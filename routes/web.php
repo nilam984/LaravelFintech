@@ -9,6 +9,8 @@ use App\Http\Controllers\DataTableController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\OauthUserController;
+use App\Http\Controllers\Admin\UpiServicesController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -35,7 +37,7 @@ Route::middleware('auth')->group(function () {
 Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/dashboard', [AuthController::class, 'adminDashboard'])->name('admin.dashboard');
     Route::get('/all-users', [AdminController::class, 'allusers'])->name('admin.all-users');
-    Route::post('/datatable/{table}', [DataTableController::class, 'index'])->name('datatable');
+    // Route::post('/datatable/{table}', [DataTableController::class, 'index'])->name('datatable');
     Route::post('/users/change-status', [StatusChangeController::class, 'changeUserStatus'])->name('users.change-status');
     Route::post('/global/service/change-status', [StatusChangeController::class, 'changeGlobalServiceStatus'])->name('global.service.change.status');
     Route::get('/global/services', [AdminController::class, 'globalServices'])->name('admin.global.services');
@@ -58,6 +60,11 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     Route::get('load-money', [AdminController::class, 'loadMoney'])->name('admin.load.money');
     Route::post('load-money', [AdminController::class, 'loadMoneyAction'])->name('action.load.money');
+
+    // Upi Services
+    Route::get('upi-initiation', [UpiServicesController::class, 'upiInitiation'])->name('admin.upi.initiation');
+    Route::get('upi-collection', [UpiServicesController::class, 'upiCollection'])->name('admin.upi.collection');
+    Route::get('all-upi-transaction', [UpiServicesController::class, 'allUpitransaction'])->name('admin.upi.transaction');
     
 });
 
