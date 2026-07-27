@@ -540,13 +540,43 @@
                             </div>
 
                             <!-- Toggle Switch -->
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="kycToggle" class="sr-only peer"
-                                    {{ ($user->kyc_status ?? 0) == 1 ? 'checked' : '' }}>
+                            @if (($user->businessInfo?->kyc_verified ?? 0) == 1)
                                 <div
-                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-600">
+                                    class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-100 border border-green-200">
+                                    <i class="bi bi-patch-check-fill text-green-600"></i>
+                                    <div>
+                                        <p class="text-sm font-semibold text-green-700">
+                                            KYC Verified
+                                        </p>
+                                        <p class="text-xs text-green-600">
+                                            Profile Completed
+                                        </p>
+                                    </div>
                                 </div>
-                            </label>
+                            @else
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="kycToggle" class="sr-only peer"
+                                        data-id="{{ $user->id }}">
+
+                                    <div
+                                        class="w-11 h-6 bg-gray-200 rounded-full peer-focus:outline-none
+                                        peer-checked:bg-cyan-600
+                                        after:content-['']
+                                        after:absolute
+                                        after:top-[2px]
+                                        after:left-[2px]
+                                        after:bg-white
+                                        after:border
+                                        after:border-gray-300
+                                        after:rounded-full
+                                        after:h-5
+                                        after:w-5
+                                        after:transition-all
+                                        peer-checked:after:translate-x-full
+                                        peer-checked:after:border-white">
+                                    </div>
+                                </label>
+                            @endif
                         </div>
                     </div>
 
@@ -581,9 +611,13 @@
 
 
             const kycToggle = $('#kycToggle');
+
             if (kycToggle.length) {
+
                 kycToggle.on('change', function(e) {
                     e.preventDefault();
+
+                    const userId = kycToggle.data('id');
                     const isChecked = this.checked;
                     const statusText = isChecked ? 'verify' : 'unverify';
 
@@ -592,13 +626,15 @@
                         text: `Do you want to ${statusText} this user's KYC?`,
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonColor: '#06b6d4',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Yes, update it!'
+                        confirmButtonText: 'Yes',
+                        cancelButtonText: 'No',
+                        confirmButtonColor: '#06B6D4'
                     }).then((result) => {
                         if (result.isConfirmed) {
+                            const url = "{{ route('user.kyc.verify', ['id' => ':id']) }}".replace(':id',
+                                userId)
                             $.ajax({
-                                url: '234',
+                                url: url,
                                 type: 'POST',
                                 contentType: 'application/json',
                                 headers: {

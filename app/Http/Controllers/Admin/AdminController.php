@@ -298,11 +298,80 @@ class AdminController extends Controller
     public function userDetails($Id)
     {
 
-        $user = User::find($Id);
+        $user = User::with('businessInfo')->find($Id);
         $business = BussinessInfo::where('user_id', $Id)->first();
         $bank = BankDetail::where('user_id', $Id)->first();
         $webhooks = WebHookUrl::with('service')->where('user_id', $Id)->latest()->get();
         $keyDetails = OauthUser::with('service')->where('user_id', $Id)->latest()->get();
         return view('admin.user-details', compact('business', 'bank', 'webhooks', 'keyDetails', 'user'));
+    }
+
+
+    public function userKycVerify($Id)
+    {
+
+        $user = User::with('businessInfo')->find($Id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found'
+            ], 404);
+        }
+
+        $businessInfo = $user->businessInfo;
+
+        if (!$businessInfo) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Business details not found for this User'
+            ], 404);
+        }
+
+        $requiredFields = [
+            $businessInfo->pan,
+            $businessInfo->pan_image,
+            $businessInfo->gst,
+            $businessInfo->website_url,
+            $businessInfo->owner_aadhar,
+            $businessInfo->owner_aadhar_image_front,
+            $businessInfo->owner_aadhar_image_back,
+            $businessInfo->owner_pan,
+            $businessInfo->owner_pan_image,
+        ];
+
+        if (collect($requiredFields)->contains(fn($value) => empty($value))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Profile/KYC related details are incomplete please check'
+            ], 422);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $business = BussinessInfo::find($businessInfo->id);
+
+            if (!$business) {
+                throw new \Exception('Business information record not found.');
+            }
+
+            $business->kyc_verified = 1;
+            $business->save();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'KYC status updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update KYC status: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
