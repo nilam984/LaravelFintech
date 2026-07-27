@@ -6,6 +6,7 @@ use App\Models\AssignedScheme;
 use App\Models\GlobalService;
 use App\Models\LoadMoney;
 use App\Models\OauthUser;
+use App\Models\PayinTransaction;
 use App\Models\Scheme;
 use App\Models\ServiceRequest;
 use App\Models\User;
@@ -209,6 +210,93 @@ class DataTableService
                 $query = $query->where('user_id', $userId);
 
                 return $query;
+            },
+
+        ];
+    }
+
+    protected function upiInitiation()
+    {
+        return [
+
+            'model' => PayinTransaction::class,
+
+            'with' => ['user'],
+
+            'query' => function ($query, $request) {
+
+                $user = Auth::user();
+
+                $query->where('status', 'initiated');
+
+                if ($user->role === 'admin') {
+
+                    if ($request->filled('user_id')) {
+                        $query->where('user_id', $request->user_id);
+                    }
+
+                    return $query;
+                }
+
+                return $query->where('user_id', $user->id);
+            },
+
+        ];
+    }
+
+    protected function upiCollection()
+    {
+        return [
+
+            'model' => PayinTransaction::class,
+
+            'with' => ['user'],
+
+            'query' => function ($query, $request) {
+
+                $user = Auth::user();
+
+                $query->where('status', 'success');
+
+                if ($user->role === 'admin') {
+
+                    if ($request->filled('user_id')) {
+                        $query->where('user_id', $request->user_id);
+                    }
+
+                    return $query;
+                }
+
+                return $query->where('user_id', $user->id);
+            },
+
+        ];
+    }
+
+    protected function allUpiTransaction()
+    {
+        return [
+
+            'model' => PayinTransaction::class,
+
+            'with' => ['user'],
+
+            'query' => function ($query, $request) {
+
+                $user = Auth::user();
+
+                // Admin -> sabhi transactions
+                if ($user->role === 'admin') {
+
+                    if ($request->filled('user_id')) {
+                        $query->where('user_id', $request->user_id);
+                    }
+
+                    return $query;
+                }
+
+                // User -> sirf apni transactions
+                return $query->where('user_id', $user->id);
             },
 
         ];
