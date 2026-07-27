@@ -12,6 +12,34 @@
      </div>
  </div>
 
+
+ {{-- Content Modal  --}}
+ <!-- Modal -->
+ <div id="remarkModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50">
+
+     <div class="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4">
+         <div class="flex items-center justify-between px-6 py-4 border-b">
+             <h2 class="text-lg font-semibold">Rejection Remark</h2>
+
+             <button id="closeRemarkModal" class="text-gray-500 hover:text-gray-700 text-xl">
+                 &times;
+             </button>
+         </div>
+
+         <div class="p-6">
+             <p id="remarkContent" class="text-gray-700 whitespace-pre-wrap"></p>
+         </div>
+
+         <div class="flex justify-end px-6 py-4 border-t">
+             <button id="closeRemarkBtn" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+                 Close
+             </button>
+         </div>
+     </div>
+
+ </div>
+
+
  <script>
      const sidebarPanel = document.getElementById("sidebarPanel");
      const sidebarOverlay = document.getElementById("sidebarOverlay");
@@ -274,6 +302,30 @@
      $('#imagePreviewModal').click(function(e) {
          if (e.target === this) {
              $(this).removeClass('flex').addClass('hidden');
+         }
+     });
+
+     $(document).on('click', '.view-remark', function() {
+         let remark = $(this).data('remark');
+
+         $('#remarkContent').text(remark);
+
+         $('#remarkModal')
+             .removeClass('hidden')
+             .addClass('flex');
+     });
+
+     $('#closeRemarkModal, #closeRemarkBtn').on('click', function() {
+         $('#remarkModal')
+             .removeClass('flex')
+             .addClass('hidden');
+     });
+
+     $('#remarkModal').on('click', function(e) {
+         if (e.target === this) {
+             $(this)
+                 .removeClass('flex')
+                 .addClass('hidden');
          }
      });
  </script>
