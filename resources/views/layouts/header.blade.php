@@ -19,34 +19,43 @@
         <div class="flex items-center gap-2">
 
             {{-- Main Wallet (Always Visible) --}}
-            <div class="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2" title="Main Wallet">
+            <div class="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2"
+                title="Main Wallet">
                 <i class="bi bi-wallet2 text-fintechCyan"></i>
                 <div class="text-xs">
                     {{-- <p class="text-white/40">Main</p> --}}
-                    <p class="font-semibold text-white" >
-                        ₹{{ number_format(auth()->user()->wallet_summary['main_wallet'], 2) }}
+                    <p class="font-semibold text-white">
+                        @if (auth()->check())
+                            ₹{{ number_format(optional(auth()->user())->wallet_summary['main_wallet'], 2) }}
+                        @endif
                     </p>
                 </div>
             </div>
 
             {{-- Payin Wallet (Hidden Mobile) --}}
-            <div class="hidden md:flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2" title="Payin">
+            <div class="hidden md:flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2"
+                title="Payin">
                 <i class="bi bi-arrow-down-circle text-fintechGreen"></i>
                 <div class="text-xs">
                     {{-- <p class="text-white/40">Payin</p> --}}
                     <p class="font-semibold text-white">
-                        ₹{{ number_format(auth()->user()->wallet_summary['payin_wallet'], 2) }}
+                        @if (auth()->check())
+                            ₹{{ number_format(optional(auth()->user())->wallet_summary['payin_wallet'], 2) }}
+                        @endif
                     </p>
                 </div>
             </div>
 
             {{-- Payout Wallet (Hidden Mobile) --}}
-            <div class="hidden md:flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2" title="Payout Wallet">
+            <div class="hidden md:flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2"
+                title="Payout Wallet">
                 <i class="bi bi-arrow-up-circle text-yellow-400"></i>
                 <div class="text-xs">
                     {{-- <p class="text-white/40">Payout</p> --}}
                     <p class="font-semibold text-white">
-                        ₹{{ number_format(auth()->user()->wallet_summary['payout_wallet'] ?? 0, 2) }}
+                        @if (auth()->check())
+                            ₹{{ number_format(optional(auth()->user())->wallet_summary['payout_wallet'] ?? 0, 2) }}
+                        @endif
                     </p>
                 </div>
             </div>
@@ -95,17 +104,23 @@
                 class="flex items-center gap-3 p-1.5 rounded-xl hover:bg-white/5 transition text-left">
                 <div
                     class="w-9 h-9 rounded-xl bg-gradient-to-br from-fintechCyan to-fintechGreen flex items-center justify-center font-bold text-fintechDark text-sm">
-                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                    @if (auth()->check())
+                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                    @endif
                 </div>
                 <div class="hidden sm:block text-xs">
-                    <p class="font-bold leading-none text-white/90">{{ Auth::user()->name }}</p>
+                    <p class="font-bold leading-none text-white/90">
+                        @if (auth()->check())
+                            {{ Auth::user()->name }}
+                        @endif
+                    </p>
                     {{-- <p class="text-[10px] text-white/40 mt-0.5">Premium Account</p> --}}
                 </div>
                 <i class="bi bi-chevron-down text-xs text-white/40 hidden sm:block"></i>
             </button>
 
             @php
-                if (auth()->user()->role == 'admin') {
+                if (auth()->check() && auth()->user()->role == 'admin') {
                     $route = route('admin.profile');
                 } else {
                     $route = route('user.user-profile');

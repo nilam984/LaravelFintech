@@ -16,9 +16,13 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (Throwable $e, $request) {
-            if ($request->expectsJson()) {
-                return null; // Let Laravel handle API responses.
+        $exceptions->render(function (\Throwable $e, $request) {
+
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $e->getMessage(),
+                ], 400);
             }
 
             return response()->view('errors.500', [
