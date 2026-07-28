@@ -78,21 +78,23 @@
 
                 </div>
             </div>
-            <table class="table table-bordered w-full" id="upiInitiationTable">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th>#</th>
-                        <th>Client Name</th>
-                        <th>Email</th>
-                        <th>Order ID</th>
-                        <th>Reference ID</th>
-                        <th>Mobile</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th>Created At</th>
-                    </tr>
-                </thead>
-            </table>
+            <div class="bg-white border rounded-xl overflow-hidden p-3">
+                <table class="min-w-full" id="upiInitiationTable">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th>#</th>
+                            <th>Client Name</th>
+                            <th>Email</th>
+                            <th>Order ID</th>
+                            <th>Reference ID</th>
+                            <th>Mobile</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
 
     </div>
@@ -107,6 +109,7 @@
 
                 processing: true,
                 serverSide: true,
+                scrollX: true,
 
                 ajax: {
                     url: "{{ route('datatable', 'upiInitiation') }}",

@@ -66,8 +66,7 @@
 
                     <!-- Search Button -->
                     <div class="xl:col-span-2 flex items-end gap-3">
-                        <button id="searchBtn"
-                            class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg">
+                        <button id="searchBtn" class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg">
                             Search
                         </button>
 
@@ -80,24 +79,26 @@
                 </div>
             </div>
 
-            <table class="table table-bordered w-full" id="upiCollectionTable">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th>#</th>
-                        <th>Client Name</th>
-                        <th>Email</th>
-                        <th>Order ID</th>
-                        <th>Reference ID</th>
-                        <th>Mobile</th>
-                        <th>Amount</th>
-                        <th>Fee</th>
-                        <th>Tax</th>
-                        <th>Utr</th>
-                        <th>Status</th>
-                        <th>Created At</th>
-                    </tr>
-                </thead>
-            </table>
+            <div class="bg-white border rounded-xl overflow-hidden p-3">
+                <table class="min-w-full" id="upiCollectionTable">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th>#</th>
+                            <th>Client Name</th>
+                            <th>Email</th>
+                            <th>Order ID</th>
+                            <th>Reference ID</th>
+                            <th>Mobile</th>
+                            <th>Amount</th>
+                            <th>Fee</th>
+                            <th>Tax</th>
+                            <th>Utr</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
 
     </div>
@@ -112,6 +113,7 @@
 
                 processing: true,
                 serverSide: true,
+                scrollX: true,
 
                 ajax: {
                     url: "{{ route('datatable', 'upiCollection') }}",
