@@ -74,4 +74,9 @@ class User extends Authenticatable
             'payout_wallet' => (float) ($this->payout_wallet ?? 0),
         ];
     }
+
+    public function businessInfo()
+    {
+        return $this->hasOne(BussinessInfo::class, 'user_id');
+    }
 }

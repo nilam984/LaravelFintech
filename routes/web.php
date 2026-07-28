@@ -65,7 +65,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('upi-initiation', [UpiServicesController::class, 'upiInitiation'])->name('admin.upi.initiation');
     Route::get('upi-collection', [UpiServicesController::class, 'upiCollection'])->name('admin.upi.collection');
     Route::get('all-upi-transaction', [UpiServicesController::class, 'allUpitransaction'])->name('admin.upi.transaction');
-    
+
+    Route::get('user-details/{id}', [AdminController::class, 'userDetails'])->name('user.detail');
+    Route::post('user-kyc-verify/{id}', [AdminController::class, 'userKycVerify'])->name('user.kyc.verify');
 });
 
 // User routes
@@ -77,8 +79,8 @@ Route::prefix('user')->middleware('auth')->group(function () {
     Route::get('/oauth-user', [OauthUserController::class, 'index'])->name('user.oauthuser');
     Route::post('/oauth-user/store', [OauthUserController::class, 'generateClientCredentials'])->name('generate.client.credentials');
     Route::post('/webhookurl/store', [UserController::class, 'store'])->name('webhookurl.store');
-    Route::get('/webhookurl/edit/{id}', [UserController::class,'edit'])->name('webhookurl.edit');
-    Route::post('/webhookurl/update/{id}', [UserController::class,'update'])->name('webhookurl.update');
+    Route::get('/webhookurl/edit/{id}', [UserController::class, 'edit'])->name('webhookurl.edit');
+    Route::post('/webhookurl/update/{id}', [UserController::class, 'update'])->name('webhookurl.update');
 
     Route::get('load-money', [UserController::class, 'loadMoney'])->name('user.load.money');
     Route::post('/load-money/store', [UserController::class, 'loadmoneystore'])->name('load-money.store');

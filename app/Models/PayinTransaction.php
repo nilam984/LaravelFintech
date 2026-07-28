@@ -22,6 +22,7 @@ class PayinTransaction extends Model
         'status',
         'callback_received',
         'is_auto_settlement',
+        'gateway_type',
         'request_payload',
         'response_payload',
         'callback_payload',
