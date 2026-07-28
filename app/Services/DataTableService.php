@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\AssignedScheme;
 use App\Models\GlobalService;
+use App\Models\IpWhitelist;
 use App\Models\LoadMoney;
 use App\Models\OauthUser;
 use App\Models\PayinTransaction;
@@ -51,14 +52,12 @@ class DataTableService
                 if ($request->filled('from_date') && $request->filled('to_date')) {
 
                     $query->whereBetween('created_at', [
-                        $request->from_date.' 00:00:00',
-                        $request->to_date.' 23:59:59',
+                        $request->from_date . ' 00:00:00',
+                        $request->to_date . ' 23:59:59',
                     ]);
-
                 } elseif ($request->filled('from_date')) {
 
                     $query->whereDate('created_at', '>=', $request->from_date);
-
                 } elseif ($request->filled('to_date')) {
 
                     $query->whereDate('created_at', '<=', $request->to_date);
@@ -78,7 +77,6 @@ class DataTableService
                             ->orWhere('utr', 'like', "%{$key}%");
                     });
                 }
-
             }, true)
             ->toJson();
     }
@@ -333,6 +331,24 @@ class DataTableService
 
                 // User -> sirf apni transactions
                 return $query->where('user_id', $user->id);
+            },
+
+        ];
+    }
+
+    protected function IpWhitelist()
+    {
+        return [
+
+            'model' => IpWhitelist::class,
+
+            'with' => ['service'],
+
+            'query' => function ($query, $request) {
+
+                $user = Auth::user();
+
+                return $query->where('user_id', $user->id)->where('is_deleted', false);
             },
 
         ];

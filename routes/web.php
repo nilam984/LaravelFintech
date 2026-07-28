@@ -84,4 +84,6 @@ Route::prefix('user')->middleware('auth')->group(function () {
 
     Route::get('load-money', [UserController::class, 'loadMoney'])->name('user.load.money');
     Route::post('/load-money/store', [UserController::class, 'loadmoneystore'])->name('load-money.store');
+    Route::post('add-update-ip', [OauthUserController::class, 'saveOrUpdateIpWhitelist'])->name('add.update.ip');
+    Route::post('delete-ip', [OauthUserController::class, 'deleteIpWhitelist'])->name('delete.ip');
 });
