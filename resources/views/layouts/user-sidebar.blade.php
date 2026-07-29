@@ -61,7 +61,7 @@
     </nav>
 
     <!-- Status Box Footer -->
-    <div class="p-4 border-t border-white/10 flex-shrink-0">
+    {{-- <div class="p-4 border-t border-white/10 flex-shrink-0">
         <div class="bg-white/[0.03] border border-white/10 p-3.5 rounded-xl flex items-center gap-3">
             <div class="w-2.5 h-2.5 bg-fintechGreen rounded-full animate-pulse"></div>
             <div class="text-xs">
@@ -69,7 +69,7 @@
                 <p class="text-white/40 text-[10px]">API Delay: 14ms</p>
             </div>
         </div>
-    </div>
+    </div> --}}
 </aside>
 
 <!-- Mobile Overlay Layer -->

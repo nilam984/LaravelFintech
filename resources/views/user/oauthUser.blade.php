@@ -77,7 +77,7 @@
                                 class="border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                 <th class="py-3 px-3">ID</th>
                                 <th class="py-3 px-3">Service</th>
-                                <th class="py-3 px-3">Whitelisted IP</th>
+                                <th class="py-3 px-3">IP</th>
                                 <th class="py-3 px-3">Created At</th>
                                 <th class="py-3 px-3 text-right">Action</th>
                             </tr>
@@ -101,10 +101,10 @@
                 <label class="block text-sm font-medium text-gray-600 mb-2">Select Service</label>
                 <select id="service"
                     class="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none transition">
-                    <option value="">Select Service</option>
+                    <option value="">--Select Service--</option>
                     @foreach ($services as $service)
-                        <option value="{{ $service->service_name }}">
-                            {{ $service->service_name }}
+                        <option value="{{ $service->id }}">
+                            {{ $service?->service?->service_name }}
                         </option>
                     @endforeach
                 </select>
@@ -166,14 +166,15 @@
             <form id="ipWhitelistForm">
                 <input type="hidden" id="ip_record_id" value="">
                 <div class="p-6 space-y-4">
+                    <p class="text-red-500">Note : Maximum 5 IPs can be whitelisted for a Service</p>
                     <div>
                         <label class="block text-sm font-medium text-gray-600 mb-2">Select Service</label>
                         <select id="ip_service" name="service"
                             class="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none transition">
-                            <option value="">Select Service</option>
+                            <option value="">--Select Service--</option>
                             @foreach ($services as $service)
-                                <option value="{{ $service->service_name }}">
-                                    {{ $service->service_name }}
+                                <option value="{{ $service->id }}">
+                                    {{ $service?->service?->service_name }}
                                 </option>
                             @endforeach
                         </select>
@@ -197,7 +198,6 @@
 
 @section('scripts')
     <script>
-        // Existing OAuth Modal Triggers
         $("#openGenerateModal").click(function() {
             $("#generateModal").removeClass("hidden").addClass("flex");
         });
@@ -208,71 +208,6 @@
             $("#credentialModal").removeClass("flex").addClass("hidden");
         });
 
-        // New IP Whitelist Modal Triggers
-        $("#openIpModalBtn").click(function() {
-            $("#ipModalTitle").text("Add IP Whitelist");
-            $("#ip_record_id").val("");
-            $("#ip_service").val("");
-            $("#ip_address").val("");
-            $("#ipModal").removeClass("hidden").addClass("flex");
-        });
-        $("#closeIpModal, #closeIpModal2").click(function() {
-            $("#ipModal").removeClass("flex").addClass("hidden");
-        });
-
-        // Edit button handler for IP table rows (delegated event)
-        $(document).on("click", ".editIpBtn", function() {
-            let id = $(this).data("id");
-            let service = $(this).data("service");
-            let ip = $(this).data("ip");
-
-            $("#ipModalTitle").text("Edit IP Whitelist");
-            $("#ip_record_id").val(id);
-            $("#ip_service").val(service);
-            $("#ip_address").val(ip);
-            $("#ipModal").removeClass("hidden").addClass("flex");
-        });
-
-        // Handle Form Submission for IP Whitelist (Add/Edit)
-        $("#ipWhitelistForm").submit(function(e) {
-            e.preventDefault();
-            let recordId = $("#ip_record_id").val();
-            let service = $("#ip_service").val();
-            let ipAddress = $("#ip_address").val();
-
-            if (!service || !ipAddress) {
-                ToastEngine.show("Please select a service and enter an IP address", "error");
-                return;
-            }
-
-            let ajaxUrl = recordId ? "{{ route('datatable', 'updateIpWhitelist') }}" :
-                "{{ route('datatable', 'storeIpWhitelist') }}";
-
-            $.ajax({
-                url: ajaxUrl,
-                type: "POST",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    id: recordId,
-                    service: service,
-                    ip_address: ipAddress
-                },
-                success: function(res) {
-                    $("#ipModal").removeClass("flex").addClass("hidden");
-                    ToastEngine.show(res.message || "Saved successfully", "success");
-                    if (typeof $('#ipWhitelistTable').DataTable === 'function') {
-                        $('#ipWhitelistTable').DataTable().ajax.reload(null, false);
-                    }
-                },
-                error: function(xhr) {
-                    let msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message :
-                        "An error occurred";
-                    ToastEngine.show(msg, "error");
-                }
-            });
-        });
-
-        // Existing Generate API Button Action
         $("#generateBtn").click(function() {
             let service = $("#service").val();
             if (service == "") {
@@ -302,7 +237,6 @@
             });
         });
 
-        // Existing Clipboard Copy Action
         $(".copyBtn").click(function() {
             let target = $(this).data("target");
             navigator.clipboard.writeText($("#" + target).val());
@@ -312,10 +246,7 @@
                 btn.text("Copy");
             }, 2000);
         });
-    </script>
 
-    <script>
-        // Existing OAuth DataTable Script
         $('#oauthTable').DataTable({
             processing: true,
             serverSide: true,
@@ -357,14 +288,15 @@
                 }
             ]
         });
+    </script>
 
-        // New IP Whitelist DataTable Script
-        $('#ipWhitelistTable').DataTable({
+    <script>
+        let ipTable = $('#ipWhitelistTable').DataTable({
             processing: true,
             serverSide: true,
             scrollX: true,
             ajax: {
-                url: "{{ route('datatable', 'ipWhitelists') }}",
+                url: "{{ route('datatable', 'IpWhitelist') }}",
                 type: "POST",
                 data: function(d) {
                     d._token = "{{ csrf_token() }}";
@@ -377,11 +309,10 @@
                 {
                     data: 'service.service_name',
                     name: 'service.service_name',
-                    defaultContent: '-'
                 },
                 {
-                    data: 'ip_address',
-                    name: 'ip_address'
+                    data: 'ip',
+                    name: 'ip'
                 },
                 {
                     data: 'created_at',
@@ -397,13 +328,142 @@
                     className: 'text-right',
                     render: function(data, type, row) {
                         let serviceName = row.service ? row.service.service_name : '';
-                        return `<button type="button" class="editIpBtn bg-cyan-50 hover:bg-cyan-100 text-cyan-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition" 
+                        return `
+                            <div class="flex justify-end gap-2">
+                                <button type="button" class="editIpBtn bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded transition" 
                                     data-id="${row.id}" 
                                     data-service="${serviceName}" 
-                                    data-ip="${row.ip_address}">Edit</button>`;
+                                    data-ip="${row.ip_address}">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button type="button" class="deleteIpBtn bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded transition" 
+                                    data-id="${row.id}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>`;
                     }
                 }
             ]
+        });
+
+
+        $("#openIpModalBtn").click(function() {
+            $("#ipModalTitle").text("Add IP Whitelist");
+            $("#ip_record_id").val("");
+            $("#ip_service").val("");
+            $("#ip_address").val("");
+            $("#ipModal").removeClass("hidden").addClass("flex");
+        });
+
+        $("#closeIpModal, #closeIpModal2").click(function() {
+            $("#ipModal").removeClass("flex").addClass("hidden");
+        });
+
+
+        // Edit IP 
+        $(document).on("click", ".editIpBtn", function() {
+            let id = $(this).data("id");
+            let service = $(this).data("service");
+            let ip = $(this).data("ip");
+
+            $("#ipModalTitle").text("Edit IP Whitelist");
+            $("#ip_record_id").val(id);
+            $("#ip_service").val(service);
+            $("#ip_address").val(ip);
+            $("#ipModal").removeClass("hidden").addClass("flex");
+        });
+
+
+        // Delete IP 
+
+        $(document).on("click", ".deleteIpBtn", function() {
+            let recordId = $(this).data("id");
+
+            Swal.fire({
+                title: "Are you sure to Delete this IP?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No',
+                confirmButtonColor: '#06B6D4'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('delete.ip') }}",
+                        type: "POST",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            id: recordId
+                        },
+                        success: function(response) {
+                            if (response.status) {
+                                ipTable.ajax.reload()
+                                ToastEngine.show(response.message, "success");
+                            } else {
+                                ToastEngine.show(response.message, "error");
+                            }
+                        },
+                        error: function(xhr) {
+                            if (xhr.status === 422) {
+                                let errors = xhr.responseJSON.errors;
+                                ToastEngine.show(errors, "error");
+                            } else {
+                                ToastEngine.show(
+                                    xhr.responseJSON.message ?? "Something went wrong.",
+                                    "error",
+                                );
+                            }
+                        },
+
+                    });
+                }
+            });
+        });
+
+
+        $("#ipWhitelistForm").submit(function(e) {
+            e.preventDefault();
+            let recordId = $("#ip_record_id").val();
+            let service = $("#ip_service").val();
+            let ipAddress = $("#ip_address").val();
+
+            if (!service || !ipAddress) {
+                ToastEngine.show("Please select a service and enter an IP address", "error");
+                return;
+            }
+
+            $.ajax({
+                url: "{{ route('add.update.ip') }}",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id: recordId,
+                    service: service,
+                    ip_address: ipAddress
+                },
+                success: function(response) {
+                    if (response.status) {
+                        $("#ipModal").removeClass("flex").addClass("hidden");
+                        ipTable.ajax.reload()
+                        ToastEngine.show(response.message, "success");
+                    } else {
+                        ToastEngine.show(response.message, "error");
+                    }
+                },
+                error: function(xhr) {
+                    if (xhr.status === 422) {
+                        let errors = xhr.responseJSON.errors;
+                        ToastEngine.show(errors, "error");
+                    } else {
+                        ToastEngine.show(
+                            xhr.responseJSON.message ?? "Something went wrong.",
+                            "error",
+                        );
+                    }
+                },
+
+            });
         });
     </script>
 @endsection
