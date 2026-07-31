@@ -126,15 +126,15 @@ class OauthUserController extends Controller
 
             $whitelist = IpWhitelist::findOrFail($recordId);
 
-            if ($whitelist->service_id !== $serviceId) {
+            if ($whitelist->service_id != $serviceId) {
 
                 $existingCount = IpWhitelist::where('service_id', $serviceId)->where('user_id', $userId)->where('is_deleted', false)->count();
 
-                if ($existingCount >= 6) {
+                if ($existingCount >= 1) {
                     return response()->json([
                         'status' => false,
                         'message' => 'Limit exceeded: A maximum of 5 IP addresses are allowed per service.'
-                    ], 422);
+                    ]);
                 }
             }
 
@@ -150,11 +150,11 @@ class OauthUserController extends Controller
 
             $existingCount = IpWhitelist::where('service_id', $serviceId)->where('user_id', $userId)->where('is_deleted', false)->count();
 
-            if ($existingCount >= 6) {
+            if ($existingCount >= 1) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Limit exceeded: A maximum of 5 IP addresses are allowed per service.'
-                ], 422);
+                    'message' => 'Limit exceeded: A maximum of 1 IP addresses are allowed per service.'
+                ]);
             }
 
             IpWhitelist::create([

@@ -68,6 +68,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     Route::get('user-details/{id}', [AdminController::class, 'userDetails'])->name('user.detail');
     Route::post('user-kyc-verify/{id}', [AdminController::class, 'userKycVerify'])->name('user.kyc.verify');
+
+
+    Route::get('verification-user',[AdminController::class,'verificationOfficer'])->name('verification.user');
 });
 
 // User routes
