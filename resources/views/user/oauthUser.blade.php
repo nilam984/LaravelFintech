@@ -327,13 +327,12 @@
                     searchable: false,
                     className: 'text-right',
                     render: function(data, type, row) {
-                        let serviceName = row.service ? row.service.service_name : '';
                         return `
                             <div class="flex justify-end gap-2">
                                 <button type="button" class="editIpBtn bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded transition" 
                                     data-id="${row.id}" 
-                                    data-service="${serviceName}" 
-                                    data-ip="${row.ip_address}">
+                                    data-service="${row.service_id}" 
+                                    data-ip="${row.ip}">
                                     <i class="bi bi-pencil"></i>
                                 </button>
                                 <button type="button" class="deleteIpBtn bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded transition" 
@@ -443,6 +442,8 @@
                     ip_address: ipAddress
                 },
                 success: function(response) {
+                    console.log(response);
+                    
                     if (response.status) {
                         $("#ipModal").removeClass("flex").addClass("hidden");
                         ipTable.ajax.reload()
@@ -454,6 +455,8 @@
                 error: function(xhr) {
                     if (xhr.status === 422) {
                         let errors = xhr.responseJSON.errors;
+                        console.log(xhr);
+                        
                         ToastEngine.show(errors, "error");
                     } else {
                         ToastEngine.show(

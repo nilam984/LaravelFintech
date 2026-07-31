@@ -374,4 +374,9 @@ class AdminController extends Controller
             ], 500);
         }
     }
+
+    public function verificationOfficer()
+    {
+        return view('admin.user-verification');
+    }
 }
