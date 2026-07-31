@@ -12,3 +12,5 @@ Route::get('/user', function (Request $request) {
 Route::prefix('payin')->group(function () {
     Route::post('create', [PayinController::class, 'payin']);
 });
+
+//$request
