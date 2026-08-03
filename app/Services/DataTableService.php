@@ -353,4 +353,20 @@ class DataTableService
 
         ];
     }
+
+    protected function verificationUser()
+    {
+        return [
+
+            'model' => User::class,
+
+            'with' => [],
+
+            'query' => function ($query, $request) {
+
+                return $query->where('role', 'verification');
+            },
+
+        ];
+    }
 }

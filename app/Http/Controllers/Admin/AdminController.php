@@ -303,7 +303,8 @@ class AdminController extends Controller
         $bank = BankDetail::where('user_id', $Id)->first();
         $webhooks = WebHookUrl::with('service')->where('user_id', $Id)->latest()->get();
         $keyDetails = OauthUser::with('service')->where('user_id', $Id)->latest()->get();
-        return view('admin.user-details', compact('business', 'bank', 'webhooks', 'keyDetails', 'user'));
+        $kycFields = config('kyc.fields');
+        return view('admin.user-details', compact('business', 'bank', 'webhooks', 'keyDetails', 'user', 'kycFields'));
     }
 
 
