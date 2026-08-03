@@ -89,7 +89,7 @@
 
             <button onclick="toggleSubmenu(this)"
                 class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition duration-200 group
-        {{ $upiServiceActive ? 'bg-white/10 text-white' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+            {{ $upiServiceActive ? 'bg-white/10 text-white' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
 
                 <div class="flex items-center gap-3">
                     <i class="bi bi-upc-scan"></i>
@@ -118,6 +118,50 @@
                     class="block px-3 py-2 rounded-lg text-sm transition {{ request()->routeIs('admin.upi.transaction') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}">
                     All UPI Transaction
                 </a>
+
+            </div>
+        </div>
+
+        <div class="space-y-1">
+            @php
+                $payoutActive = request()->routeIs([
+                    'admin.payout.transaction',
+                    // 'admin.payout.callback',
+                    // 'admin.payout.request',
+                ]);
+            @endphp
+
+            <button onclick="toggleSubmenu(this)"
+                class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition duration-200 group
+        {{ $payoutActive ? 'bg-white/10 text-white' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+
+                <div class="flex items-center gap-3">
+                    <i class="bi bi-cash-stack"></i>
+                    <span>Payout</span>
+                </div>
+
+                <i
+                    class="bi bi-chevron-down text-xs text-white/40 group-hover:text-white/80 transition-transform duration-200 submenu-chevron {{ $payoutActive ? 'rotate-180' : '' }}">
+                </i>
+            </button>
+
+            <div
+                class="pl-9 pr-2 space-y-1 overflow-hidden transition-all duration-300 submenu-container {{ $payoutActive ? '' : 'hidden' }}">
+
+                {{-- <a href="{{ route('admin.payout.request') }}"
+                    class="block px-3 py-2 rounded-lg text-sm transition {{ request()->routeIs('admin.payout.request') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}">
+                    Payout Request
+                </a> --}}
+
+                <a href="{{ route('admin.payout.transaction') }}"
+                    class="block px-3 py-2 rounded-lg text-sm transition {{ request()->routeIs('admin.payout.transaction') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}">
+                    Payout Transactions
+                </a>
+
+                {{-- <a href="{{ route('admin.payout.callback') }}"
+                    class="block px-3 py-2 rounded-lg text-sm transition {{ request()->routeIs('admin.payout.callback') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}">
+                    Payout Callback
+                </a> --}}
 
             </div>
         </div>

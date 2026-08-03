@@ -10,6 +10,7 @@ use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\OauthUserController;
 use App\Http\Controllers\Admin\UpiServicesController;
+use App\Http\Controllers\Admin\PayoutController;
 
 
 Route::get('/', function () {
@@ -71,6 +72,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
 
     Route::get('verification-user',[AdminController::class,'verificationOfficer'])->name('verification.user');
+
+    Route::get('/payout/transactions', [PayoutController::class, 'transactions'])->name('admin.payout.transaction');
 });
 
 // User routes

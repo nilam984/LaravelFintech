@@ -3,6 +3,10 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\UserMiddleware;
+use App\Http\Middleware\ResellerMiddleware;
+use App\Http\Middleware\VerificationMiddleware;
 // use Throwable;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -13,7 +17,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'admin' => AdminMiddleware::class,
+            'user' => UserMiddleware::class,
+            'reseller' => ResellerMiddleware::class,
+            'verification' => VerificationMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (\Throwable $e, $request) {
