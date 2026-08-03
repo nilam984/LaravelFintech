@@ -124,8 +124,10 @@
 
     @if (Auth::check() && Auth::user()->role == 'admin')
         @include('layouts.admin-sidebar')
-    @else
+    @elseif(Auth::check() && Auth::user()->role == 'user')
         @include('layouts.user-sidebar')
+    @else
+     @include('layouts.verification-sidebar')
     @endif
 
     <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
