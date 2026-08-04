@@ -521,250 +521,16 @@
                     <!-- ===================== -->
                     <!-- KYC Verification -->
                     <!-- ===================== -->
-                    <div id="kycVerification" class="tab-content hidden p-6 sm:p-8">
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold text-gray-800">
-                                KYC Verification
-                            </h3>
-                            <p class="text-sm text-gray-500 mt-1">
-                                Manage and update the user's KYC verification status.
-                            </p>
-                        </div>
+                    @if (Auth::user()->role === 'admin')
+                        @include('admin.kyc.admin-kyc-card')
+                    @elseif (Auth::user()->role === 'verification')
+                        @include('admin.kyc.verification-kyc-card')
+                    @endif
 
-                        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm">
-
-                            {{-- Header --}}
-                            <div class="p-6 border-b border-gray-100 flex items-center justify-between">
-
-                                <div>
-                                    <h3 class="text-base font-semibold text-gray-800">
-                                        KYC Verification
-                                    </h3>
-
-                                    <p class="text-sm text-gray-500 mt-1">
-                                        Review and verify user's submitted KYC documents.
-                                    </p>
-                                </div>
-
-
-                                @php
-                                    $kycStatus = $user->businessInfo?->kyc_status ?? 'pending';
-                                @endphp
-
-
-                                <div>
-                                    @if ($kycStatus === 'approved')
-                                        <span
-                                            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full 
-                    text-xs font-semibold bg-green-100 text-green-700">
-                                            <i class="bi bi-check-circle-fill"></i>
-                                            Approved
-                                        </span>
-                                    @elseif($kycStatus === 'verification_rejected' || $kycStatus === 'admin_rejected')
-                                        <span
-                                            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full 
-                    text-xs font-semibold bg-red-100 text-red-700">
-                                            <i class="bi bi-x-circle-fill"></i>
-                                            Rejected
-                                        </span>
-                                    @elseif($kycStatus === 'verification_approved')
-                                        <span
-                                            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full 
-                    text-xs font-semibold bg-blue-100 text-blue-700">
-                                            <i class="bi bi-hourglass-split"></i>
-                                            Waiting Admin
-                                        </span>
-                                    @else
-                                        <span
-                                            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full 
-                    text-xs font-semibold bg-yellow-100 text-yellow-700">
-                                            <i class="bi bi-clock"></i>
-                                            Pending
-                                        </span>
-                                    @endif
-                                </div>
-
-                            </div>
-
-
-
-                            {{-- KYC Fields --}}
-                            <div class="p-6 space-y-4">
-
-
-                                @foreach ($kycFields as $key => $field)
-                                    @php
-
-                                        $businessInfo = $user->businessInfo;
-
-                                        $value = $businessInfo?->$key;
-
-                                        $verification = $businessInfo?->kyc_verification_data[$key]['verification'] ?? [
-                                            'status' => 'pending',
-                                            'remark' => null,
-                                        ];
-
-                                    @endphp
-
-
-
-                                    <div class="rounded-xl border border-gray-100 bg-gray-50/50 p-5">
-
-
-                                        <div class="flex justify-between gap-4">
-
-
-                                            {{-- Left --}}
-                                            <div class="flex-1">
-
-
-                                                <div class="flex items-center gap-2">
-
-                                                    <h4 class="text-sm font-semibold text-gray-800">
-                                                        {{ $field['label'] }}
-                                                    </h4>
-
-
-                                                    @if ($field['required'])
-                                                        <span class="text-red-500 text-xs">
-                                                            Required
-                                                        </span>
-                                                    @endif
-
-                                                </div>
-
-
-
-                                                <div class="mt-3">
-
-
-                                                    @if ($field['type'] === 'file')
-                                                        @if ($value)
-                                                            <a href="{{ asset($value) }}" target="_blank"
-                                                                class="inline-flex items-center gap-2 
-                                       text-sm text-blue-600 hover:text-blue-800">
-
-                                                                <i class="bi bi-file-earmark-text"></i>
-                                                                View Document
-
-                                                            </a>
-                                                        @else
-                                                            <span class="text-sm text-gray-400">
-                                                                Document not uploaded
-                                                            </span>
-                                                        @endif
-                                                    @else
-                                                        <p class="text-sm text-gray-600">
-                                                            {{ $value ?: '-' }}
-                                                        </p>
-                                                    @endif
-
-
-                                                </div>
-
-
-
-                                                @if ($verification['remark'])
-                                                    <div class="mt-3 p-3 rounded-lg bg-red-50 text-sm text-red-700">
-
-                                                        <span class="font-medium">
-                                                            Remark:
-                                                        </span>
-
-                                                        {{ $verification['remark'] }}
-
-                                                    </div>
-                                                @endif
-
-
-                                            </div>
-
-
-
-
-                                            {{-- Right --}}
-                                            <div class="flex flex-col items-end gap-3">
-
-
-                                                @if ($verification['status'] === 'approved')
-                                                    <span
-                                                        class="px-3 py-1 rounded-full text-xs font-medium
-                                bg-green-100 text-green-700">
-
-                                                        Approved
-
-                                                    </span>
-                                                @elseif($verification['status'] === 'rejected')
-                                                    <span
-                                                        class="px-3 py-1 rounded-full text-xs font-medium
-                                bg-red-100 text-red-700">
-
-                                                        Rejected
-
-                                                    </span>
-                                                @else
-                                                    <span
-                                                        class="px-3 py-1 rounded-full text-xs font-medium
-                                bg-yellow-100 text-yellow-700">
-
-                                                        Pending
-
-                                                    </span>
-                                                @endif
-
-
-
-                                                @if ($verification['status'] !== 'approved')
-                                                    <div class="flex gap-2">
-
-
-                                                        <button
-                                                            class="verify-btn px-3 py-1.5 rounded-lg
-                                    text-xs font-medium
-                                    bg-green-600 text-white hover:bg-green-700"
-                                                            data-field="{{ $key }}" data-status="approved">
-
-                                                            Approve
-
-                                                        </button>
-
-
-                                                        <button
-                                                            class="verify-btn px-3 py-1.5 rounded-lg
-                                    text-xs font-medium
-                                    bg-red-600 text-white hover:bg-red-700"
-                                                            data-field="{{ $key }}" data-status="rejected">
-
-                                                            Reject
-
-                                                        </button>
-
-
-                                                    </div>
-                                                @endif
-
-
-                                            </div>
-
-
-                                        </div>
-
-
-                                    </div>
-                                @endforeach
-
-
-                            </div>
-
-                        </div>
-                    </div>
 
                 </div>
-
             </div>
-
         </div>
-
     </div>
 
     @section('scripts')
@@ -787,7 +553,270 @@
                     document.getElementById(tab.dataset.tab).classList.remove('hidden');
                 });
             });
- 
         </script>
+
+
+        {{-- Admin js for the kyc --}}
+        <script>
+            $(document).on('click', '.verify-btn', function() {
+
+                let button = $(this);
+
+                let user_id = button.data('user');
+                let field = button.data('field');
+                let status = button.data('status');
+                let remark = null;
+
+                function submitRequest() {
+
+                    $.ajax({
+
+                        url: "{{ route('user.kyc.verify') }}",
+
+                        type: "POST",
+
+                        data: {
+
+                            _token: "{{ csrf_token() }}",
+
+                            user_id: user_id,
+
+                            field: field,
+
+                            status: status,
+
+                            remark: remark
+
+                        },
+
+                        beforeSend: function() {
+
+                            button.prop('disabled', true);
+
+                        },
+
+                        success: function(response) {
+
+                            Swal.fire({
+
+                                icon: 'success',
+
+                                title: 'Success',
+
+                                text: response.message,
+
+                                timer: 1500,
+
+                                showConfirmButton: false
+
+                            }).then(() => {
+
+                                location.reload();
+
+                            });
+
+                        },
+
+                        error: function(xhr) {
+
+                            button.prop('disabled', false);
+
+                            Swal.fire({
+
+                                icon: 'error',
+
+                                title: 'Error',
+
+                                text: xhr.responseJSON?.message ?? 'Something went wrong.'
+
+                            });
+
+                        }
+
+                    });
+
+                }
+
+                // Final Approval
+                if (status === 'approved') {
+
+                    Swal.fire({
+
+                        title: 'Final KYC Approval?',
+
+                        html: `
+                <p class="text-sm text-gray-600">
+                    You are about to <b>finally approve</b> this KYC field.
+                    <br><br>
+                    This action will mark this field as approved by Admin.
+                </p>
+            `,
+
+                        icon: 'question',
+
+                        showCancelButton: true,
+
+                        confirmButtonText: 'Yes, Approve',
+
+                        cancelButtonText: 'Cancel',
+
+                        confirmButtonColor: '#16a34a'
+
+                    }).then((result) => {
+
+                        if (result.isConfirmed) {
+
+                            submitRequest();
+
+                        }
+
+                    });
+
+                }
+
+                // Final Reject
+                else {
+
+                    Swal.fire({
+
+                        title: 'Reject KYC Field',
+
+                        input: 'textarea',
+
+                        inputLabel: 'Reason for rejection',
+
+                        inputPlaceholder: 'Enter rejection reason...',
+
+                        inputAttributes: {
+                            required: true
+                        },
+                        showCancelButton: true,
+                        confirmButtonText: 'Reject',
+                        cancelButtonText: 'Cancel',
+                        confirmButtonColor: '#dc2626',
+                        preConfirm: (value) => {
+                            if (!value) {
+                                Swal.showValidationMessage('Remark is required.');
+                            }
+                            return value;
+                        }
+
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            remark = result.value;
+                            submitRequest();
+                        }
+                    });
+                }
+            });
+        </script>
+
+        {{-- Verification js for the kyc --}}
+        <script>
+            $(document).on('click', '.verify-btn', function() {
+
+                let button = $(this);
+
+                let user_id = button.data('user');
+                let field = button.data('field');
+                let status = button.data('status');
+                let remark = null;
+
+                function submitRequest() {
+
+                    $.ajax({
+
+                        url: "{{ route('user.kyc.verify') }}",
+
+                        type: "POST",
+
+                        data: {
+
+                            _token: "{{ csrf_token() }}",
+
+                            user_id: user_id,
+
+                            field: field,
+
+                            status: status,
+
+                            remark: remark
+
+                        },
+
+                        beforeSend: function() {
+
+                            button.prop('disabled', true);
+
+                        },
+
+                        success: function(response) {
+
+                            Swal.fire({
+
+                                icon: 'success',
+
+                                title: 'Success',
+
+                                text: response.message,
+
+                                timer: 1500,
+
+                                showConfirmButton: false
+
+                            }).then(() => {
+                                location.reload();
+                            });
+                        },
+
+                        error: function(xhr) {
+                            button.prop('disabled', false);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: xhr.responseJSON?.message ?? 'Something went wrong.'
+                            });
+                        }
+                    });
+                }
+
+                if (status == 'approved') {
+                    Swal.fire({
+                        title: 'Approve this field?',
+                        text: 'The field will move to Admin for final approval.',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Approve',
+                        confirmButtonColor: '#16a34a'
+
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            submitRequest();
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Reject Field',
+                        input: 'textarea',
+                        inputPlaceholder: 'Enter rejection reason',
+                        inputLabel: 'Remark',
+                        showCancelButton: true,
+                        confirmButtonText: 'Reject',
+                        confirmButtonColor: '#dc2626',
+                        inputValidator: (value) => {
+                            if (!value) {
+                                return 'Remark is required';
+                            }
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            remark = result.value;
+                            submitRequest();
+                        }
+                    });
+                }
+            });
+        </script>
+
     @endsection
 @endsection
