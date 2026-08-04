@@ -13,17 +13,60 @@ use App\Models\PaymentGateway;
 use App\Models\ServiceProduct;
 use App\Models\User;
 use App\Models\WebHookUrl;
+use App\Models\CostSetup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use Exception;
 
 class AdminController extends Controller
 {
     public function allusers()
     {
         return view('admin.all-users');
+    }
+
+    public function costSetup()
+    {
+        $services = GlobalService::where('status', 1)->get();
+
+        return view('admin.cost-setup', compact('services'));
+    }
+
+    public function storeCostSetup(Request $request)
+    {
+        try {
+
+            $request->validate([
+                'service_id' => 'required|exists:global_services,id',
+                'cost' => 'required|numeric|min:0',
+            ]);
+
+            $costSetup = CostSetup::updateOrCreate(
+                [
+                    'service_id' => $request->service_id,
+                ],
+                [
+                    'cost' => $request->cost,
+                ]
+            );
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Cost setup saved successfully.',
+                'data' => $costSetup,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+            ], 500);
+        }
     }
 
     public function globalServices()
@@ -34,6 +77,7 @@ class AdminController extends Controller
     public function serviceRequest()
     {
         $users = User::where('role', 'user')->orderBy('id', 'desc')->get();
+
         return view('admin.service-request', compact('users'));
     }
 
@@ -69,7 +113,7 @@ class AdminController extends Controller
                 'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
-            \Log::error('Global Service Store Error: ' . $e->getMessage());
+            \Log::error('Global Service Store Error: '.$e->getMessage());
 
             return response()->json([
                 'status' => false,
@@ -81,7 +125,7 @@ class AdminController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'service_name' => 'required|unique:global_services,service_name,' . $request->id,
+            'service_name' => 'required|unique:global_services,service_name,'.$request->id,
             'status' => 'required',
         ]);
         $service = GlobalService::findOrFail($request->id);
@@ -89,12 +133,12 @@ class AdminController extends Controller
             'service_name' => $request->service_name,
             'status' => $request->status,
         ]);
+
         return response()->json([
             'status' => true,
             'message' => 'Service Updated Successfully.',
         ]);
     }
-
 
     public function addProduct(Request $request)
     {
@@ -110,27 +154,28 @@ class AdminController extends Controller
             $insertData = [];
             foreach ($request->products as $product) {
                 $insertData[] = [
-                    'service_id'  => $request->service_id,
+                    'service_id' => $request->service_id,
                     'product_name' => trim($product['product_name']),
-                    'created_at'  => now(),
-                    'updated_at'  => now(),
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ];
             }
             ServiceProduct::insert($insertData);
             DB::commit();
+
             return response()->json([
                 'status' => true,
-                'message' => 'Products saved successfully.'
+                'message' => 'Products saved successfully.',
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
-
 
     public function gatewayRouting()
     {
@@ -138,13 +183,14 @@ class AdminController extends Controller
         $payoutGateways = PaymentGateway::where('gateway_type', 'payout')->where('status', 1)->latest()->get();
         $payinCurrentRouteId = GatewayRouting::with('gatewayName')->where('gateway_type', 'payin')->first();
         $payoutCurrentRouteId = GatewayRouting::with('gatewayName')->where('gateway_type', 'payout')->first();
+
         return view('admin.gateway-routing', compact('payinGateways', 'payoutGateways', 'payinCurrentRouteId', 'payoutCurrentRouteId'));
     }
 
     public function switchGatewayRoute(Request $request)
     {
         try {
-            if (!in_array($request->gateway_type, ['payin', 'payout'])) {
+            if (! in_array($request->gateway_type, ['payin', 'payout'])) {
                 return redirect()->back()->with('error', 'Invalid Gateway type');
             }
 
@@ -175,7 +221,7 @@ class AdminController extends Controller
 
                     [
                         'payment_gateway_id' => $gatewayId,
-                        'updated_by' => $updatedBy
+                        'updated_by' => $updatedBy,
                     ]
                 );
             });
@@ -186,15 +232,16 @@ class AdminController extends Controller
                 return redirect()->back()->with('error', 'Some Error Occured');
             }
         } catch (\Exception $e) {
-            Log::error('Gateway switch error: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error : ' . $e->getMessage());
+            Log::error('Gateway switch error: '.$e->getMessage());
+
+            return redirect()->back()->with('error', 'Error : '.$e->getMessage());
         }
     }
-
 
     public function loadMoney()
     {
         $users = User::where('role', 'user')->orderBy('id', 'desc')->get();
+
         return view('admin.load-money', compact('users'));
     }
 
@@ -203,9 +250,9 @@ class AdminController extends Controller
         $userId = auth()->id();
         $business = BussinessInfo::where('user_id', $userId)->first();
         $bank = BankDetail::where('user_id', $userId)->first();
+
         return view('admin.admin-profile', compact('business', 'bank'));
     }
-
 
     public function loadMoneyAction(Request $request)
     {
@@ -215,10 +262,10 @@ class AdminController extends Controller
             'remark' => ['nullable', 'string', 'max:300'],
         ]);
 
-        if ($validated['status'] === 'rejected' &&   blank($validated['remark'])) {
+        if ($validated['status'] === 'rejected' && blank($validated['remark'])) {
             return response()->json([
                 'success' => false,
-                'message' => 'Remark is required for rejection.'
+                'message' => 'Remark is required for rejection.',
             ], 422);
         }
 
@@ -231,7 +278,7 @@ class AdminController extends Controller
             if ($loadRequest->status !== 'pending') {
                 return response()->json([
                     'success' => false,
-                    'message' => 'This request has already been processed.'
+                    'message' => 'This request has already been processed.',
                 ], 422);
             }
 
@@ -249,17 +296,15 @@ class AdminController extends Controller
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Request rejected successfully.'
+                    'message' => 'Request rejected successfully.',
                 ]);
             }
-
 
             $user = $loadRequest->user()->lockForUpdate()->first();
 
             $amount = $loadRequest->amount;
 
             $user->increment('main_wallet', $amount);
-
 
             // Ledger Record
             // WalletTransaction::create([
@@ -281,7 +326,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Request approved successfully.'
+                'message' => 'Request approved successfully.',
             ]);
         } catch (\Exception $e) {
 
@@ -289,11 +334,10 @@ class AdminController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error : ' . $e->getMessage()
+                'message' => 'Error : '.$e->getMessage(),
             ], 500);
         }
     }
-
 
     public function userDetails($Id)
     {
@@ -304,9 +348,9 @@ class AdminController extends Controller
         $webhooks = WebHookUrl::with('service')->where('user_id', $Id)->latest()->get();
         $keyDetails = OauthUser::with('service')->where('user_id', $Id)->latest()->get();
         $kycFields = config('kyc.fields');
+
         return view('admin.user-details', compact('business', 'bank', 'webhooks', 'keyDetails', 'user', 'kycFields'));
     }
-
 
     // public function userKycVerify($Id)
     // {
@@ -380,14 +424,13 @@ class AdminController extends Controller
     {
         $request->validate([
             'user_id' => 'required|exists:users,id',
-            'field'   => 'required|string',
-            'status'  => 'required|in:approved,rejected',
-            'remark'  => 'nullable|string'
+            'field' => 'required|string',
+            'status' => 'required|in:approved,rejected',
+            'remark' => 'nullable|string',
         ]);
 
         $business = BussinessInfo::where('user_id', $request->user_id)->firstOrFail();
         $kycData = $business->kyc_verification_data ?? [];
-
 
         if (auth()->user()->role == 'verification') {
             $level = 'verification';
@@ -396,7 +439,7 @@ class AdminController extends Controller
         } else {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized.'
+                'message' => 'Unauthorized.',
             ], 403);
         }
 
@@ -404,7 +447,7 @@ class AdminController extends Controller
             'status' => $request->status,
             'remark' => $request->remark,
             'by' => auth()->id(),
-            'at' => now()
+            'at' => now(),
 
         ];
 
@@ -413,7 +456,7 @@ class AdminController extends Controller
             $kycData[$request->field]['verification']['status'] = 'rejected';
 
             $kycData[$request->field]['verification']['remark'] =
-                "Rejected by Admin: " . $request->remark;
+                'Rejected by Admin: '.$request->remark;
         }
 
         $business->kyc_verification_data = $kycData;
@@ -422,7 +465,7 @@ class AdminController extends Controller
             $statuses = collect($kycData)->pluck('verification.status');
             if ($statuses->contains('rejected')) {
                 $business->kyc_status = 'verification_rejected';
-            } elseif ($statuses->every(fn($status) => $status == 'approved')) {
+            } elseif ($statuses->every(fn ($status) => $status == 'approved')) {
                 $business->kyc_status = 'verification_approved';
             } else {
                 $business->kyc_status = 'pending';
@@ -431,12 +474,11 @@ class AdminController extends Controller
             $business->verification_at = now();
         }
 
-
         if ($level == 'admin') {
             $statuses = collect($kycData)->pluck('admin.status');
             if ($statuses->contains('rejected')) {
                 $business->kyc_status = 'admin_rejected';
-            } elseif ($statuses->every(fn($status) => $status == 'approved')) {
+            } elseif ($statuses->every(fn ($status) => $status == 'approved')) {
                 $business->kyc_status = 'approved';
             }
             $business->admin_verified_by = auth()->id();
@@ -444,9 +486,10 @@ class AdminController extends Controller
         }
 
         $business->save();
+
         return response()->json([
             'success' => true,
-            'message' => 'KYC updated successfully.'
+            'message' => 'KYC updated successfully.',
 
         ]);
     }

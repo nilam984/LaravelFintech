@@ -787,7 +787,10 @@
                         icon: 'question',
                         showCancelButton: true,
                         confirmButtonText: 'Approve',
-                        confirmButtonColor: '#16a34a'
+                        confirmButtonColor: '#16a34a',
+                        didOpen: () => {
+                            document.body.classList.remove('swal2-height-auto');
+                        }
 
                     }).then((result) => {
                         if (result.isConfirmed) {
@@ -803,6 +806,9 @@
                         showCancelButton: true,
                         confirmButtonText: 'Reject',
                         confirmButtonColor: '#dc2626',
+                        didOpen: () => {
+                            document.body.classList.remove('swal2-height-auto');
+                        },
                         inputValidator: (value) => {
                             if (!value) {
                                 return 'Remark is required';

@@ -18,4 +18,9 @@ class GlobalService extends Model
         $userId = Auth::user()->id;
         return $this->hasOne(ServiceRequest::class, 'service_id')->where('user_id', $userId);
     }
+
+    public function costSetup()
+    {
+        return $this->hasOne(CostSetup::class, 'service_id');
+    }
 }
