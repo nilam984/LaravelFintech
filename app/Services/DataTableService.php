@@ -1,417 +1,498 @@
 <?php
 
-namespace App\Services;
+namespace App\Http\Controllers\Admin;
 
-use App\Models\AssignedScheme;
+use App\Http\Controllers\Controller;
+use App\Models\BankDetail;
+use App\Models\BussinessInfo;
+use App\Models\GatewayRouting;
 use App\Models\GlobalService;
-use App\Models\IpWhitelist;
 use App\Models\LoadMoney;
 use App\Models\OauthUser;
-use App\Models\PayinTransaction;
-use App\Models\PayoutTransaction;
-use App\Models\Scheme;
-use App\Models\ServiceRequest;
+use App\Models\PaymentGateway;
+use App\Models\ServiceProduct;
 use App\Models\User;
 use App\Models\WebHookUrl;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+use Exception;
+use App\Models\CostSetup;
 
-class DataTableService
+class AdminController extends Controller
 {
-    public function make($table, Request $request)
+    public function allusers()
     {
-        if (! method_exists($this, $table)) {
-            abort(404);
+        return view('admin.all-users');
+    }
+
+    public function globalServices()
+    {
+        return view('admin.global-service');
+    }
+
+    public function serviceRequest()
+    {
+        $users = User::where('role', 'user')->orderBy('id', 'desc')->get();
+        return view('admin.service-request', compact('users'));
+    }
+
+    public function getProducts($service_id)
+    {
+        return ServiceProduct::where('service_id', $service_id)
+            ->select('id', 'product_name')
+            ->get();
+    }
+
+    public function store(Request $request)
+    {
+        try {
+
+            $request->validate([
+                'service_name' => 'required|string|max:255|unique:global_services,service_name',
+                'status' => 'required|boolean',
+            ]);
+
+            GlobalService::create([
+                'service_name' => $request->service_name,
+                'status' => $request->status,
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Global Service Added Successfully.',
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Global Service Store Error: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong. Please try again.',
+            ], 500);
+        }
+    }
+
+    public function update(Request $request)
+    {
+        $request->validate([
+            'service_name' => 'required|unique:global_services,service_name,' . $request->id,
+            'status' => 'required',
+        ]);
+        $service = GlobalService::findOrFail($request->id);
+        $service->update([
+            'service_name' => $request->service_name,
+            'status' => $request->status,
+        ]);
+        return response()->json([
+            'status' => true,
+            'message' => 'Service Updated Successfully.',
+        ]);
+    }
+
+
+    public function addProduct(Request $request)
+    {
+        $request->validate([
+            'service_id' => 'required',
+            'products' => 'required|array|min:1',
+            'products.*.product_name' => 'required|string|max:255',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            ServiceProduct::where('service_id', $request->service_id)->delete();
+            $insertData = [];
+            foreach ($request->products as $product) {
+                $insertData[] = [
+                    'service_id'  => $request->service_id,
+                    'product_name' => trim($product['product_name']),
+                    'created_at'  => now(),
+                    'updated_at'  => now(),
+                ];
+            }
+            ServiceProduct::insert($insertData);
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'message' => 'Products saved successfully.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function gatewayRouting()
+    {
+        $payinGateways = PaymentGateway::where('gateway_type', 'payin')->where('status', 1)->latest()->get();
+        $payoutGateways = PaymentGateway::where('gateway_type', 'payout')->where('status', 1)->latest()->get();
+        $payinCurrentRouteId = GatewayRouting::with('gatewayName')->where('gateway_type', 'payin')->first();
+        $payoutCurrentRouteId = GatewayRouting::with('gatewayName')->where('gateway_type', 'payout')->first();
+        return view('admin.gateway-routing', compact('payinGateways', 'payoutGateways', 'payinCurrentRouteId', 'payoutCurrentRouteId'));
+    }
+
+    public function switchGatewayRoute(Request $request)
+    {
+        try {
+            if (!in_array($request->gateway_type, ['payin', 'payout'])) {
+                return redirect()->back()->with('error', 'Invalid Gateway type');
+            }
+
+            if ($request->gateway_type == 'payin') {
+
+                $request->validate([
+                    'payin_gateway_id' => 'required|exists:payment_gateways,id',
+                ]);
+
+                $gatewayId = $request->payin_gateway_id;
+                $gatewayType = 'payin';
+            } else {
+
+                $request->validate([
+                    'payout_gateway_id' => 'required|exists:payment_gateways,id',
+                ]);
+
+                $gatewayId = $request->payout_gateway_id;
+                $gatewayType = 'payout';
+            }
+
+            $updatedBy = Auth::user()->id;
+
+            $created = DB::transaction(function () use ($gatewayType, $gatewayId, $updatedBy) {
+                return GatewayRouting::updateOrCreate(
+
+                    ['gateway_type' => $gatewayType],
+
+                    [
+                        'payment_gateway_id' => $gatewayId,
+                        'updated_by' => $updatedBy
+                    ]
+                );
+            });
+
+            if ($created) {
+                return redirect()->back()->with('success', 'Gateway Switched Successfully');
+            } else {
+                return redirect()->back()->with('error', 'Some Error Occured');
+            }
+        } catch (\Exception $e) {
+            Log::error('Gateway switch error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error : ' . $e->getMessage());
+        }
+    }
+
+
+    public function loadMoney()
+    {
+        $users = User::where('role', 'user')->orderBy('id', 'desc')->get();
+        return view('admin.load-money', compact('users'));
+    }
+
+    public function adminprofile()
+    {
+        $userId = Auth::id();
+        $business = BussinessInfo::where('user_id', $userId)->first();
+        $bank = BankDetail::where('user_id', $userId)->first();
+        return view('admin.admin-profile', compact('business', 'bank'));
+    }
+
+
+    public function loadMoneyAction(Request $request)
+    {
+        $validated = $request->validate([
+            'id' => ['required', 'integer', 'exists:load_money,id'],
+            'status' => ['required', Rule::in(['approved', 'rejected'])],
+            'remark' => ['nullable', 'string', 'max:300'],
+        ]);
+
+        if ($validated['status'] === 'rejected' &&   blank($validated['remark'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Remark is required for rejection.'
+            ], 422);
         }
 
-        $config = $this->{$table}();
+        DB::beginTransaction();
 
-        $query = $config['model']::query();
+        try {
 
-        if (! empty($config['with'])) {
-            $query->with($config['with']);
+            $loadRequest = LoadMoney::lockForUpdate()->findOrFail($validated['id']);
+
+            if ($loadRequest->status !== 'pending') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This request has already been processed.'
+                ], 422);
+            }
+
+            $userId = Auth::user()->id;
+
+            if ($validated['status'] === 'rejected') {
+
+                $loadRequest->update([
+                    'status' => 'rejected',
+                    'rejection_remark' => $validated['remark'],
+                    'updated_by' => $userId,
+                ]);
+
+                DB::commit();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Request rejected successfully.'
+                ]);
+            }
+
+
+            $user = $loadRequest->user()->lockForUpdate()->first();
+
+            $amount = $loadRequest->amount;
+
+            $user->increment('main_wallet', $amount);
+
+
+            // Ledger Record
+            // WalletTransaction::create([
+            //     'user_id'        => $user->id,
+            //     'amount'         => $amount,
+            //     'type'           => 'credit',
+            //     'wallet_type'    => 'main_wallet',
+            //     'reference_id'   => $loadRequest->id,
+            //     'reference_type' => 'service_request',
+            //     'remark'         => 'Service request approved',
+            // ]);
+
+            $loadRequest->update([
+                'status' => 'approved',
+                'updated_by' => $userId,
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Request approved successfully.'
+            ]);
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error : ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function userDetails($Id)
+    {
+
+        $user = User::with('businessInfo')->find($Id);
+        $business = BussinessInfo::where('user_id', $Id)->first();
+        $bank = BankDetail::where('user_id', $Id)->first();
+        $webhooks = WebHookUrl::with('service')->where('user_id', $Id)->latest()->get();
+        $keyDetails = OauthUser::with('service')->where('user_id', $Id)->latest()->get();
+        $kycFields = config('kyc.fields');
+        return view('admin.user-details', compact('business', 'bank', 'webhooks', 'keyDetails', 'user', 'kycFields'));
+    }
+
+
+    public function verifyKyc(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'field'   => 'required|string',
+            'status'  => 'required|in:approved,rejected',
+            'remark'  => 'nullable|string'
+        ]);
+
+        $business = BussinessInfo::where('user_id', $request->user_id)->firstOrFail();
+        $kycData = $business->kyc_verification_data ?? [];
+
+
+        if (Auth::user()->role == 'verification') {
+            $level = 'verification';
+        } elseif (Auth::user()->role == 'admin') {
+            $level = 'admin';
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized.'
+            ], 403);
         }
 
-        if (! empty($config['query'])) {
-            $query = $config['query']($query, $request);
+        $kycData[$request->field][$level] = [
+            'status' => $request->status,
+            'remark' => $request->remark,
+            'by' => Auth::id(),
+            'at' => now()
+
+        ];
+
+        if ($level == 'admin' && $request->status == 'rejected') {
+
+            $kycData[$request->field]['verification']['status'] = 'rejected';
+
+            $kycData[$request->field]['verification']['remark'] =
+                "Rejected by Admin: " . $request->remark;
         }
 
-        // return DataTables::eloquent($query)->toJson();
+        $business->kyc_verification_data = $kycData;
 
-        return DataTables::eloquent($query)
-            ->filter(function ($query) use ($request, $table) {
+        // if ($level == 'verification') {
+        //     $statuses = collect($kycData)->pluck('verification.status');
+        //     if ($statuses->contains('rejected')) {
+        //         $business->kyc_status = 'verification_rejected';
+        //     } elseif ($statuses->every(fn($status) => $status == 'approved')) {
+        //         $business->kyc_status = 'verification_approved';
+        //     } else {
+        //         $business->kyc_status = 'pending';
+        //     }
+        //     $business->verification_by = Auth::id();
+        //     $business->verification_at = now();
+        // }
 
-                if ($request->filled('status')) {
-                    $query->where('status', $request->status);
+
+        // if ($level == 'admin') {
+        //     $statuses = collect($kycData)->pluck('admin.status');
+        //     if ($statuses->contains('rejected')) {
+        //         $business->kyc_status = 'admin_rejected';
+        //     } elseif ($statuses->every(fn($status) => $status == 'approved')) {
+        //         $business->kyc_status = 'approved';
+        //     }
+        //     $business->admin_verified_by = Auth::id();
+        //     $business->admin_verified_at = now();
+        // }
+
+        if ($level == 'verification') {
+
+            $allFields = config('kyc.fields');
+
+            $hasRejected = false;
+            $allApproved = true;
+
+            foreach ($allFields as $field => $config) {
+
+                $status = $kycData[$field]['verification']['status'] ?? 'pending';
+
+                if ($status === 'rejected') {
+                    $hasRejected = true;
                 }
 
-                if ($request->filled('user_id')) {
-                    $query->where('user_id', $request->user_id);
+                if ($status !== 'approved') {
+                    $allApproved = false;
+                }
+            }
+
+            if ($hasRejected) {
+                $business->kyc_status = 'verification_rejected';
+            } elseif ($allApproved) {
+                $business->kyc_status = 'verification_approved';
+            } else {
+                $business->kyc_status = 'pending';
+            }
+
+            $business->verification_by = Auth::id();
+            $business->verification_at = now();
+        }
+
+        if ($level == 'admin') {
+
+            $allFields = config('kyc.fields');
+
+            $hasRejected = false;
+            $allApproved = true;
+
+            foreach ($allFields as $field => $config) {
+
+                $status = $kycData[$field]['admin']['status'] ?? 'pending';
+
+                if ($status === 'rejected') {
+                    $hasRejected = true;
                 }
 
-                if ($request->filled('from_date') && $request->filled('to_date')) {
-
-                    $query->whereBetween('created_at', [
-                        $request->from_date.' 00:00:00',
-                        $request->to_date.' 23:59:59',
-                    ]);
-                } elseif ($request->filled('from_date')) {
-
-                    $query->whereDate('created_at', '>=', $request->from_date);
-                } elseif ($request->filled('to_date')) {
-
-                    $query->whereDate('created_at', '<=', $request->to_date);
+                if ($status !== 'approved') {
+                    $allApproved = false;
                 }
+            }
 
-                if ($request->filled('search_key')) {
+            if ($hasRejected) {
+                $business->kyc_status = 'admin_rejected';
+            } elseif ($allApproved) {
+                $business->kyc_status = 'approved';
+            } else {
+                // Verification is complete, but Admin is still reviewing
+                $business->kyc_status = 'verification_approved';
+            }
 
-                    $key = $request->search_key;
+            $business->admin_verified_by = Auth::id();
+            $business->admin_verified_at = now();
+        }
 
-                    $query->where(function ($q) use ($key, $table) {
+        $business->save();
+        return response()->json([
+            'success' => true,
+            'message' => 'KYC updated successfully.'
 
-                        if ($table == 'payoutTransactions') {
-
-                            $q->where('beneficiary_name', 'like', "%{$key}%")
-                                ->orWhere('beneficiary_email', 'like', "%{$key}%")
-                                ->orWhere('beneficiary_mobile', 'like', "%{$key}%")
-                                ->orWhere('client_ref_id', 'like', "%{$key}%")
-                                ->orWhere('utr', 'like', "%{$key}%")
-                                ->orWhere('bank_reference', 'like', "%{$key}%")
-                                ->orWhere('account_number', 'like', "%{$key}%")
-                                ->orWhere('bank_name', 'like', "%{$key}%")
-                                ->orWhere('ifsc_code', 'like', "%{$key}%")
-                                ->orWhere('status', 'like', "%{$key}%")
-
-                                ->orWhereHas('user', function ($user) use ($key) {
-                                    $user->where('name', 'like', "%{$key}%")
-                                        ->orWhere('email', 'like', "%{$key}%")
-                                        ->orWhere('mobile', 'like', "%{$key}%");
-                                });
-
-                        } else {
-
-                            $q->where('payer_name', 'like', "%{$key}%")
-                                ->orWhere('payer_email', 'like', "%{$key}%")
-                                ->orWhere('payer_mobile', 'like', "%{$key}%")
-                                ->orWhere('user_order_id', 'like', "%{$key}%")
-                                ->orWhere('payment_reference_id', 'like', "%{$key}%")
-                                ->orWhere('utr', 'like', "%{$key}%")
-
-                                ->orWhereHas('user', function ($user) use ($key) {
-                                    $user->where('name', 'like', "%{$key}%")
-                                        ->orWhere('email', 'like', "%{$key}%")
-                                        ->orWhere('mobile', 'like', "%{$key}%");
-                                });
-
-                        }
-
-                    });
-
-                }
-            }, true)
-            ->toJson();
+        ]);
     }
 
-    protected function users()
+    public function verificationOfficer()
     {
-        return [
-
-            'model' => User::class,
-
-            'with' => [],
-
-            'query' => function ($query, $request) {
-
-                return $query->where('role', 'user');
-            },
-
-        ];
+        return view('admin.user-verification');
     }
 
-    protected function globalServices()
+    public function costSetup()
     {
-        return [
+        $services = GlobalService::where('status', 1)->get();
 
-            'model' => GlobalService::class,
-
-            'with' => [],
-
-            'query' => function ($query, $request) {
-
-                return $query;
-            },
-
-        ];
+        return view('admin.cost-setup', compact('services'));
     }
 
-    protected function serviceRequests()
+    public function storeCostSetup(Request $request)
     {
-        return [
-
-            'model' => ServiceRequest::class,
-
-            'with' => ['service', 'user'],
-
-            'query' => function ($query, $request) {
-
-                $user = Auth::user();
-
-                if ($request->user_id) {
-                    $query = $query->where('user_id', $request->user_id);
-                }
-
-                if ($user->role === 'admin') {
-                    return $query;
-                }
-
-                $userId = Auth::user()->id;
-
-                return $query->where('user_id', $userId);
-            },
-
-        ];
-    }
-
-    protected function schemes()
-    {
-        return [
-
-            'model' => Scheme::class,
-
-            'with' => ['rules'],
-
-            'query' => function ($query, $request) {
-
-                return $query;
-            },
-
-        ];
-    }
-
-    protected function oauthUsers()
-    {
-        return [
-            'model' => OauthUser::class,
-            'with' => ['user', 'service'],
-            'query' => function ($query, $request) {
-                $user = Auth::user();
-                if ($user->role === 'admin') {
-                    return $query;
-                }
-
-                return $query->where('user_id', $user->id);
-            },
-        ];
-    }
-
-    protected function assignedScheme()
-    {
-        return [
-
-            'model' => AssignedScheme::class,
-
-            'with' => ['user', 'scheme', 'updatedBy'],
-
-            'query' => function ($query, $request) {
-
-                if ($request->user_id) {
-                    $query = $query->where('user_id', $request->user_id);
-                }
-
-                if ($request->scheme_id) {
-                    $query = $query->where('scheme_id', $request->scheme_id);
-                }
-
-                return $query;
-            },
-
-        ];
-    }
-
-    protected function webHookUrls()
-    {
-        return [
-
-            'model' => WebHookUrl::class,
-
-            'with' => ['service'],
-
-            'query' => function ($query, $request) {
-
-                $user = Auth::user();
-
-                if ($user->role === 'admin') {
-                    return $query;
-                }
-
-                return $query->where('user_id', $user->id);
-            },
-
-        ];
-    }
-
-    protected function loadMoney()
-    {
-        return [
-
-            'model' => LoadMoney::class,
-
-            'with' => ['user', 'updatedBy'],
-
-            'query' => function ($query, $request) {
-
-                $user = Auth::user();
-
-                if ($user->role === 'admin') {
-                    if ($request->user_id) {
-                        $query = $query->where('user_id', $request->user_id);
-                    }
-
-                    return $query;
-                }
-
-                $userId = Auth::user()->id;
-
-                $query = $query->where('user_id', $userId);
-
-                return $query;
-            },
-
-        ];
-    }
-
-    protected function upiInitiation()
-    {
-        return [
-
-            'model' => PayinTransaction::class,
-
-            'with' => ['user'],
-
-            'query' => function ($query, $request) {
-
-                $user = Auth::user();
-
-                $query->where('status', 'initiated');
-
-                if ($user->role === 'admin') {
-
-                    if ($request->filled('user_id')) {
-                        $query->where('user_id', $request->user_id);
-                    }
-
-                    return $query;
-                }
-
-                return $query->where('user_id', $user->id);
-            },
-
-        ];
-    }
-
-    protected function upiCollection()
-    {
-        return [
-
-            'model' => PayinTransaction::class,
-
-            'with' => ['user'],
-
-            'query' => function ($query, $request) {
-
-                $user = Auth::user();
-
-                $query->where('status', 'success');
-
-                if ($user->role === 'admin') {
-
-                    if ($request->filled('user_id')) {
-                        $query->where('user_id', $request->user_id);
-                    }
-
-                    return $query;
-                }
-
-                return $query->where('user_id', $user->id);
-            },
-
-        ];
-    }
-
-    protected function allUpiTransaction()
-    {
-        return [
-
-            'model' => PayinTransaction::class,
-
-            'with' => ['user'],
-
-            'query' => function ($query, $request) {
-
-                $user = Auth::user();
-
-                // Admin -> sabhi transactions
-                if ($user->role === 'admin') {
-
-                    if ($request->filled('user_id')) {
-                        $query->where('user_id', $request->user_id);
-                    }
-
-                    return $query;
-                }
-
-                // User -> sirf apni transactions
-                return $query->where('user_id', $user->id);
-            },
-
-        ];
-    }
-
-    protected function IpWhitelist()
-    {
-        return [
-
-            'model' => IpWhitelist::class,
-
-            'with' => ['service'],
-
-            'query' => function ($query, $request) {
-
-                $user = Auth::user();
-
-                return $query->where('user_id', $user->id)->where('is_deleted', false);
-            },
-
-        ];
-    }
-
-    protected function payoutTransactions()
-    {
-        return [
-
-            'model' => PayoutTransaction::class,
-
-            'with' => ['user'],
-
-            'query' => function ($query, $request) {
-
-                $user = Auth::user();
-
-                // Admin -> sabhi transactions
-                if ($user->role === 'admin') {
-
-                    if ($request->filled('user_id')) {
-                        $query->where('user_id', $request->user_id);
-                    }
-
-                    return $query;
-                }
-
-                // User -> sirf apni transactions
-                return $query->where('user_id', $user->id);
-            },
-
-        ];
+        try {
+
+            $request->validate([
+                'service_id' => 'required|exists:global_services,id',
+                'cost' => 'required|numeric|min:0',
+            ]);
+
+            $costSetup = CostSetup::updateOrCreate(
+                [
+                    'service_id' => $request->service_id,
+                ],
+                [
+                    'cost' => $request->cost,
+                ]
+            );
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Cost setup saved successfully.',
+                'data' => $costSetup,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+            ], 500);
+        }
     }
 }
