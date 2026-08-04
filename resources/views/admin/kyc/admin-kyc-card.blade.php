@@ -102,7 +102,7 @@
 
                 @endphp
 
-                <div class="rounded-xl border border-gray-200 p-5">
+                <div class="rounded-xl border border-cyan-500 p-5">
 
                     <div class="flex justify-between gap-6">
 
@@ -111,9 +111,9 @@
 
                             <div class="flex items-center gap-2">
 
-                                <h4 class="font-semibold text-gray-800">
+                                <h4 class="font-semibold text-cyan-500">
 
-                                    {{ $field['label'] }}
+                                    <i class="bi bi-arrow-right-circle-fill"></i> {{ $field['label'] }}
 
                                 </h4>
 
@@ -166,23 +166,30 @@
                                 </div>
 
                                 @if ($verification['status'] == 'approved')
-                                    <div class="mt-2 text-green-600 font-medium">
-
-                                        ✅ Approved
-
-                                    </div>
+                                    <span
+                                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700 border border-green-200">
+                                        <i class="bi bi-check-circle-fill text-green-600"></i>
+                                        Approved
+                                    </span>
                                 @elseif($verification['status'] == 'rejected')
-                                    <div class="mt-2 text-red-600 font-medium">
-
-                                        ❌ Rejected
-
+                                    <div class="space-y-1">
+                                        <span
+                                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-200">
+                                            <i class="bi bi-x-circle-fill text-red-600"></i>
+                                            Rejected
+                                        </span>
+                                        @if (!empty($verification['rejection_reason']))
+                                            <p class="text-xs text-gray-500 pl-1 italic">
+                                                Reason: {{ $verification['rejection_reason'] }}
+                                            </p>
+                                        @endif
                                     </div>
                                 @else
-                                    <div class="mt-2 text-yellow-600">
-
+                                    <span
+                                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                                        <i class="bi bi-clock-history text-amber-500"></i>
                                         Pending
-
-                                    </div>
+                                    </span>
                                 @endif
 
                                 @if (!empty($verification['remark']))
@@ -199,15 +206,15 @@
 
                             {{-- Admin Remark --}}
                             @if (!empty($admin['remark']))
-                                <div class="mt-4 rounded-lg border border-blue-100 bg-blue-50 p-3">
+                                <div class="mt-4 rounded-lg border border-red-100 bg-gray-50 p-3">
 
-                                    <div class="font-semibold text-blue-700 text-sm">
+                                    <div class="font-semibold text-red-700 text-sm">
 
                                         Admin Remark
 
                                     </div>
 
-                                    <div class="text-sm text-blue-600 mt-1">
+                                    <div class="text-sm text-red-600 mt-1">
 
                                         {{ $admin['remark'] }}
 

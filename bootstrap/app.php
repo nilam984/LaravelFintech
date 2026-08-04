@@ -7,6 +7,7 @@ use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\UserMiddleware;
 use App\Http\Middleware\ResellerMiddleware;
 use App\Http\Middleware\VerificationMiddleware;
+use Illuminate\Http\Request;
 // use Throwable;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -23,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'reseller' => ResellerMiddleware::class,
             'verification' => VerificationMiddleware::class,
         ]);
+        $middleware->redirectGuestsTo(fn(Request $request) => route('login.page'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (\Throwable $e, $request) {
@@ -33,9 +35,5 @@ return Application::configure(basePath: dirname(__DIR__))
                     'message' => $e->getMessage(),
                 ], 400);
             }
-
-            return response()->view('errors.500', [
-                'exception' => $e,
-            ], 500);
         });
     })->create();

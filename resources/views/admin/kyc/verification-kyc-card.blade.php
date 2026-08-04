@@ -102,7 +102,7 @@
 
                 @endphp
 
-                <div class="border border-gray-200 rounded-xl p-5">
+                <div class="border border-cyan-500 rounded-xl p-5">
 
                     <div class="flex justify-between gap-6">
 
@@ -111,9 +111,9 @@
 
                             <div class="flex items-center gap-2">
 
-                                <h4 class="font-semibold text-gray-800">
+                                <h4 class="font-semibold text-cyan-500">
 
-                                    {{ $field['label'] }}
+                                    <i class="bi bi-arrow-right-circle-fill"></i> {{ $field['label'] }}
 
                                 </h4>
 
@@ -173,44 +173,44 @@
                             @endif
 
                             @if ($admin['status'] != 'pending')
-                                <div class="mt-4 rounded-lg border border-blue-100 bg-blue-50 p-3">
+                                @php
+                                    $isApproved = $admin['status'] == 'approved';
+                                    // Dynamic color mapping based on status
+                                    $containerClass = $isApproved
+                                        ? 'border-green-200 bg-green-50/50 text-green-900'
+                                        : 'border-red-200 bg-red-50/50 text-red-900';
 
-                                    <div class="flex items-center gap-2 text-sm font-semibold text-blue-700">
+                                    $headerClass = $isApproved ? 'text-green-800' : 'text-red-800';
+                                    $badgeClass = $isApproved
+                                        ? 'bg-green-100 text-green-700 border-green-200'
+                                        : 'bg-red-100 text-red-700 border-red-200';
+                                    $iconClass = $isApproved
+                                        ? 'bi-check-circle-fill text-green-600'
+                                        : 'bi-x-circle-fill text-red-600';
+                                @endphp
 
-                                        <i class="bi bi-shield-check"></i>
+                                <div class="mt-4 rounded-xl border {{ $containerClass }} p-4 shadow-sm transition-all">
+                                    <!-- Header / Status Badge -->
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2 text-sm font-bold {{ $headerClass }}">
+                                            <i class="bi bi-shield-check text-base"></i>
+                                            Admin Review
+                                        </div>
 
-                                        Admin Review
-
+                                        <span
+                                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border {{ $badgeClass }}">
+                                            <i class="bi {{ $iconClass }}"></i>
+                                            {{ $isApproved ? 'Approved by Admin' : 'Rejected by Admin' }}
+                                        </span>
                                     </div>
 
-
-                                    @if ($admin['status'] == 'approved')
-                                        <div class="mt-2 text-sm text-green-700 font-medium">
-
-                                            ✅ Approved by Admin
-
-                                        </div>
-                                    @elseif($admin['status'] == 'rejected')
-                                        <div class="mt-2 text-sm text-red-700 font-medium">
-
-                                            ❌ Rejected by Admin
-
-                                        </div>
-                                    @endif
-
-
-
+                                    <!-- Admin Remark / Reason -->
                                     @if (!empty($admin['remark']))
-                                        <div class="mt-2 text-sm text-blue-700">
-
-                                            <strong>Reason:</strong>
-
-                                            {{ $admin['remark'] }}
-
+                                        <div class="mt-3 pt-3 border-t border-gray-200/60 text-sm text-gray-600">
+                                            <span class="font-semibold text-gray-700">Reason:</span>
+                                            <p class="mt-0.5 italic text-gray-500">{{ $admin['remark'] }}</p>
                                         </div>
                                     @endif
-
-
                                 </div>
                             @endif
 

@@ -18,6 +18,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+use Exception;
+use App\Models\CostSetup;
 
 class AdminController extends Controller
 {
@@ -69,7 +72,7 @@ class AdminController extends Controller
                 'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
-            \Log::error('Global Service Store Error: ' . $e->getMessage());
+            Log::error('Global Service Store Error: ' . $e->getMessage());
 
             return response()->json([
                 'status' => false,
@@ -200,7 +203,7 @@ class AdminController extends Controller
 
     public function adminprofile()
     {
-        $userId = auth()->id();
+        $userId = Auth::id();
         $business = BussinessInfo::where('user_id', $userId)->first();
         $bank = BankDetail::where('user_id', $userId)->first();
         return view('admin.admin-profile', compact('business', 'bank'));
@@ -308,74 +311,6 @@ class AdminController extends Controller
     }
 
 
-    // public function userKycVerify($Id)
-    // {
-
-    //     $user = User::with('businessInfo')->find($Id);
-
-    //     if (!$user) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'User not found'
-    //         ], 404);
-    //     }
-
-    //     $businessInfo = $user->businessInfo;
-
-    //     if (!$businessInfo) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Business details not found for this User'
-    //         ], 404);
-    //     }
-
-    //     $requiredFields = [
-    //         $businessInfo->pan,
-    //         $businessInfo->pan_image,
-    //         $businessInfo->gst,
-    //         $businessInfo->website_url,
-    //         $businessInfo->owner_aadhar,
-    //         $businessInfo->owner_aadhar_image_front,
-    //         $businessInfo->owner_aadhar_image_back,
-    //         $businessInfo->owner_pan,
-    //         $businessInfo->owner_pan_image,
-    //     ];
-
-    //     if (collect($requiredFields)->contains(fn($value) => empty($value))) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Profile/KYC related details are incomplete please check'
-    //         ], 422);
-    //     }
-
-    //     try {
-    //         DB::beginTransaction();
-
-    //         $business = BussinessInfo::find($businessInfo->id);
-
-    //         if (!$business) {
-    //             throw new \Exception('Business information record not found.');
-    //         }
-
-    //         $business->kyc_verified = 1;
-    //         $business->save();
-
-    //         DB::commit();
-
-    //         return response()->json([
-    //             'success' => true,
-    //             'message' => 'KYC status updated successfully'
-    //         ]);
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Failed to update KYC status: ' . $e->getMessage()
-    //         ], 500);
-    //     }
-    // }
-
     public function verifyKyc(Request $request)
     {
         $request->validate([
@@ -389,9 +324,9 @@ class AdminController extends Controller
         $kycData = $business->kyc_verification_data ?? [];
 
 
-        if (auth()->user()->role == 'verification') {
+        if (Auth::user()->role == 'verification') {
             $level = 'verification';
-        } elseif (auth()->user()->role == 'admin') {
+        } elseif (Auth::user()->role == 'admin') {
             $level = 'admin';
         } else {
             return response()->json([
@@ -403,7 +338,7 @@ class AdminController extends Controller
         $kycData[$request->field][$level] = [
             'status' => $request->status,
             'remark' => $request->remark,
-            'by' => auth()->id(),
+            'by' => Auth::id(),
             'at' => now()
 
         ];
@@ -418,28 +353,93 @@ class AdminController extends Controller
 
         $business->kyc_verification_data = $kycData;
 
+        // if ($level == 'verification') {
+        //     $statuses = collect($kycData)->pluck('verification.status');
+        //     if ($statuses->contains('rejected')) {
+        //         $business->kyc_status = 'verification_rejected';
+        //     } elseif ($statuses->every(fn($status) => $status == 'approved')) {
+        //         $business->kyc_status = 'verification_approved';
+        //     } else {
+        //         $business->kyc_status = 'pending';
+        //     }
+        //     $business->verification_by = Auth::id();
+        //     $business->verification_at = now();
+        // }
+
+
+        // if ($level == 'admin') {
+        //     $statuses = collect($kycData)->pluck('admin.status');
+        //     if ($statuses->contains('rejected')) {
+        //         $business->kyc_status = 'admin_rejected';
+        //     } elseif ($statuses->every(fn($status) => $status == 'approved')) {
+        //         $business->kyc_status = 'approved';
+        //     }
+        //     $business->admin_verified_by = Auth::id();
+        //     $business->admin_verified_at = now();
+        // }
+
         if ($level == 'verification') {
-            $statuses = collect($kycData)->pluck('verification.status');
-            if ($statuses->contains('rejected')) {
+
+            $allFields = config('kyc.fields');
+
+            $hasRejected = false;
+            $allApproved = true;
+
+            foreach ($allFields as $field => $config) {
+
+                $status = $kycData[$field]['verification']['status'] ?? 'pending';
+
+                if ($status === 'rejected') {
+                    $hasRejected = true;
+                }
+
+                if ($status !== 'approved') {
+                    $allApproved = false;
+                }
+            }
+
+            if ($hasRejected) {
                 $business->kyc_status = 'verification_rejected';
-            } elseif ($statuses->every(fn($status) => $status == 'approved')) {
+            } elseif ($allApproved) {
                 $business->kyc_status = 'verification_approved';
             } else {
                 $business->kyc_status = 'pending';
             }
-            $business->verification_by = auth()->id();
+
+            $business->verification_by = Auth::id();
             $business->verification_at = now();
         }
 
-
         if ($level == 'admin') {
-            $statuses = collect($kycData)->pluck('admin.status');
-            if ($statuses->contains('rejected')) {
-                $business->kyc_status = 'admin_rejected';
-            } elseif ($statuses->every(fn($status) => $status == 'approved')) {
-                $business->kyc_status = 'approved';
+
+            $allFields = config('kyc.fields');
+
+            $hasRejected = false;
+            $allApproved = true;
+
+            foreach ($allFields as $field => $config) {
+
+                $status = $kycData[$field]['admin']['status'] ?? 'pending';
+
+                if ($status === 'rejected') {
+                    $hasRejected = true;
+                }
+
+                if ($status !== 'approved') {
+                    $allApproved = false;
+                }
             }
-            $business->admin_verified_by = auth()->id();
+
+            if ($hasRejected) {
+                $business->kyc_status = 'admin_rejected';
+            } elseif ($allApproved) {
+                $business->kyc_status = 'approved';
+            } else {
+                // Verification is complete, but Admin is still reviewing
+                $business->kyc_status = 'verification_approved';
+            }
+
+            $business->admin_verified_by = Auth::id();
             $business->admin_verified_at = now();
         }
 
@@ -454,5 +454,45 @@ class AdminController extends Controller
     public function verificationOfficer()
     {
         return view('admin.user-verification');
+    }
+
+    public function costSetup()
+    {
+        $services = GlobalService::where('status', 1)->get();
+
+        return view('admin.cost-setup', compact('services'));
+    }
+
+    public function storeCostSetup(Request $request)
+    {
+        try {
+
+            $request->validate([
+                'service_id' => 'required|exists:global_services,id',
+                'cost' => 'required|numeric|min:0',
+            ]);
+
+            $costSetup = CostSetup::updateOrCreate(
+                [
+                    'service_id' => $request->service_id,
+                ],
+                [
+                    'cost' => $request->cost,
+                ]
+            );
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Cost setup saved successfully.',
+                'data' => $costSetup,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+            ], 500);
+        }
     }
 }

@@ -47,7 +47,7 @@
                         class="profile-tab flex items-center gap-2 px-5 py-3 rounded-xl bg-gray-100 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-all duration-300"
                         data-tab="kyc-details">
                         <i class="bi bi-file-earmark-check"></i>
-                        <span>KYC</span>
+                        <span>KYC Status</span>
                     </button>
 
 

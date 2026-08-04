@@ -96,13 +96,14 @@ class UserController extends Controller
 
     public function userprofile()
     {
-        $userId = auth()->id();
+
+        $userId = Auth::id();
 
         $business = BussinessInfo::where('user_id', $userId)->first();
 
         $bank = BankDetail::where('user_id', $userId)->first();
 
-        $webhook = WebHookUrl::where('user_id', auth()->id())->first();
+        $webhook = WebHookUrl::where('user_id', Auth::id())->first();
 
         $services = GlobalService::with('serviceRequest')
             ->where('status', 1)
@@ -119,63 +120,79 @@ class UserController extends Controller
 
         $kycFields = config('kyc.fields');
 
+        $kycSummary = [
+            'status' => $business?->kyc_status ?? 'pending',
+            'fields' => [],
+            'rejected_fields' => [],
+            'pending_fields' => [],
+        ];
+
         foreach ($kycFields as $key => $field) {
 
-            $verificationStatus =
-                $kycData[$key]['verification']['status'] ?? 'pending';
+            $verification = $kycData[$key]['verification'] ?? [
+                'status' => 'pending',
+                'remark' => null,
+            ];
 
-            $adminStatus =
-                $kycData[$key]['admin']['status'] ?? 'pending';
+            $admin = $kycData[$key]['admin'] ?? [
+                'status' => 'pending',
+                'remark' => null,
+            ];
 
-            if (
-                $verificationStatus == 'rejected' ||
-                $adminStatus == 'rejected'
-            ) {
-                $remark = null;
-                if ($adminStatus == 'rejected') {
-                    $remark = $kycData[$key]['admin']['remark'] ?? null;
-                } else {
-                    $remark = $kycData[$key]['verification']['remark'] ?? null;
-                }
+            $displayStatus = 'pending';
+            $displayRemark = null;
+
+            if ($admin['status'] == 'rejected') {
+
+                $displayStatus = 'admin_rejected';
+
+                $displayRemark = $admin['remark'];
 
                 $kycSummary['rejected_fields'][] = [
                     'field' => $field['label'],
-                    'remark' => $remark
-
+                    'remark' => $admin['remark'],
                 ];
-            } elseif ($verificationStatus == 'pending') {
-                $kycSummary['pending_fields'][] =
-                    $field['label'];
+            } elseif ($verification['status'] == 'rejected') {
+
+                $displayStatus = 'verification_rejected';
+
+                $displayRemark = $verification['remark'];
+
+                $kycSummary['rejected_fields'][] = [
+                    'field' => $field['label'],
+                    'remark' => $verification['remark'],
+                ];
             } elseif (
-                $verificationStatus == 'approved' &&
-                $adminStatus == 'pending'
+                $verification['status'] == 'approved' &&
+                $admin['status'] == 'approved'
             ) {
 
-                $kycSummary['authority_pending'] = true;
+                $displayStatus = 'approved';
+            } elseif (
+                $verification['status'] == 'approved' &&
+                $admin['status'] == 'pending'
+            ) {
+
+                $displayStatus = 'verification_approved';
+            } else {
+
+                $displayStatus = 'pending';
+
+                $kycSummary['pending_fields'][] = $field['label'];
             }
+
+            $kycSummary['fields'][] = [
+
+                'label' => $field['label'],
+
+                'status' => $displayStatus,
+
+                'remark' => $displayRemark,
+
+            ];
         }
 
-        if (count($kycSummary['rejected_fields']) > 0) {
-
-            $kycSummary['status'] = 'rejected';
-        } elseif (count($kycSummary['pending_fields']) > 0) {
-
-            $kycSummary['status'] = 'pending';
-        } elseif ($kycSummary['authority_pending']) {
-
-            $kycSummary['status'] = 'authority_pending';
-        } else {
-
-            $kycSummary['status'] = 'approved';
-        }
-
-        return view('user.user-profile', compact(
-            'business',
-            'bank',
-            'webhook',
-            'services',
-            'kycSummary'
-        ));
+        return view('user.user-profile', compact('business',  'bank',  'webhook', 'services', 'kycSummary'));
     }
 
 
