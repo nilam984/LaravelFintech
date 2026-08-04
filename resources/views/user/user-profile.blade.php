@@ -43,6 +43,13 @@
                         <span>WebHook Url</span>
                     </button>
 
+                    <button
+                        class="profile-tab flex items-center gap-2 px-5 py-3 rounded-xl bg-gray-100 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-all duration-300"
+                        data-tab="kyc-details">
+                        <i class="bi bi-file-earmark-check"></i>
+                        <span>KYC</span>
+                    </button>
+
 
                 </div>
 
@@ -60,6 +67,10 @@
 
                 <div id="webhook-url" class="tab-content hidden">
                     @include('user.webhook-url')
+                </div>
+
+                <div id="kyc-details" class="tab-content hidden">
+                    @include('user.kyc-details')
                 </div>
 
                 <div id="user-onboarding" class="tab-content hidden">
@@ -343,7 +354,7 @@
                             </div>
                         </form>
                     </div>
-                   
+
                 </div>
             </div>
         </div>
@@ -364,7 +375,7 @@
             });
         });
     </script>
-   
+
     <script>
         $(document).ready(function() {
             $('#profileForm').submit(function(e) {
@@ -452,7 +463,8 @@
                     if (xhr.status == 422) {
                         $.each(xhr.responseJSON.errors, function(key, value) {
                             $('[name="' + key + '"]').after(
-                                '<span class="text-danger text-red-500 text-sm">' + value[0] + '</span>'
+                                '<span class="text-danger text-red-500 text-sm">' + value[
+                                    0] + '</span>'
                             );
                         });
                     } else {
@@ -495,8 +507,7 @@
                     d.table = "webHookUrls";
                 }
             },
-            columns: [
-                {
+            columns: [{
                     data: 'id',
                     name: 'id'
                 },
@@ -523,16 +534,16 @@
                     searchable: false,
                     render: function(data, type, row) {
 
-                    console.log(row);
+                        console.log(row);
 
-                    return `
+                        return `
                         <button
                             class="editWebhook bg-yellow-500 text-white px-3 py-2 rounded"
                             data-id="${row.id}">
                             <i class="bi bi-pencil"></i>
                         </button>
                     `;
-                }
+                    }
                 }
             ]
         });

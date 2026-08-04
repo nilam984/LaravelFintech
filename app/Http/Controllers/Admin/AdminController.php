@@ -308,72 +308,147 @@ class AdminController extends Controller
     }
 
 
-    public function userKycVerify($Id)
+    // public function userKycVerify($Id)
+    // {
+
+    //     $user = User::with('businessInfo')->find($Id);
+
+    //     if (!$user) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'User not found'
+    //         ], 404);
+    //     }
+
+    //     $businessInfo = $user->businessInfo;
+
+    //     if (!$businessInfo) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Business details not found for this User'
+    //         ], 404);
+    //     }
+
+    //     $requiredFields = [
+    //         $businessInfo->pan,
+    //         $businessInfo->pan_image,
+    //         $businessInfo->gst,
+    //         $businessInfo->website_url,
+    //         $businessInfo->owner_aadhar,
+    //         $businessInfo->owner_aadhar_image_front,
+    //         $businessInfo->owner_aadhar_image_back,
+    //         $businessInfo->owner_pan,
+    //         $businessInfo->owner_pan_image,
+    //     ];
+
+    //     if (collect($requiredFields)->contains(fn($value) => empty($value))) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Profile/KYC related details are incomplete please check'
+    //         ], 422);
+    //     }
+
+    //     try {
+    //         DB::beginTransaction();
+
+    //         $business = BussinessInfo::find($businessInfo->id);
+
+    //         if (!$business) {
+    //             throw new \Exception('Business information record not found.');
+    //         }
+
+    //         $business->kyc_verified = 1;
+    //         $business->save();
+
+    //         DB::commit();
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'KYC status updated successfully'
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Failed to update KYC status: ' . $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
+    public function verifyKyc(Request $request)
     {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'field'   => 'required|string',
+            'status'  => 'required|in:approved,rejected',
+            'remark'  => 'nullable|string'
+        ]);
 
-        $user = User::with('businessInfo')->find($Id);
+        $business = BussinessInfo::where('user_id', $request->user_id)->firstOrFail();
+        $kycData = $business->kyc_verification_data ?? [];
 
-        if (!$user) {
+
+        if (auth()->user()->role == 'verification') {
+            $level = 'verification';
+        } elseif (auth()->user()->role == 'admin') {
+            $level = 'admin';
+        } else {
             return response()->json([
                 'success' => false,
-                'message' => 'User not found'
-            ], 404);
+                'message' => 'Unauthorized.'
+            ], 403);
         }
 
-        $businessInfo = $user->businessInfo;
+        $kycData[$request->field][$level] = [
+            'status' => $request->status,
+            'remark' => $request->remark,
+            'by' => auth()->id(),
+            'at' => now()
 
-        if (!$businessInfo) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Business details not found for this User'
-            ], 404);
-        }
-
-        $requiredFields = [
-            $businessInfo->pan,
-            $businessInfo->pan_image,
-            $businessInfo->gst,
-            $businessInfo->website_url,
-            $businessInfo->owner_aadhar,
-            $businessInfo->owner_aadhar_image_front,
-            $businessInfo->owner_aadhar_image_back,
-            $businessInfo->owner_pan,
-            $businessInfo->owner_pan_image,
         ];
 
-        if (collect($requiredFields)->contains(fn($value) => empty($value))) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Profile/KYC related details are incomplete please check'
-            ], 422);
+        if ($level == 'admin' && $request->status == 'rejected') {
+
+            $kycData[$request->field]['verification']['status'] = 'rejected';
+
+            $kycData[$request->field]['verification']['remark'] =
+                "Rejected by Admin: " . $request->remark;
         }
 
-        try {
-            DB::beginTransaction();
+        $business->kyc_verification_data = $kycData;
 
-            $business = BussinessInfo::find($businessInfo->id);
-
-            if (!$business) {
-                throw new \Exception('Business information record not found.');
+        if ($level == 'verification') {
+            $statuses = collect($kycData)->pluck('verification.status');
+            if ($statuses->contains('rejected')) {
+                $business->kyc_status = 'verification_rejected';
+            } elseif ($statuses->every(fn($status) => $status == 'approved')) {
+                $business->kyc_status = 'verification_approved';
+            } else {
+                $business->kyc_status = 'pending';
             }
-
-            $business->kyc_verified = 1;
-            $business->save();
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'KYC status updated successfully'
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to update KYC status: ' . $e->getMessage()
-            ], 500);
+            $business->verification_by = auth()->id();
+            $business->verification_at = now();
         }
+
+
+        if ($level == 'admin') {
+            $statuses = collect($kycData)->pluck('admin.status');
+            if ($statuses->contains('rejected')) {
+                $business->kyc_status = 'admin_rejected';
+            } elseif ($statuses->every(fn($status) => $status == 'approved')) {
+                $business->kyc_status = 'approved';
+            }
+            $business->admin_verified_by = auth()->id();
+            $business->admin_verified_at = now();
+        }
+
+        $business->save();
+        return response()->json([
+            'success' => true,
+            'message' => 'KYC updated successfully.'
+
+        ]);
     }
 
     public function verificationOfficer()

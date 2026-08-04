@@ -68,7 +68,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('all-upi-transaction', [UpiServicesController::class, 'allUpitransaction'])->name('admin.upi.transaction');
 
     Route::get('user-details/{id}', [AdminController::class, 'userDetails'])->name('user.detail');
-    Route::post('user-kyc-verify/{id}', [AdminController::class, 'userKycVerify'])->name('user.kyc.verify');
+    Route::post('user-kyc-verify', [AdminController::class, 'verifyKyc'])->name('user.kyc.verify');
 
 
     Route::get('verification-user',[AdminController::class,'verificationOfficer'])->name('verification.user');

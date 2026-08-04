@@ -71,27 +71,113 @@ class UserController extends Controller
                 ]);
             });
         } catch (\Exception $e) {
-            Log::error('Service Request Error: '.$e->getMessage());
+            Log::error('Service Request Error: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
 
+    // public function userprofile()
+    // {
+    //     $userId = auth()->id();
+    //     // dd($userId);
+    //     $business = BussinessInfo::where('user_id', $userId)->first();
+    //     // dd($business);
+    //     $bank = BankDetail::where('user_id', $userId)->first();
+    //     $webhook = WebHookUrl::where('user_id', auth()->id())->first();
+    //     $services = GlobalService::with('serviceRequest')->where('status', 1)->get();
+
+    //     return view('user.user-profile', compact('business', 'bank', 'webhook', 'services'));
+    // }
+
+
     public function userprofile()
     {
         $userId = auth()->id();
-        // dd($userId);
-        $business = BussinessInfo::where('user_id', $userId)->first();
-        // dd($business);
-        $bank = BankDetail::where('user_id', $userId)->first();
-        $webhook = WebHookUrl::where('user_id', auth()->id())->first();
-        $services = GlobalService::with('serviceRequest')->where('status', 1)->get();
 
-        return view('user.user-profile', compact('business', 'bank', 'webhook', 'services'));
+        $business = BussinessInfo::where('user_id', $userId)->first();
+
+        $bank = BankDetail::where('user_id', $userId)->first();
+
+        $webhook = WebHookUrl::where('user_id', auth()->id())->first();
+
+        $services = GlobalService::with('serviceRequest')
+            ->where('status', 1)
+            ->get();
+
+        $kycSummary = [
+            'status' => 'pending',
+            'rejected_fields' => [],
+            'pending_fields' => [],
+            'authority_pending' => false,
+        ];
+
+        $kycData = $business?->kyc_verification_data ?? [];
+
+        $kycFields = config('kyc.fields');
+
+        foreach ($kycFields as $key => $field) {
+
+            $verificationStatus =
+                $kycData[$key]['verification']['status'] ?? 'pending';
+
+            $adminStatus =
+                $kycData[$key]['admin']['status'] ?? 'pending';
+
+            if (
+                $verificationStatus == 'rejected' ||
+                $adminStatus == 'rejected'
+            ) {
+                $remark = null;
+                if ($adminStatus == 'rejected') {
+                    $remark = $kycData[$key]['admin']['remark'] ?? null;
+                } else {
+                    $remark = $kycData[$key]['verification']['remark'] ?? null;
+                }
+
+                $kycSummary['rejected_fields'][] = [
+                    'field' => $field['label'],
+                    'remark' => $remark
+
+                ];
+            } elseif ($verificationStatus == 'pending') {
+                $kycSummary['pending_fields'][] =
+                    $field['label'];
+            } elseif (
+                $verificationStatus == 'approved' &&
+                $adminStatus == 'pending'
+            ) {
+
+                $kycSummary['authority_pending'] = true;
+            }
+        }
+
+        if (count($kycSummary['rejected_fields']) > 0) {
+
+            $kycSummary['status'] = 'rejected';
+        } elseif (count($kycSummary['pending_fields']) > 0) {
+
+            $kycSummary['status'] = 'pending';
+        } elseif ($kycSummary['authority_pending']) {
+
+            $kycSummary['status'] = 'authority_pending';
+        } else {
+
+            $kycSummary['status'] = 'approved';
+        }
+
+        return view('user.user-profile', compact(
+            'business',
+            'bank',
+            'webhook',
+            'services',
+            'kycSummary'
+        ));
     }
+
 
     public function store(Request $request)
     {
@@ -111,7 +197,6 @@ class UserController extends Controller
                 'status' => false,
                 'message' => 'Webhook already exists for this service.',
             ]);
-
         }
 
         WebHookUrl::create([
@@ -137,7 +222,6 @@ class UserController extends Controller
                 'status' => true,
                 'data' => $webhook,
             ]);
-
         } catch (\Exception $e) {
 
             return response()->json([
@@ -211,16 +295,16 @@ class UserController extends Controller
                 $utr = $request->utr;
                 if ($request->hasFile('pay_receipt')) {
                     $file = $request->file('pay_receipt');
-                    $fileName = time().'_'.$file->getClientOriginalName();
+                    $fileName = time() . '_' . $file->getClientOriginalName();
                     $file->move(public_path('uploads/load-money'), $fileName);
-                    $receipt = 'uploads/load-money/'.$fileName;
+                    $receipt = 'uploads/load-money/' . $fileName;
                 }
             }
             $loadMoney = LoadMoney::create([
                 'user_id' => Auth::id(),
                 'amount' => $request->amount,
                 'utr' => $utr,
-                'request_id' => 'LM'.date('YmdHis').rand(100, 999),
+                'request_id' => 'LM' . date('YmdHis') . rand(100, 999),
                 'mode' => $request->mode,
                 'pay_receipt' => $receipt,
                 'status' => 'pending',
@@ -233,15 +317,12 @@ class UserController extends Controller
                 'message' => 'Load Money Request Submitted Successfully.',
                 'data' => $loadMoney,
             ]);
-
         } catch (\Exception $e) {
 
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
             ], 500);
-
         }
-
     }
 }
