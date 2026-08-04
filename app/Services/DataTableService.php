@@ -8,6 +8,7 @@ use App\Models\IpWhitelist;
 use App\Models\LoadMoney;
 use App\Models\OauthUser;
 use App\Models\PayinTransaction;
+use App\Models\PayoutTransaction;
 use App\Models\Scheme;
 use App\Models\ServiceRequest;
 use App\Models\User;
@@ -39,7 +40,7 @@ class DataTableService
         // return DataTables::eloquent($query)->toJson();
 
         return DataTables::eloquent($query)
-            ->filter(function ($query) use ($request) {
+            ->filter(function ($query) use ($request, $table) {
 
                 if ($request->filled('status')) {
                     $query->where('status', $request->status);
@@ -52,8 +53,8 @@ class DataTableService
                 if ($request->filled('from_date') && $request->filled('to_date')) {
 
                     $query->whereBetween('created_at', [
-                        $request->from_date . ' 00:00:00',
-                        $request->to_date . ' 23:59:59',
+                        $request->from_date.' 00:00:00',
+                        $request->to_date.' 23:59:59',
                     ]);
                 } elseif ($request->filled('from_date')) {
 
@@ -67,15 +68,46 @@ class DataTableService
 
                     $key = $request->search_key;
 
-                    $query->where(function ($q) use ($key) {
+                    $query->where(function ($q) use ($key, $table) {
 
-                        $q->where('payer_name', 'like', "%{$key}%")
-                            ->orWhere('payer_email', 'like', "%{$key}%")
-                            ->orWhere('payer_mobile', 'like', "%{$key}%")
-                            ->orWhere('user_order_id', 'like', "%{$key}%")
-                            ->orWhere('payment_reference_id', 'like', "%{$key}%")
-                            ->orWhere('utr', 'like', "%{$key}%");
+                        if ($table == 'payoutTransactions') {
+
+                            $q->where('beneficiary_name', 'like', "%{$key}%")
+                                ->orWhere('beneficiary_email', 'like', "%{$key}%")
+                                ->orWhere('beneficiary_mobile', 'like', "%{$key}%")
+                                ->orWhere('client_ref_id', 'like', "%{$key}%")
+                                ->orWhere('utr', 'like', "%{$key}%")
+                                ->orWhere('bank_reference', 'like', "%{$key}%")
+                                ->orWhere('account_number', 'like', "%{$key}%")
+                                ->orWhere('bank_name', 'like', "%{$key}%")
+                                ->orWhere('ifsc_code', 'like', "%{$key}%")
+                                ->orWhere('status', 'like', "%{$key}%")
+
+                                ->orWhereHas('user', function ($user) use ($key) {
+                                    $user->where('name', 'like', "%{$key}%")
+                                        ->orWhere('email', 'like', "%{$key}%")
+                                        ->orWhere('mobile', 'like', "%{$key}%");
+                                });
+
+                        } else {
+
+                            $q->where('payer_name', 'like', "%{$key}%")
+                                ->orWhere('payer_email', 'like', "%{$key}%")
+                                ->orWhere('payer_mobile', 'like', "%{$key}%")
+                                ->orWhere('user_order_id', 'like', "%{$key}%")
+                                ->orWhere('payment_reference_id', 'like', "%{$key}%")
+                                ->orWhere('utr', 'like', "%{$key}%")
+
+                                ->orWhereHas('user', function ($user) use ($key) {
+                                    $user->where('name', 'like', "%{$key}%")
+                                        ->orWhere('email', 'like', "%{$key}%")
+                                        ->orWhere('mobile', 'like', "%{$key}%");
+                                });
+
+                        }
+
                     });
+
                 }
             }, true)
             ->toJson();
@@ -349,6 +381,35 @@ class DataTableService
                 $user = Auth::user();
 
                 return $query->where('user_id', $user->id)->where('is_deleted', false);
+            },
+
+        ];
+    }
+
+    protected function payoutTransactions()
+    {
+        return [
+
+            'model' => PayoutTransaction::class,
+
+            'with' => ['user'],
+
+            'query' => function ($query, $request) {
+
+                $user = Auth::user();
+
+                // Admin -> sabhi transactions
+                if ($user->role === 'admin') {
+
+                    if ($request->filled('user_id')) {
+                        $query->where('user_id', $request->user_id);
+                    }
+
+                    return $query;
+                }
+
+                // User -> sirf apni transactions
+                return $query->where('user_id', $user->id);
             },
 
         ];
