@@ -531,52 +531,231 @@
                             </p>
                         </div>
 
-                        <div
-                            class="bg-gray-50/60 p-6 rounded-2xl border border-gray-100/80 max-w-xl flex items-center justify-between">
-                            <div>
-                                <span class="block text-gray-800 font-semibold text-sm">KYC Verification Status</span>
-                                <span class="block text-gray-500 text-xs mt-0.5">Toggle to verify or unverify this user's
-                                    KYC details.</span>
+                        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm">
+
+                            {{-- Header --}}
+                            <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+
+                                <div>
+                                    <h3 class="text-base font-semibold text-gray-800">
+                                        KYC Verification
+                                    </h3>
+
+                                    <p class="text-sm text-gray-500 mt-1">
+                                        Review and verify user's submitted KYC documents.
+                                    </p>
+                                </div>
+
+
+                                @php
+                                    $kycStatus = $user->businessInfo?->kyc_status ?? 'pending';
+                                @endphp
+
+
+                                <div>
+                                    @if ($kycStatus === 'approved')
+                                        <span
+                                            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full 
+                    text-xs font-semibold bg-green-100 text-green-700">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                            Approved
+                                        </span>
+                                    @elseif($kycStatus === 'verification_rejected' || $kycStatus === 'admin_rejected')
+                                        <span
+                                            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full 
+                    text-xs font-semibold bg-red-100 text-red-700">
+                                            <i class="bi bi-x-circle-fill"></i>
+                                            Rejected
+                                        </span>
+                                    @elseif($kycStatus === 'verification_approved')
+                                        <span
+                                            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full 
+                    text-xs font-semibold bg-blue-100 text-blue-700">
+                                            <i class="bi bi-hourglass-split"></i>
+                                            Waiting Admin
+                                        </span>
+                                    @else
+                                        <span
+                                            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full 
+                    text-xs font-semibold bg-yellow-100 text-yellow-700">
+                                            <i class="bi bi-clock"></i>
+                                            Pending
+                                        </span>
+                                    @endif
+                                </div>
+
                             </div>
 
-                            <!-- Toggle Switch -->
-                            @if (($user->businessInfo?->kyc_verified ?? 0) == 1)
-                                <div
-                                    class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-100 border border-green-200">
-                                    <i class="bi bi-patch-check-fill text-green-600"></i>
-                                    <div>
-                                        <p class="text-sm font-semibold text-green-700">
-                                            KYC Verified
-                                        </p>
-                                        <p class="text-xs text-green-600">
-                                            Profile Completed
-                                        </p>
-                                    </div>
-                                </div>
-                            @else
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="kycToggle" class="sr-only peer"
-                                        data-id="{{ $user->id }}">
 
-                                    <div
-                                        class="w-11 h-6 bg-gray-200 rounded-full peer-focus:outline-none
-                                        peer-checked:bg-cyan-600
-                                        after:content-['']
-                                        after:absolute
-                                        after:top-[2px]
-                                        after:left-[2px]
-                                        after:bg-white
-                                        after:border
-                                        after:border-gray-300
-                                        after:rounded-full
-                                        after:h-5
-                                        after:w-5
-                                        after:transition-all
-                                        peer-checked:after:translate-x-full
-                                        peer-checked:after:border-white">
+
+                            {{-- KYC Fields --}}
+                            <div class="p-6 space-y-4">
+
+
+                                @foreach ($kycFields as $key => $field)
+                                    @php
+
+                                        $businessInfo = $user->businessInfo;
+
+                                        $value = $businessInfo?->$key;
+
+                                        $verification = $businessInfo?->kyc_verification_data[$key]['verification'] ?? [
+                                            'status' => 'pending',
+                                            'remark' => null,
+                                        ];
+
+                                    @endphp
+
+
+
+                                    <div class="rounded-xl border border-gray-100 bg-gray-50/50 p-5">
+
+
+                                        <div class="flex justify-between gap-4">
+
+
+                                            {{-- Left --}}
+                                            <div class="flex-1">
+
+
+                                                <div class="flex items-center gap-2">
+
+                                                    <h4 class="text-sm font-semibold text-gray-800">
+                                                        {{ $field['label'] }}
+                                                    </h4>
+
+
+                                                    @if ($field['required'])
+                                                        <span class="text-red-500 text-xs">
+                                                            Required
+                                                        </span>
+                                                    @endif
+
+                                                </div>
+
+
+
+                                                <div class="mt-3">
+
+
+                                                    @if ($field['type'] === 'file')
+                                                        @if ($value)
+                                                            <a href="{{ asset($value) }}" target="_blank"
+                                                                class="inline-flex items-center gap-2 
+                                       text-sm text-blue-600 hover:text-blue-800">
+
+                                                                <i class="bi bi-file-earmark-text"></i>
+                                                                View Document
+
+                                                            </a>
+                                                        @else
+                                                            <span class="text-sm text-gray-400">
+                                                                Document not uploaded
+                                                            </span>
+                                                        @endif
+                                                    @else
+                                                        <p class="text-sm text-gray-600">
+                                                            {{ $value ?: '-' }}
+                                                        </p>
+                                                    @endif
+
+
+                                                </div>
+
+
+
+                                                @if ($verification['remark'])
+                                                    <div class="mt-3 p-3 rounded-lg bg-red-50 text-sm text-red-700">
+
+                                                        <span class="font-medium">
+                                                            Remark:
+                                                        </span>
+
+                                                        {{ $verification['remark'] }}
+
+                                                    </div>
+                                                @endif
+
+
+                                            </div>
+
+
+
+
+                                            {{-- Right --}}
+                                            <div class="flex flex-col items-end gap-3">
+
+
+                                                @if ($verification['status'] === 'approved')
+                                                    <span
+                                                        class="px-3 py-1 rounded-full text-xs font-medium
+                                bg-green-100 text-green-700">
+
+                                                        Approved
+
+                                                    </span>
+                                                @elseif($verification['status'] === 'rejected')
+                                                    <span
+                                                        class="px-3 py-1 rounded-full text-xs font-medium
+                                bg-red-100 text-red-700">
+
+                                                        Rejected
+
+                                                    </span>
+                                                @else
+                                                    <span
+                                                        class="px-3 py-1 rounded-full text-xs font-medium
+                                bg-yellow-100 text-yellow-700">
+
+                                                        Pending
+
+                                                    </span>
+                                                @endif
+
+
+
+                                                @if ($verification['status'] !== 'approved')
+                                                    <div class="flex gap-2">
+
+
+                                                        <button
+                                                            class="verify-btn px-3 py-1.5 rounded-lg
+                                    text-xs font-medium
+                                    bg-green-600 text-white hover:bg-green-700"
+                                                            data-field="{{ $key }}" data-status="approved">
+
+                                                            Approve
+
+                                                        </button>
+
+
+                                                        <button
+                                                            class="verify-btn px-3 py-1.5 rounded-lg
+                                    text-xs font-medium
+                                    bg-red-600 text-white hover:bg-red-700"
+                                                            data-field="{{ $key }}" data-status="rejected">
+
+                                                            Reject
+
+                                                        </button>
+
+
+                                                    </div>
+                                                @endif
+
+
+                                            </div>
+
+
+                                        </div>
+
+
                                     </div>
-                                </label>
-                            @endif
+                                @endforeach
+
+
+                            </div>
+
                         </div>
                     </div>
 
@@ -608,60 +787,7 @@
                     document.getElementById(tab.dataset.tab).classList.remove('hidden');
                 });
             });
-
-
-            const kycToggle = $('#kycToggle');
-
-            if (kycToggle.length) {
-
-                kycToggle.on('change', function(e) {
-                    e.preventDefault();
-
-                    const userId = kycToggle.data('id');
-                    const isChecked = this.checked;
-                    const statusText = isChecked ? 'verify' : 'unverify';
-
-                    Swal.fire({
-                        title: 'Are you sure?',
-                        text: `Do you want to ${statusText} this user's KYC?`,
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Yes',
-                        cancelButtonText: 'No',
-                        confirmButtonColor: '#06B6D4'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            const url = "{{ route('user.kyc.verify', ['id' => ':id']) }}".replace(':id',
-                                userId)
-                            $.ajax({
-                                url: url,
-                                type: 'POST',
-                                contentType: 'application/json',
-                                headers: {
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                },
-                                data: JSON.stringify({
-                                    kyc_status: isChecked ? 1 : 0
-                                }),
-                                success: function(data) {
-                                    if (data.success) {
-                                        ToastEngine.show(data.message, 'success')
-                                    } else {
-                                        kycToggle.prop('checked', !isChecked);
-                                        ToastEngine.show(data.message, 'error')
-                                    }
-                                },
-                                error: function(xhr, status, error) {
-                                    kycToggle.prop('checked', !isChecked);
-                                    ToastEngine.show(xhr.responseJSON.message, 'error')
-                                }
-                            });
-                        } else {
-                            kycToggle.prop('checked', !isChecked);
-                        }
-                    });
-                });
-            }
+ 
         </script>
     @endsection
 @endsection

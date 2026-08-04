@@ -24,6 +24,12 @@ class BussinessInfo extends Model
         'owner_aadhar_image_back',
         'owner_pan',
         'owner_pan_image',
+        'kyc_status',
+        'kyc_verification_data',
+        'verification_by',
+        'verification_at',
+        'admin_verified_by',
+        'admin_verified_at',
         'city',
         'state',
         'pin_code',
@@ -34,4 +40,8 @@ class BussinessInfo extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    protected $casts = [
+        'kyc_verification_data' => 'array',
+    ];
 }

@@ -104,7 +104,7 @@
                 ordering: true,
                 scrollX: true,
                 ajax: {
-                    url: "{{ route('datatable', 'users') }}",
+                    url: "{{ route('datatable', 'verificationUser') }}",
                     type: "POST",
                     data: function(d) {
                         d._token = "{{ csrf_token() }}";
