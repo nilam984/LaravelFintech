@@ -178,7 +178,7 @@
 
         <a href="{{ route('gateway.routing') }}"
             class="flex items-center gap-3 px-3 py-2.5 rounded-xl to-transparent text-white  transition duration-200 {{ request()->routeIs('gateway.routing') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}">
-            <i class="bi bi-shuffle"></i> Gateway & Routing
+            <i class="bi bi-shuffle"></i> Gateway & Switch
         </a>
 
         <a href="{{ route('verification.user') }}"
