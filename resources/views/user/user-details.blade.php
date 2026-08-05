@@ -35,59 +35,39 @@
                     </h4>
                 </div>
             </div>
-             <div class="flex items-center gap-4 p-4  rounded-xl hover:shadow-md transition">
-                <div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
-                    <i class="bi bi-phone-fill text-green-600 text-xl"></i>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-500">Main Wallet</p>
-                    <h4 class="font-semibold text-gray-800">
-                        {{ auth()->user()->main_wallet ?? 'N/A' }}
-                    </h4>
-                </div>
-            </div>
 
-            <div class="flex items-center gap-4 p-4  rounded-xl hover:shadow-md transition">
-                <div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
-                     <i class="bi bi-cash-stack text-green-600 text-xl"></i>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-500">Payouts</p>
-                    <h4 class="font-semibold text-gray-800">
-                        {{ auth()->user()->payout_wallet ?? 'N/A' }}
-                    </h4>
-                </div>
-            </div>
+            @php
+                $role = false;
+                if (Auth::check() && Auth::user()->role === 'admin') {
+                    $role = true;
+                }
+            @endphp
 
+            @if ($role)
+                <div class="flex items-center gap-4 p-4  rounded-xl hover:shadow-md transition">
+                    <div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
+                        <i class="bi bi-phone-fill text-green-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Main Wallet</p>
+                        <h4 class="font-semibold text-gray-800">
+                            {{ auth()->user()->main_wallet ?? 'N/A' }}
+                        </h4>
+                    </div>
+                </div>
 
-            <div class="flex items-center gap-4 p-4  rounded-xl hover:shadow-md transition">
-                <div class="w-12 h-12 rounded-lg bg-teal-100 flex items-center justify-center">
-                    <i class="bi bi-check-circle-fill text-teal-600 text-xl"></i>
+                <div class="flex items-center gap-4 p-4  rounded-xl hover:shadow-md transition">
+                    <div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
+                        <i class="bi bi-cash-stack text-green-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Payouts</p>
+                        <h4 class="font-semibold text-gray-800">
+                            {{ auth()->user()->payout_wallet ?? 'N/A' }}
+                        </h4>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-sm text-gray-500">Status</p>
-                    @if(auth()->user()->status == 1)
-                        <span class="inline-block mt-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
-                            Active
-                        </span>
-                    @else
-                        <span class="inline-block mt-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-semibold">
-                            Inactive
-                        </span>
-                    @endif
-                </div>
-            </div>
-            <div class="md:col-span-2 flex items-center gap-4 p-4  rounded-xl hover:shadow-md transition">
-                <div class="w-12 h-12 rounded-lg bg-indigo-100 flex items-center justify-center">
-                    <i class="bi bi-calendar-event-fill text-indigo-600 text-xl"></i>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-500">Registered On</p>
-                    <h4 class="font-semibold text-gray-800">
-                        {{ auth()->user()->created_at->format('d M Y') }}
-                    </h4>
-                </div>
-            </div>
+            @endif
         </div>
     </div>
 </div>

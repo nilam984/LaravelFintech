@@ -20,6 +20,6 @@ class AdminMiddleware
             return $next($request);
         }
 
-        return redirect()->back()->with('success', 'Permission Access Denied');
+        return redirect()->back()->with('error', 'Permission Access Denied');
     }
 }

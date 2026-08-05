@@ -158,7 +158,7 @@
                         Enterprise Grade Payment Infrastructure
                     </div>
                     <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-[1.1]">
-                        Advanced <span
+                         <span
                             class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Payin,
                             Payout & Auto Settlement</span>
                     </h1>
