@@ -473,25 +473,28 @@ class AdminController extends Controller
             ]);
 
             $costSetup = CostSetup::updateOrCreate(
-                [
-                    'service_id' => $request->service_id,
-                ],
-                [
-                    'cost' => $request->cost,
-                ]
+                ['service_id' => $request->service_id],
+                ['cost' => $request->cost]
             );
 
             return response()->json([
                 'status' => true,
                 'message' => 'Cost setup saved successfully.',
-                'data' => $costSetup,
-            ], 200);
-        } catch (\Exception $e) {
+                'data' => $costSetup
+            ]);
+
+        } catch (ValidationException $e) {
+
             return response()->json([
                 'status' => false,
-                'message' => $e->getMessage(),
-                'line' => $e->getLine(),
-                'file' => $e->getFile(),
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
             ], 500);
         }
     }
