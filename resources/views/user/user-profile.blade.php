@@ -77,6 +77,29 @@
                     <div class="max-w-7xl mx-auto px-4">
                         <form id="profileForm" action="" method="POST" enctype="multipart/form-data">
                             @csrf
+                            <div
+                                class="px-5 py-4 bg-amber-300 border-l-4 border-amber-500 my-4 rounded-r-lg shadow-sm transition-all duration-300 hover:shadow-md animate-pulse">
+                                <div class="flex items-center space-x-3">
+                                    <!-- Icon -->
+                                    <div class="flex-shrink-0 text-amber-500">
+                                        <svg class="w-6 h-6 animate-bounce" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                    <!-- Text Message -->
+                                    <div>
+                                        <p class="text-sm font-semibold text-amber-800 tracking-wide">
+                                            Important Notice
+                                        </p>
+                                        <p class="text-xs text-amber-800 mt-0.5">
+                                            You will not be able to change any fields after KYC is approved.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="bg-white rounded-2xl shadow-md mb-6">
                                 <div class="px-5 py-3 border-b border-gray-100">
                                     <h3 class="text-lg font-bold text-gray-700">Business Details</h3>
@@ -346,12 +369,15 @@
                                 </div>
                             </div>
 
-                            <div class="mt-6 flex justify-end">
-                                <button type="submit"
-                                    class="bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-2.5 rounded-xl font-semibold shadow-md text-sm transition-colors duration-200">
-                                    Save Profile
-                                </button>
-                            </div>
+
+                            @if ($business?->kyc_status !== 'approved')
+                                <div class="mt-6 flex justify-end">
+                                    <button type="submit"
+                                        class="bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-2.5 rounded-xl font-semibold shadow-md text-sm transition-colors duration-200">
+                                        Save Profile
+                                    </button>
+                                </div>
+                            @endif
                         </form>
                     </div>
 
@@ -389,7 +415,7 @@
                     contentType: false,
                     dataType: "json",
                     beforeSend: function() {
-                        $('.text-danger').remove();
+                        $('.errorText').remove();
                         $('button[type=submit]')
                             .prop('disabled', true)
                             .text('Please Wait...');
@@ -410,7 +436,8 @@
                         if (xhr.status == 422) {
                             $.each(xhr.responseJSON.errors, function(key, value) {
                                 $('[name="' + key + '"]').after(
-                                    '<span class="text-danger">' + value[0] +
+                                    '<span class="text-red-500 errorText">' + value[
+                                        0] +
                                     '</span>');
                             });
                         } else {

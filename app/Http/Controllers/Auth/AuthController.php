@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\BussinesInfo;
+use App\Models\BussinessInfo;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Carbon\Carbon;
@@ -205,9 +206,10 @@ class AuthController extends Controller
 
             if ($request->escapeEmailVerify === "true") {
                 unset($userUpdate['email_verified_at']);
-            } else {
-                BussinesInfo::create(['user_id' => $user->id]);
             }
+            // else {
+            //     BussinessInfo::create(['user_id' => $user->id]);
+            // }
 
             $user->update($userUpdate);
 
