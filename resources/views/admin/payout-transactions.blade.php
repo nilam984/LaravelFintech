@@ -42,19 +42,19 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>User</th>
-                        <th>Beneficiary</th>
-                        <th>Client Ref</th>
-                        <th>Bank</th>
-                        <th>Account</th>
-                        <th>IFSC</th>
+                        <th class="min-w-[150px]">User</th>
+                        <th class="min-w-[180px]">Beneficiary</th>
+                        <th class="min-w-[100px]">Client Ref</th>
+                        <th class="min-w-[100px]">Bank</th>
+                        <th class="min-w-[150px]">Account</th>
+                        <th class="min-w-[100px]">IFSC</th>
                         <th>Amount</th>
                         <th>Fee</th>
                         <th>GST</th>
-                        <th>Final Amount</th>
+                        <th class="min-w-[120px]">Final Amount</th>
                         <th>UTR</th>
                         <th>Status</th>
-                        <th>Created At</th>
+                        <th class="min-w-[200px]">Created At</th>
                         <th>View</th>
                     </tr>
                 </thead>

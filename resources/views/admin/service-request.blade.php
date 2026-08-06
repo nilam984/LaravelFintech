@@ -220,7 +220,10 @@
                     showCancelButton: true,
                     confirmButtonText: 'Yes',
                     cancelButtonText: 'Cancel',
-                    confirmButtonColor: '#06B6D4'
+                    confirmButtonColor: '#06B6D4',
+                    didOpen: () => {
+                        document.body.classList.remove('swal2-height-auto');
+                    }
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({

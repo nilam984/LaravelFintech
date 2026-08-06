@@ -77,6 +77,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     Route::get('/cost-setup', [AdminController::class, 'costSetup'])->name('cost.setup');
     Route::post('/cost-setup/store', [AdminController::class, 'storeCostSetup'])->name('cost.setup.store');
+    Route::post('/cost-setup/update/{id}',[AdminController::class,'updateCostSetup'])->name('cost.setup.update');
 });
 
 // User routes

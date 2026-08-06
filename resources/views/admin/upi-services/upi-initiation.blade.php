@@ -57,7 +57,7 @@
                     <thead class="bg-gray-100">
                         <tr>
                             <th>#</th>
-                            <th>Client Name</th>
+                            <th class="min-w-[180px]">Client Name</th>
                             <th>Email</th>
                             <th>Order ID</th>
                             <th>Reference ID</th>

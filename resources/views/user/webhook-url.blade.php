@@ -60,14 +60,11 @@ Webhook List Card
                     <label class="block text-sm font-medium mb-2">
                         Service
                     </label>
-                    <select name="service_id"
-                        class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-cyan-500 outline-none">
-                        <option value="">
-                            Select Service
-                        </option>
-                        @foreach ($services as $service)
-                            <option value="{{ $service->id }}">
-                                {{ $service->service_name }}
+                    <select name="service_id" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-cyan-500 outline-none">
+                        <option value="">Select Service</option>
+                        @foreach ($services as $request)
+                            <option value="{{ $request->service->id }}">
+                                {{ $request->service->service_name }}
                             </option>
                         @endforeach
                     </select>
@@ -111,7 +108,6 @@ Webhook List Card
                 </button>
 
             </div>
-
         </form>
 
     </div>
