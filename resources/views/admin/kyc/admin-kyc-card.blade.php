@@ -159,7 +159,7 @@
                             {{-- Verification Result --}}
                             <div class="mt-5 rounded-lg bg-gray-50 border p-3">
 
-                                <div class="font-semibold text-sm text-gray-700">
+                                <div class="font-semibold text-sm text-gray-700 inline">
 
                                     Verification Review
 
