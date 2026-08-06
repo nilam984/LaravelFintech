@@ -105,9 +105,7 @@ class UserController extends Controller
 
         $webhook = WebHookUrl::where('user_id', Auth::id())->first();
 
-        $services = GlobalService::with('serviceRequest')
-            ->where('status', 1)
-            ->get();
+       $services = ServiceRequest::with('service')->where('user_id', Auth::id())->where('status', 'active')->get();
 
         $kycSummary = [
             'status' => 'pending',
