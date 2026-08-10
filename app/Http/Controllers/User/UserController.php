@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\BankDetail;
+use App\Models\BankUpdateRequest;
 use App\Models\BussinessInfo;
 use App\Models\GlobalService;
 use App\Models\ServiceRequest;
@@ -104,8 +105,9 @@ class UserController extends Controller
         $bank = BankDetail::where('user_id', $userId)->first();
 
         $webhook = WebHookUrl::where('user_id', Auth::id())->first();
+        $lastBankRequest = BankUpdateRequest::where('user_id', $userId)->latest()->first();
 
-       $services = ServiceRequest::with('service')->where('user_id', Auth::id())->where('status', 'active')->get();
+        $services = ServiceRequest::with('service')->where('user_id', Auth::id())->where('status', 'active')->get();
 
         $kycSummary = [
             'status' => 'pending',
@@ -190,7 +192,7 @@ class UserController extends Controller
             ];
         }
 
-        return view('user.user-profile', compact('business',  'bank',  'webhook', 'services', 'kycSummary'));
+        return view('user.user-profile', compact('business',  'bank',  'webhook', 'services', 'kycSummary', 'lastBankRequest'));
     }
 
 
@@ -338,6 +340,49 @@ class UserController extends Controller
                 'status' => false,
                 'message' => $e->getMessage(),
             ], 500);
+        }
+    }
+
+    public function bankUpdateRequest()
+    {
+        return view('user.bank-update-request');
+    }
+
+    public function raiseRequestBankUpdation(Request $request)
+    {
+
+        $request->validate([
+            'remark' => 'required|string|min:20|max:300'
+        ]);
+
+        $userId = Auth::id();
+        $business = BussinessInfo::where('user_id', $userId)->first();
+
+        if (!$business || $business?->kyc_status !== 'approved') {
+            return response()->json([
+                'status' => false,
+                'message' => 'Business Details not found or KYC not approved.',
+            ]);
+        }
+
+        $data = [
+            'user_id' => $userId,
+            'request_remark' => $request->remark,
+            'updated_by' => $userId,
+        ];
+
+        $bankRequest = BankUpdateRequest::create($data);
+
+        if ($bankRequest) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Bank updation request submitted.',
+            ]);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong.',
+            ]);
         }
     }
 }

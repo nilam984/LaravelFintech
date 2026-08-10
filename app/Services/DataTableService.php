@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\AssignedScheme;
+use App\Models\BankUpdateRequest;
 use App\Models\GlobalService;
 use App\Models\IpWhitelist;
 use App\Models\LoadMoney;
@@ -54,8 +55,8 @@ class DataTableService
                 if ($request->filled('from_date') && $request->filled('to_date')) {
 
                     $query->whereBetween('created_at', [
-                        $request->from_date.' 00:00:00',
-                        $request->to_date.' 23:59:59',
+                        $request->from_date . ' 00:00:00',
+                        $request->to_date . ' 23:59:59',
                     ]);
                 } elseif ($request->filled('from_date')) {
 
@@ -89,7 +90,6 @@ class DataTableService
                                         ->orWhere('email', 'like', "%{$key}%")
                                         ->orWhere('mobile', 'like', "%{$key}%");
                                 });
-
                         } else {
 
                             $q->where('payer_name', 'like', "%{$key}%")
@@ -104,11 +104,8 @@ class DataTableService
                                         ->orWhere('email', 'like', "%{$key}%")
                                         ->orWhere('mobile', 'like', "%{$key}%");
                                 });
-
                         }
-
                     });
-
                 }
             }, true)
             ->toJson();
@@ -427,7 +424,6 @@ class DataTableService
             'query' => function ($query, $request) {
 
                 return $query;
-
             },
 
         ];
@@ -445,6 +441,33 @@ class DataTableService
             'query' => function ($query, $request) {
 
                 return $query->where('role', 'verification');
+            },
+
+        ];
+    }
+
+    protected function bankUpdateRequest()
+    {
+        return [
+
+            'model' => BankUpdateRequest::class,
+
+            'with' => ['user'],
+
+            'query' => function ($query, $request) {
+
+                $user = Auth::user();
+
+                if ($user->role === 'admin') {
+
+                    if ($request->filled('user_id')) {
+                        $query->where('user_id', $request->user_id);
+                    }
+
+                    return $query;
+                }
+
+                return $query->where('user_id', $user->id);
             },
 
         ];

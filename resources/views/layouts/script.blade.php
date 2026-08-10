@@ -19,7 +19,7 @@
 
      <div class="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4">
          <div class="flex items-center justify-between px-6 py-4 border-b">
-             <h2 class="text-lg font-semibold">Rejection Remark</h2>
+             <h2 class="text-lg font-semibold">Content</h2>
 
              <button id="closeRemarkModal" class="text-gray-500 hover:text-gray-700 text-xl">
                  &times;
