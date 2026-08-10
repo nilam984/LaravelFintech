@@ -599,5 +599,55 @@
             }
         });
     </script>
+
+    {{-- Raise Request for the bank updation --}}
+    <script>
+        document.getElementById('requestBankUpdateBtn')?.addEventListener('click', function() {
+            Swal.fire({
+                title: 'Request Bank Updation',
+                text: 'Please provide a remark/reason why you want to change your bank details:',
+                input: 'textarea',
+                inputPlaceholder: 'Type your reason here...',
+                inputAttributes: {
+                    'aria-label': 'Type your reason here'
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Submit',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#06B6D4',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'You need to write a remark!';
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('raise.request.bank.updation') }}",
+                        type: 'POST',
+                        data: {
+                            remark: result.value,
+                            _token: $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+
+                            if (response.status) {
+                                ToastEngine.show(response.message, "success");
+                                setTimeout(() => {
+                                    location.reload();
+                                }, 2000);
+                            } else {
+                                ToastEngine.show(response.message, "error");
+                            }
+                        },
+                        error: function(xhr) {
+                            ToastEngine.show(xhr.responseJSON?.message ||
+                                'Something went wrong. Please try again.', "error");
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 @endsection
 @endsection

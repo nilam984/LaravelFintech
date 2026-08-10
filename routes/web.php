@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\UpiServicesController;
 use App\Http\Controllers\Admin\PayoutController;
 
 
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -71,13 +72,15 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('user-kyc-verify', [AdminController::class, 'verifyKyc'])->name('user.kyc.verify');
 
 
-    Route::get('verification-user',[AdminController::class,'verificationOfficer'])->name('verification.user');
+    Route::get('verification-user', [AdminController::class, 'verificationOfficer'])->name('verification.user');
 
     Route::get('/payout/transactions', [PayoutController::class, 'transactions'])->name('admin.payout.transaction');
 
     Route::get('/cost-setup', [AdminController::class, 'costSetup'])->name('cost.setup');
     Route::post('/cost-setup/store', [AdminController::class, 'storeCostSetup'])->name('cost.setup.store');
-    Route::post('/cost-setup/update/{id}',[AdminController::class,'updateCostSetup'])->name('cost.setup.update');
+    Route::post('/cost-setup/update/{id}', [AdminController::class, 'updateCostSetup'])->name('cost.setup.update');
+    Route::get('bank-update-request', [AdminController::class, 'bankUpdateRequest'])->name('admin.bank.update.request');
+    Route::post('bank.request.update', [AdminController::class, 'bankRequestUpdate'])->name('admin.bank.request.update');
 });
 
 // User routes
@@ -96,4 +99,6 @@ Route::prefix('user')->middleware('auth')->group(function () {
     Route::post('/load-money/store', [UserController::class, 'loadmoneystore'])->name('load-money.store');
     Route::post('add-update-ip', [OauthUserController::class, 'saveOrUpdateIpWhitelist'])->name('add.update.ip');
     Route::post('delete-ip', [OauthUserController::class, 'deleteIpWhitelist'])->name('delete.ip');
+    Route::get('bank-update-request', [UserController::class, 'bankUpdateRequest'])->name('user.bank.update.request');
+    Route::post('raise-request-bank-updation', [UserController::class, 'raiseRequestBankUpdation'])->name('raise.request.bank.updation');
 });

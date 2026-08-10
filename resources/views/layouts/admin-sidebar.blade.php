@@ -22,7 +22,7 @@
 
         <div class="space-y-1">
             @php
-                $userManagementActive = request()->routeIs(['admin.all-users']);
+                $userManagementActive = request()->routeIs(['admin.all-users', 'admin.load.money','admin.bank.update.request']);
             @endphp
             <button onclick="toggleSubmenu(this)"
                 class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition duration-200 group
@@ -44,6 +44,10 @@
                 <a href="{{ route('admin.load.money') }}"
                     class="block px-3 py-2 rounded-lg text-sm transition {{ request()->routeIs('admin.load.money') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}">
                     Load Money
+                </a>
+                <a href="{{ route('admin.bank.update.request') }}"
+                    class="block px-3 py-2 rounded-lg text-sm transition {{ request()->routeIs('admin.bank.update.request') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}">
+                    Bank Update Request
                 </a>
             </div>
         </div>
@@ -166,7 +170,7 @@
             </div>
         </div>
 
-         <a href="{{ route('cost.setup') }}"
+        <a href="{{ route('cost.setup') }}"
             class="flex items-center gap-3 px-3 py-2.5 rounded-xl to-transparent text-white  transition duration-200 {{ request()->routeIs('cost.setup') ? 'bg-fintechCyan text-white' : 'text-white/60 hover:text-fintechCyan' }}">
             <i class="bi bi-receipt"></i> Cost Setup
         </a>

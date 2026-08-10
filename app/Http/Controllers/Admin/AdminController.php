@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\BankDetail;
+use App\Models\BankUpdateRequest;
 use App\Models\BussinessInfo;
 use App\Models\CostSetup;
 use App\Models\GatewayRouting;
@@ -73,7 +74,7 @@ class AdminController extends Controller
                 'errors' => $e->errors(),
             ], 422);
         } catch (Exception $e) {
-            Log::error('Global Service Store Error: '.$e->getMessage());
+            Log::error('Global Service Store Error: ' . $e->getMessage());
 
             return response()->json([
                 'status' => false,
@@ -85,7 +86,7 @@ class AdminController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'service_name' => 'required|unique:global_services,service_name,'.$request->id,
+            'service_name' => 'required|unique:global_services,service_name,' . $request->id,
             'status' => 'required',
         ]);
         $service = GlobalService::findOrFail($request->id);
@@ -192,9 +193,9 @@ class AdminController extends Controller
                 return redirect()->back()->with('error', 'Some Error Occured');
             }
         } catch (Exception $e) {
-            Log::error('Gateway switch error: '.$e->getMessage());
+            Log::error('Gateway switch error: ' . $e->getMessage());
 
-            return redirect()->back()->with('error', 'Error : '.$e->getMessage());
+            return redirect()->back()->with('error', 'Error : ' . $e->getMessage());
         }
     }
 
@@ -294,7 +295,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -348,7 +349,7 @@ class AdminController extends Controller
             $kycData[$request->field]['verification']['status'] = 'rejected';
 
             $kycData[$request->field]['verification']['remark'] =
-                'Rejected by Admin: '.$request->remark;
+                'Rejected by Admin: ' . $request->remark;
         }
 
         $business->kyc_verification_data = $kycData;
@@ -488,13 +489,11 @@ class AdminController extends Controller
                 'message' => 'Cost setup saved successfully.',
                 'data' => $costSetup,
             ]);
-
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => false,
                 'errors' => $e->errors(),
             ], 422);
-
         } catch (Exception $e) {
             return response()->json([
                 'status' => false,
@@ -522,18 +521,64 @@ class AdminController extends Controller
                 'status' => true,
                 'message' => 'Cost updated successfully.',
             ]);
-
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => false,
                 'errors' => $e->errors(),
             ], 422);
-
         } catch (Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
             ], 500);
+        }
+    }
+
+    public function bankUpdateRequest()
+    {
+        $users = User::where('role', 'user')->orderBy('id', 'desc')->get();
+        return view('admin.bank-update-request', compact('users'));
+    }
+
+
+    public function bankRequestUpdate(Request $request)
+    {
+        $request->validate([
+            'status' => 'required|in:approved,rejected',
+            'id' => [
+                'required',
+                Rule::exists('bank_update_requests', 'id')->where(function ($query) {
+                    return $query->where('status', 'pending');
+                }),
+            ],
+            'remark' => 'required_if:status,rejected|nullable|string'
+        ]);
+
+        $bankRequest = BankUpdateRequest::where('id', $request->id)->first();
+
+        if (!$bankRequest) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Bank updation request not found.',
+            ]);
+        }
+
+        $data = [
+            'status' => $request->status,
+            'reject_remark' => $request->remark,
+            'updated_by' => Auth::id(),
+        ];
+
+        if ($bankRequest->update($data)) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Bank Updation Request Updated Successfully.',
+            ]);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong.',
+            ]);
         }
     }
 }
