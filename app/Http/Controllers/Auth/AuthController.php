@@ -3,16 +3,14 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\BussinesInfo;
 use App\Models\BussinessInfo;
-use Illuminate\Http\Request;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class AuthController extends Controller
@@ -24,6 +22,7 @@ class AuthController extends Controller
                 ? redirect()->route('admin.dashboard')
                 : redirect()->route('user.dashboard');
         }
+
         return view('Auth.login');
     }
 
@@ -58,7 +57,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => $validator->errors()->first(),
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -78,17 +77,19 @@ class AuthController extends Controller
             ]);
 
             DB::commit();
+
             return response()->json([
                 'status' => true,
                 'message' => 'Registration successful. Please verify your email.',
-                'data' => $user
+                'data' => $user,
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
                 'message' => 'Registration failed. Please try again.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -106,37 +107,35 @@ class AuthController extends Controller
             'password.min' => 'Password must be at least 6 characters long.',
         ]);
 
-        $remember = $request->remember == "on";
+        $remember = $request->remember == 'on';
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'status' => false,
-                'message' => 'No account was found with this email address.'
+                'message' => 'No account was found with this email address.',
             ], 404);
         }
 
         if (is_null($user->email_verified_at)) {
             return response()->json([
                 'status' => false,
-                'message' => 'Your email is not verified. Register again with the same email.'
+                'message' => 'Your email is not verified. Register again with the same email.',
             ], 403);
         }
 
-
-        if (!$this->isActive($user)) {
+        if (! $this->isActive($user)) {
             return response()->json([
                 'status' => false,
-                'message' => 'You are inactive. Please contact the administrator.'
+                'message' => 'You are inactive. Please contact the administrator.',
             ], 403);
         }
 
-
-        if (!Auth::attempt(['email' => $request->email, 'password' => $request->password,], $remember)) {
+        if (! Auth::attempt(['email' => $request->email, 'password' => $request->password], $remember)) {
             return response()->json([
                 'status' => false,
-                'message' => 'Invalid email or password.'
+                'message' => 'Invalid email or password.',
             ], 401);
         }
 
@@ -145,9 +144,7 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
-        $redirect = $user->role === 'admin'
-            ? route('admin.dashboard')
-            : route('user.dashboard');
+        $redirect = route('dashboard');
 
         return response()->json([
             'status' => true,
@@ -155,7 +152,6 @@ class AuthController extends Controller
             'redirect' => $redirect,
         ]);
     }
-
 
     public function verifyOtp(Request $request)
     {
@@ -169,7 +165,7 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'errors' => $validator->errors()->first()
+                'errors' => $validator->errors()->first(),
             ], 422);
         }
 
@@ -177,24 +173,24 @@ class AuthController extends Controller
 
             $user = User::where('email', $request->email)->first();
 
-            if (!$user) {
+            if (! $user) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'User not found.'
+                    'message' => 'User not found.',
                 ], 404);
             }
 
             if ($user->email_otp !== $request->otp) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Invalid OTP.'
+                    'message' => 'Invalid OTP.',
                 ], 400);
             }
 
             if (Carbon::now()->gt($user->email_otp_expire_at)) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'OTP has expired.'
+                    'message' => 'OTP has expired.',
                 ], 400);
             }
 
@@ -204,7 +200,7 @@ class AuthController extends Controller
                 'email_verified_at' => Carbon::now(),
             ];
 
-            if ($request->escapeEmailVerify === "true") {
+            if ($request->escapeEmailVerify === 'true') {
                 unset($userUpdate['email_verified_at']);
             }
             // else {
@@ -217,14 +213,14 @@ class AuthController extends Controller
 
             return response()->json([
                 'status' => true,
-                'message' => 'OTP verified successfully.'
+                'message' => 'OTP verified successfully.',
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : ' . $e->getMessage(),
+                'message' => 'Error : '.$e->getMessage(),
             ], 500);
         }
     }
@@ -233,7 +229,6 @@ class AuthController extends Controller
     {
         return (int) $user->status === 1;
     }
-
 
     public function userDashboard()
     {
@@ -244,8 +239,11 @@ class AuthController extends Controller
     {
         return view('dashboard.admin')->with('success', 'Test');
     }
-
-
+    public function dashboard()
+    {
+        $user = Auth::user();
+        return redirect()->route($user->role === 'admin' ? 'admin.dashboard' : 'user.dashboard');
+    }
 
     public function logout(Request $request)
     {
@@ -257,7 +255,6 @@ class AuthController extends Controller
         return redirect()->route('login.page');
     }
 
-
     public function forgotPassword(Request $request)
     {
 
@@ -268,16 +265,16 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'errors' => $validator->errors()->first()
+                'errors' => $validator->errors()->first(),
             ], 422);
         }
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'status' => false,
-                'message' => 'User not found.'
+                'message' => 'User not found.',
             ]);
         }
 
@@ -289,34 +286,32 @@ class AuthController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'OTP sent successfully.'
+            'message' => 'OTP sent successfully.',
         ]);
     }
-
 
     public function resetPassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
-            'password' => 'required|min:6|confirmed'
+            'password' => 'required|min:6|confirmed',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'errors' => $validator->errors()->first()
+                'errors' => $validator->errors()->first(),
             ], 422);
         }
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'status' => false,
-                'message' => 'User not found.'
+                'message' => 'User not found.',
             ], 404);
         }
-
 
         $user->update([
             'password' => Hash::make($request->password),
@@ -324,7 +319,81 @@ class AuthController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'Password updated successfully.'
+            'message' => 'Password updated successfully.',
         ]);
+    }
+
+    public function storeVerificationUser(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'mobile' => ['required', 'digits:10', 'unique:users,mobile'],
+            'password' => ['required', 'string', 'min:8'],
+        ]);
+
+        try {
+            $user = User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'mobile' => $validated['mobile'],
+                'password' => Hash::make($validated['password']),
+                'role' => 'verification',
+                'status' => 1,
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Verification user created successfully.',
+                'data' => $user,
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to create verification user.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function updateverificationUser(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email,'.$id],
+            'mobile' => ['required', 'digits:10', 'unique:users,mobile,'.$id],
+            'password' => ['nullable', 'string', 'min:8'],
+        ]);
+
+        try {
+
+            $user = User::where('id', $id)->where('role', 'verification') ->first();
+            if (! $user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Verification user not found.',
+                ], 404);
+            }
+
+            $user->name = $validated['name'];
+            $user->email = $validated['email'];
+            $user->mobile = $validated['mobile'];
+            if (! empty($validated['password'])) {
+                $user->password = Hash::make($validated['password']);
+            }
+            $user->save();
+            return response()->json([
+                'status' => true,
+                'message' => 'Verification user updated successfully.',
+                'data' => $user,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to update verification user.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

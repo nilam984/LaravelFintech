@@ -122,13 +122,7 @@
 
 <body class="bg-fintechLightBg text-fintechDarkText font-sans antialiased h-screen flex overflow-hidden">
 
-    @if (Auth::check() && Auth::user()->role == 'admin')
-        @include('layouts.admin-sidebar')
-    @elseif(Auth::check() && Auth::user()->role == 'user')
-        @include('layouts.user-sidebar')
-    @else
-     @include('layouts.verification-sidebar')
-    @endif
+    @include('layouts.sidebar')
 
     <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
 
