@@ -60,36 +60,96 @@
     $status = $statusConfig[$kycSummary['status']] ?? $statusConfig['pending'];
 @endphp
 
-<div id="kyc-details" class="p-6 sm:p-8">
 
-    <div class="mb-6">
-        <h3 class="text-lg font-semibold text-gray-800">
-            KYC Verification Status
-        </h3>
-        <p class="mt-1 text-sm text-gray-500">
-            Check your KYC verification progress and status.
-        </p>
+{{-- ========================================================= --}}
+{{-- KYC VERIFICATION --}}
+{{-- ========================================================= --}}
+
+<div class="space-y-5">
+
+    {{-- Section Heading --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+
+        <div>
+            <div class="flex items-center gap-3">
+
+                <div
+                    class="w-10 h-10 rounded-xl bg-cyan-50 text-cyan-600
+                           flex items-center justify-center">
+
+                    <i class="bi bi-shield-check text-lg"></i>
+
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800">
+                        KYC Verification Status
+                    </h3>
+
+                    <p class="mt-0.5 text-sm text-slate-500">
+                        Check your KYC verification progress and status.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
     </div>
 
-    <div class="overflow-hidden bg-white border border-gray-100 shadow-sm rounded-2xl">
 
+    {{-- Main Card --}}
+    <div
+        class="overflow-hidden bg-white
+               border border-slate-100
+               shadow-sm rounded-2xl">
+
+        {{-- ================================================= --}}
         {{-- Header --}}
-        <div class="flex items-center justify-between p-6 border-b border-gray-100">
+        {{-- ================================================= --}}
 
-            <div>
-                <h3 class="font-semibold text-gray-800">
-                    Your KYC Status
-                </h3>
+        <div
+            class="flex flex-col sm:flex-row
+                   sm:items-center sm:justify-between
+                   gap-4 px-5 sm:px-6 py-5
+                   border-b border-slate-100">
 
-                <p class="text-sm text-gray-500">
-                    Track your submitted documents.
-                </p>
+            <div class="flex items-center gap-3">
+
+                <div
+                    class="w-10 h-10 rounded-xl
+                           bg-slate-50
+                           text-slate-500
+                           flex items-center justify-center">
+
+                    <i class="bi bi-file-earmark-check text-lg"></i>
+
+                </div>
+
+                <div>
+
+                    <h3 class="font-semibold text-slate-800">
+                        Your KYC Status
+                    </h3>
+
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Track your submitted documents.
+                    </p>
+
+                </div>
+
             </div>
 
-            <span
-                class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold {{ $status['badge'] }}">
 
-                <i class="bi {{ $status['icon'] }}"></i>
+            {{-- Status Badge --}}
+            <span
+                class="inline-flex items-center gap-2
+                       rounded-full px-3.5 py-1.5
+                       text-xs font-semibold
+                       {{ $status['badge'] }}">
+
+                <span class="flex items-center justify-center">
+                    <i class="bi {{ $status['icon'] }}"></i>
+                </span>
 
                 {{ $status['title'] }}
 
@@ -97,80 +157,318 @@
 
         </div>
 
-        <div class="p-6">
 
-            <div class="p-5 border rounded-xl {{ $status['box'] }}">
+        {{-- ================================================= --}}
+        {{-- Content --}}
+        {{-- ================================================= --}}
 
-                <div class="flex items-center gap-2 font-semibold {{ $status['text'] }}">
+        <div class="p-5 sm:p-6">
 
-                    <i class="bi {{ $status['icon'] }}"></i>
+            <div
+                class="relative overflow-hidden
+                       p-5 sm:p-6
+                       border rounded-2xl
+                       {{ $status['box'] }}">
 
-                    {{ $status['heading'] }}
-
+                {{-- Decorative Circle --}}
+                <div
+                    class="absolute -right-10 -top-10
+                           w-28 h-28 rounded-full
+                           bg-white/40 pointer-events-none">
                 </div>
 
-                <p class="mt-2 text-sm {{ $status['desc'] }}">
-                    {{ $status['message'] }}
-                </p>
 
-                {{-- Pending Documents --}}
-                @if ($kycSummary['status'] == 'pending' && count($kycSummary['pending_fields']))
+                {{-- Status Content --}}
+                <div class="relative">
 
-                    <div class="mt-5">
+                    <div class="flex items-start gap-4">
 
-                        <h5 class="mb-2 text-sm font-semibold text-gray-700">
-                            Pending Documents
-                        </h5>
+                        {{-- Status Icon --}}
+                        <div
+                            class="w-11 h-11 rounded-xl
+                                   bg-white shadow-sm
+                                   {{ $status['text'] }}
+                                   flex items-center justify-center
+                                   flex-shrink-0">
 
-                        <ul class="space-y-2 text-sm text-gray-600">
+                            <i class="bi {{ $status['icon'] }} text-xl"></i>
 
-                            @foreach ($kycSummary['pending_fields'] as $field)
-                                <li class="flex items-center gap-2">
+                        </div>
 
-                                    <i class="bi bi-dot"></i>
 
-                                    {{ $field }}
+                        <div class="min-w-0">
 
-                                </li>
-                            @endforeach
+                            {{-- Heading --}}
+                            <h4
+                                class="text-base sm:text-lg
+                                       font-bold {{ $status['text'] }}">
 
-                        </ul>
+                                {{ $status['heading'] }}
+
+                            </h4>
+
+
+                            {{-- Message --}}
+                            <p
+                                class="mt-1.5 text-sm leading-6
+                                       {{ $status['desc'] }}">
+
+                                {{ $status['message'] }}
+
+                            </p>
+
+                        </div>
 
                     </div>
 
-                @endif
 
-                {{-- Rejected Documents --}}
-                @if (in_array($kycSummary['status'], ['verification_rejected', 'admin_rejected']) &&
-                        count($kycSummary['rejected_fields']))
+                    {{-- ================================================= --}}
+                    {{-- Pending Documents --}}
+                    {{-- ================================================= --}}
 
-                    <div class="mt-5 space-y-3">
+                    @if ($kycSummary['status'] == 'pending' && count($kycSummary['pending_fields']))
 
-                        @foreach ($kycSummary['rejected_fields'] as $field)
-                            <div class="p-4 bg-white border border-red-100 rounded-lg">
+                        <div
+                            class="mt-6 pt-5
+                                   border-t border-black/5">
 
-                                <div class="font-semibold text-gray-800">
+                            <div class="flex items-center gap-2 mb-3">
 
-                                    {{ $field['field'] }}
+                                <div
+                                    class="w-8 h-8 rounded-lg
+                                           bg-white
+                                           text-yellow-600
+                                           flex items-center justify-center
+                                           shadow-sm">
+
+                                    <i class="bi bi-hourglass-split"></i>
 
                                 </div>
 
-                                @if ($field['remark'])
-                                    <div class="mt-2 text-sm text-red-600">
+                                <div>
 
-                                        <strong>Reason :</strong>
+                                    <h5 class="text-sm font-semibold text-slate-700">
+                                        Pending Documents
+                                    </h5>
 
-                                        {{ $field['remark'] }}
+                                    <p class="text-xs text-slate-500">
+                                        Documents required to complete verification
+                                    </p>
 
-                                    </div>
-                                @endif
+                                </div>
 
                             </div>
-                        @endforeach
 
-                    </div>
 
-                @endif
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+                                @foreach ($kycSummary['pending_fields'] as $field)
+
+                                    <div
+                                        class="flex items-center gap-3
+                                               p-3.5
+                                               bg-white/80
+                                               border border-yellow-100
+                                               rounded-xl">
+
+                                        <div
+                                            class="w-8 h-8 rounded-lg
+                                                   bg-yellow-100
+                                                   text-yellow-600
+                                                   flex items-center justify-center
+                                                   flex-shrink-0">
+
+                                            <i class="bi bi-file-earmark-text"></i>
+
+                                        </div>
+
+                                        <span
+                                            class="text-sm font-medium text-slate-700">
+
+                                            {{ $field }}
+
+                                        </span>
+
+                                    </div>
+
+                                @endforeach
+
+                            </div>
+
+                        </div>
+
+                    @endif
+
+
+                    {{-- ================================================= --}}
+                    {{-- Rejected Documents --}}
+                    {{-- ================================================= --}}
+
+                    @if (
+                        in_array($kycSummary['status'], ['verification_rejected', 'admin_rejected']) &&
+                            count($kycSummary['rejected_fields'])
+                    )
+
+                        <div
+                            class="mt-6 pt-5
+                                   border-t border-black/5">
+
+                            <div class="flex items-center gap-2 mb-4">
+
+                                <div
+                                    class="w-8 h-8 rounded-lg
+                                           bg-white
+                                           text-red-600
+                                           flex items-center justify-center
+                                           shadow-sm">
+
+                                    <i class="bi bi-exclamation-triangle"></i>
+
+                                </div>
+
+                                <div>
+
+                                    <h5 class="text-sm font-semibold text-slate-700">
+                                        Rejected Documents
+                                    </h5>
+
+                                    <p class="text-xs text-slate-500">
+                                        Please review the rejection reason and update the documents.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="space-y-3">
+
+                                @foreach ($kycSummary['rejected_fields'] as $field)
+
+                                    <div
+                                        class="bg-white
+                                               border border-red-100
+                                               rounded-xl
+                                               p-4
+                                               hover:shadow-sm
+                                               transition">
+
+                                        <div
+                                            class="flex flex-col sm:flex-row
+                                                   sm:items-center
+                                                   sm:justify-between
+                                                   gap-2">
+
+                                            {{-- Field Name --}}
+                                            <div class="flex items-center gap-3">
+
+                                                <div
+                                                    class="w-9 h-9 rounded-lg
+                                                           bg-red-50
+                                                           text-red-500
+                                                           flex items-center justify-center
+                                                           flex-shrink-0">
+
+                                                    <i class="bi bi-file-earmark-x"></i>
+
+                                                </div>
+
+                                                <div>
+
+                                                    <p class="text-sm font-semibold text-slate-800">
+                                                        {{ $field['field'] }}
+                                                    </p>
+
+                                                    <p class="text-[11px] text-slate-400 mt-0.5">
+                                                        Document requires attention
+                                                    </p>
+
+                                                </div>
+
+                                            </div>
+
+
+                                            {{-- Rejected Badge --}}
+                                            <span
+                                                class="inline-flex items-center gap-1.5
+                                                       px-2.5 py-1
+                                                       rounded-full
+                                                       bg-red-50
+                                                       text-red-600
+                                                       text-[11px]
+                                                       font-semibold
+                                                       self-start sm:self-auto">
+
+                                                <span
+                                                    class="w-1.5 h-1.5
+                                                           rounded-full
+                                                           bg-red-500">
+                                                </span>
+
+                                                Rejected
+
+                                            </span>
+
+                                        </div>
+
+
+                                        {{-- Remark --}}
+                                        @if ($field['remark'])
+
+                                            <div
+                                                class="mt-4
+                                                       p-3
+                                                       rounded-lg
+                                                       bg-red-50
+                                                       border border-red-100">
+
+                                                <div
+                                                    class="flex items-start gap-2">
+
+                                                    <i
+                                                        class="bi bi-chat-left-text
+                                                               text-red-500 mt-0.5">
+                                                    </i>
+
+                                                    <div>
+
+                                                        <p
+                                                            class="text-xs
+                                                                   font-semibold
+                                                                   text-red-700">
+
+                                                            Reason
+
+                                                        </p>
+
+                                                        <p
+                                                            class="mt-1 text-sm
+                                                                   leading-5
+                                                                   text-red-600">
+
+                                                            {{ $field['remark'] }}
+
+                                                        </p>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        @endif
+
+                                    </div>
+
+                                @endforeach
+
+                            </div>
+
+                        </div>
+
+                    @endif
+
+                </div>
 
             </div>
 

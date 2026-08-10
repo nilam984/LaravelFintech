@@ -9,68 +9,117 @@
             <!-- ===================== -->
             <!-- User Detail Card (Left) -->
             <!-- ===================== -->
-            <div class="lg:col-span-4 xl:col-span-3">
+            <div class="lg:col-span-4 xl:col-span-4">
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden sticky top-6">
 
-                    <!-- Header Banner -->
-                    <div class="bg-gradient-to-br from-cyan-500 to-cyan-600 p-6 text-white text-center">
-                        <div
-                            class="w-20 h-20 mx-auto rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white text-3xl font-bold shadow-inner">
-                            {{ strtoupper(substr($user->name ?? 'U', 0, 1)) }}
+
+
+                    <div
+                        class="relative bg-gradient-to-br from-cyan-500 via-cyan-600 to-cyan-700 px-6 pt-7 pb-8 text-center">
+                        {{-- Decorative circles --}}
+                        <div class="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10"></div>
+                        <div class="absolute -bottom-12 -left-12 w-36 h-36 rounded-full bg-white/10"></div>
+                        <div class="relative">
+                            <div
+                                class="w-20 h-20 mx-auto rounded-full bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center
+                                        text-white text-3xl font-bold shadow-lg">
+                                {{ strtoupper(substr($user->name ?? 'U', 0, 1)) }}
+                            </div>
+                            <h2 class="mt-4 text-lg font-semibold text-white">{{ $user->name ?? 'User Name' }}</h2>
+                            <p class="text-cyan-100 text-xs mt-1 truncate px-2">{{ $user->email ?? 'user@email.com' }}</p>
                         </div>
-
-                        <h2 class="mt-4 text-lg font-semibold tracking-wide">
-                            {{ $user->name ?? 'User Name' }}
-                        </h2>
-
-                        <p class="text-cyan-100 text-xs mt-1 truncate px-2">
-                            {{ $user->email ?? 'user@email.com' }}
-                        </p>
                     </div>
+                    <!-- Header Banner -->
+
 
                     <!-- Body Details -->
                     <div class="p-6 space-y-4 text-sm">
-                        <div class="flex justify-between items-center py-1">
-                            <span class="text-gray-400 font-medium">Mobile</span>
-                            <span class="text-gray-700 font-medium">
-                                {{ $user->mobile ?? '-' }}
+                        <div class="flex items-center justify-between py-2">
+                            <div class="flex items-center gap-2 text-slate-400">
+                                <i class="bi bi-phone"></i>
+                                <span class="text-sm font-medium">Mobile</span>
+                            </div>
+                            <span class="text-sm font-semibold text-slate-700">
+                                {{ auth()->user()->mobile ?? 'N/A' }}
                             </span>
                         </div>
 
-                        <div class="flex justify-between items-center py-1">
-                            <span class="text-gray-400 font-medium">Status</span>
-                            <span
-                                class="px-2.5 py-0.5 rounded-full text-xs font-semibold
-                                {{ ($user->status ?? 1) == 1 ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100' }}">
-                                {{ ($user->status ?? 1) == 1 ? 'Active' : 'Inactive' }}
-                            </span>
+                        <div class="flex items-center justify-between py-2">
+                            <div class="flex items-center gap-2 text-slate-400">
+                                <i class="bi bi-shield-check"></i>
+                                <span class="text-sm font-medium">Status</span>
+                            </div>
+
+                            @if (($user->status ?? 1) == 1)
+                                <span
+                                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                    Active
+                                </span>
+                            @else
+                                <span
+                                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-600 border border-rose-100">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                    Inactive
+                                </span>
+                            @endif
                         </div>
 
                         <hr class="border-gray-100 my-2">
 
+                        
+
+
                         <div class="space-y-3">
-                            <div class="bg-gray-50/70 p-3 rounded-xl border border-gray-100/80">
-                                <span class="block text-gray-400 text-xs font-medium uppercase tracking-wider mb-1">Payin
-                                    Wallet</span>
-                                <span class="font-semibold text-cyan-600 text-base break-all block">
-                                    ₹ {{ number_format($user->payin_wallet ?? 0, 2) }}
-                                </span>
+                            <div class="rounded-xl border border-slate-100 bg-slate-50/70 p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400"> Payin
+                                            Wallet</p>
+                                        <p class="mt-1 text-lg font-bold text-cyan-600">
+                                            ₹ {{ number_format($user->payin_wallet ?? 0, 2) }}
+                                        </p>
+                                    </div>
+                                    <div
+                                        class="w-9 h-9 rounded-lg bg-cyan-50 text-cyan-600 flex items-center justify-center">
+                                        <i class="bi bi-wallet2"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="rounded-xl border border-slate-100 bg-slate-50/70 p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Payout
+                                            Wallet</p>
+                                        <p class="mt-1 text-lg font-bold text-cyan-600">
+                                            ₹ {{ number_format($user->payout_wallet ?? 0, 2) }}
+                                        </p>
+                                    </div>
+                                    <div
+                                        class="w-9 h-9 rounded-lg bg-cyan-50 text-cyan-600  flex items-center justify-center">
+                                        <i class="bi bi-cash-stack"></i>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="bg-gray-50/70 p-3 rounded-xl border border-gray-100/80">
-                                <span class="block text-gray-400 text-xs font-medium uppercase tracking-wider mb-1">Payout
-                                    Wallet</span>
-                                <span class="font-semibold text-cyan-600 text-base break-all block">
-                                    ₹ {{ number_format($user->payout_wallet ?? 0, 2) }}
-                                </span>
-                            </div>
-
-                            <div class="bg-gray-50/70 p-3 rounded-xl border border-gray-100/80">
-                                <span class="block text-gray-400 text-xs font-medium uppercase tracking-wider mb-1">Main
-                                    Wallet</span>
-                                <span class="font-semibold text-cyan-600 text-base break-all block">
-                                    ₹ {{ number_format($user->main_wallet ?? 0, 2) }}
-                                </span>
+                            <div class="rounded-xl border border-cyan-100 bg-cyan-50/50 p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p
+                                            class="text-[11px] font-semibold  uppercase tracking-wider
+                                                  text-slate-400">
+                                            Main Wallet
+                                        </p>
+                                        <p class="mt-1 text-lg font-bold text-cyan-600">
+                                             ₹ {{ number_format($user->main_wallet ?? 0, 2) }}
+                                        </p>
+                                    </div>
+                                    <div
+                                        class="w-9 h-9 rounded-lg bg-white text-cyan-600 flex items-center justify-center
+                                                shadow-sm">
+                                        <i class="bi bi-wallet-fill"></i>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -82,7 +131,7 @@
             <!-- ===================== -->
             <!-- Right Side Content -->
             <!-- ===================== -->
-            <div class="lg:col-span-8 xl:col-span-9">
+            <div class="lg:col-span-8 xl:col-span-8">
 
                 <!-- Tabs Card -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">

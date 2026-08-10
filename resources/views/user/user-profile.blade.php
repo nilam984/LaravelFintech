@@ -1,386 +1,493 @@
 @extends('layouts.app')
 @section('title', 'User Profile')
 @section('content')
-    <div class="min-h-screen bg-gray-100 py-6">
-        <div class="flex items-center justify-between">
-            <div class="mb-5 ms-5">
-                <h1 class="text-2xl font-bold text-fintechDarkText"> Profile </h1>
-                <p class="text-sm text-fintechMutedText mt-1"> Manage Profile. </p>
+    <div class="min-h-screen bg-slate-50 py-6">
+        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800">Profile</h1>
+                    <p class="text-sm text-slate-500 mt-1">
+                        Manage your profile and account information.
+                    </p>
+                </div>
             </div>
-        </div>
-        <div class="bg-white rounded-xl shadow">
-            <div class="bg-white rounded-2xl  p-3 mb-6">
-                <div class="flex flex-wrap gap-3">
-                    <button
-                        class="profile-tab active flex items-center gap-2 px-5 py-3 rounded-xl transition-all duration-300 bg-cyan-600 text-white shadow-md"
-                        data-tab="user-details">
-                        <i class="bi bi-person-circle"></i>
-                        <span>User Details</span>
-                    </button>
-                    <button
-                        class="profile-tab flex items-center gap-2 px-5 py-3 rounded-xl bg-gray-100 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-all duration-300"
-                        data-tab="business-details">
-                        <i class="bi bi-building"></i>
-                        <span>Business Details</span>
-                    </button>
-                    <button
-                        class="profile-tab flex items-center gap-2 px-5 py-3 rounded-xl bg-gray-100 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-all duration-300"
-                        data-tab="bank-details">
-                        <i class="bi bi-bank"></i>
-                        <span>Bank Details</span>
-                    </button>
-                    <button
-                        class="profile-tab flex items-center gap-2 px-5 py-3 rounded-xl bg-gray-100 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-all duration-300"
-                        data-tab="user-onboarding">
-                        <i class="bi bi-file-earmark-check"></i>
-                        <span>User Onboarding</span>
-                    </button>
 
-                    <button
-                        class="profile-tab flex items-center gap-2 px-5 py-3 rounded-xl bg-gray-100 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-all duration-300"
-                        data-tab="webhook-url">
-                        <i class="bi bi-file-earmark-check"></i>
-                        <span>WebHook Url</span>
-                    </button>
-
-                    <button
-                        class="profile-tab flex items-center gap-2 px-5 py-3 rounded-xl bg-gray-100 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-all duration-300"
-                        data-tab="kyc-details">
-                        <i class="bi bi-file-earmark-check"></i>
-                        <span>KYC Status</span>
-                    </button>
-
-
-                </div>
-
-            </div>
-            <div class="p-5">
-                <div id="user-details" class="tab-content">
-                    @include('user.user-details')
-                </div>
-                <div id="business-details" class="tab-content hidden">
-                    @include('user.business-details')
-                </div>
-                <div id="bank-details" class="tab-content hidden">
-                    @include('user.bank-details')
-                </div>
-
-                <div id="webhook-url" class="tab-content hidden">
-                    @include('user.webhook-url')
-                </div>
-
-                <div id="kyc-details" class="tab-content hidden">
-                    @include('user.kyc-details')
-                </div>
-
-                <div id="user-onboarding" class="tab-content hidden">
-                    <div class="max-w-7xl mx-auto px-4">
-                        <form id="profileForm" action="" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            <div
-                                class="px-5 py-4 bg-amber-300 border-l-4 border-amber-500 my-4 rounded-r-lg shadow-sm transition-all duration-300 hover:shadow-md animate-pulse">
-                                <div class="flex items-center space-x-3">
-                                    <!-- Icon -->
-                                    <div class="flex-shrink-0 text-amber-500">
-                                        <svg class="w-6 h-6 animate-bounce" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                                            </path>
-                                        </svg>
-                                    </div>
-                                    <!-- Text Message -->
-                                    <div>
-                                        <p class="text-sm font-semibold text-amber-800 tracking-wide">
-                                            Important Notice
-                                        </p>
-                                        <p class="text-xs text-amber-800 mt-0.5">
-                                            You will not be able to change any fields after KYC is approved.
-                                        </p>
-                                    </div>
+            <div class="grid grid-cols-1 xl:grid-cols-[260px_minmax(0,1fr)] gap-6">
+                <div>
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                        {{-- Profile Header --}}
+                        <div
+                            class="relative bg-gradient-to-br from-cyan-500 via-cyan-600 to-cyan-700 px-6 pt-7 pb-8 text-center">
+                            {{-- Decorative circles --}}
+                            <div class="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10"></div>
+                            <div class="absolute -bottom-12 -left-12 w-36 h-36 rounded-full bg-white/10"></div>
+                            <div class="relative">
+                                <div
+                                    class="w-20 h-20 mx-auto rounded-full bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center
+                                        text-white text-3xl font-bold shadow-lg">
+                                    {{ strtoupper(substr($user->name ?? 'U', 0, 1)) }}
                                 </div>
+                                <h2 class="mt-4 text-lg font-semibold text-white">{{ auth()->user()->name ?? 'N/A' }}</h2>
+                                <p class="text-cyan-100 text-xs mt-1 truncate px-2">{{ auth()->user()->email ?? 'N/A' }}</p>
                             </div>
-                            <div class="bg-white rounded-2xl shadow-md mb-6">
-                                <div class="px-5 py-3 border-b border-gray-100">
-                                    <h3 class="text-lg font-bold text-gray-700">Business Details</h3>
+                        </div>
+                        <div class="p-5">
+                            <div class="flex items-center justify-between py-2">
+                                <div class="flex items-center gap-2 text-slate-400">
+                                    <i class="bi bi-phone"></i>
+                                    <span class="text-sm font-medium">Mobile</span>
                                 </div>
-                                <div class="p-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-600">Business Name</label>
-                                        <input type="text" name="business_name" placeholder="e.g. Acme Corporation"
-                                            value="{{ old('business_name', $business->business_name ?? '') }}"
-                                            class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
-                                    </div>
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-600">Business Email</label>
-                                        <input type="email" name="business_email" placeholder="e.g. contact@acme.com"
-                                            value="{{ old('business_email', $business->business_email ?? '') }}"
-                                            class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
-                                    </div>
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-600">Business Phone</label>
-                                        <input type="text" name="business_phone" placeholder="e.g. +91 98765 43210"
-                                            value="{{ old('business_phone', $business->business_phone ?? '') }}"
-                                            class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
-                                    </div>
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-600">Business Type</label>
-                                        <select name="business_type"
-                                            class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
-                                            <option value="">Select Business Type</option>
-                                            <option value="Proprietorship"
-                                                {{ old('business_type', $business->business_type ?? '') == 'Proprietorship' ? 'selected' : '' }}>
-                                                Proprietorship
-                                            </option>
-                                            <option value="Partnership"
-                                                {{ old('business_type', $business->business_type ?? '') == 'Partnership' ? 'selected' : '' }}>
-                                                Partnership
-                                            </option>
-                                            <option value="Private Limited"
-                                                {{ old('business_type', $business->business_type ?? '') == 'Private Limited' ? 'selected' : '' }}>
-                                                Private Limited
-                                            </option>
-                                            <option value="LLP"
-                                                {{ old('business_type', $business->business_type ?? '') == 'LLP' ? 'selected' : '' }}>
-                                                LLP
-                                            </option>
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-600">Business Category</label>
-                                        <input type="text" name="business_category"
-                                            placeholder="e.g. Retail, E-commerce, IT"
-                                            value="{{ old('business_category', $business->business_category ?? '') }}"
-                                            class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
-                                    </div>
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-600">Website URL</label>
-                                        <input type="url" name="website_url" placeholder="e.g. https://www.acme.com"
-                                            value="{{ old('website_url', $business->website_url ?? '') }}"
-                                            class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
-                                    </div>
-                                </div>
+                                <span class="text-sm font-semibold text-slate-700">
+                                    {{ auth()->user()->mobile ?? 'N/A' }}
+                                </span>
                             </div>
-                            <div class="bg-white rounded-2xl shadow-md mb-6">
-                                <div class="px-5 py-3 border-b border-gray-100">
-                                    <h3 class="text-lg font-bold text-gray-700">KYC Details</h3>
+                            <div class="flex items-center justify-between py-2">
+                                <div class="flex items-center gap-2 text-slate-400">
+                                    <i class="bi bi-shield-check"></i>
+                                    <span class="text-sm font-medium">Status</span>
                                 </div>
-                                <div class="p-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-600">Business PAN Number</label>
-                                        <input type="text" name="pan" placeholder="10-digit PAN (e.g. ABCDE1234F)"
-                                            value="{{ old('pan', $business->pan ?? '') }}"
-                                            class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
-                                    </div>
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-600">GST Number</label>
-                                        <input type="text" name="gst" placeholder="15-digit GSTIN"
-                                            value="{{ old('gst', $business->gst ?? '') }}"
-                                            class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
-                                    </div>
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-600">Owner PAN</label>
-                                        <input type="text" name="owner_pan" placeholder="Owner's 10-digit PAN"
-                                            value="{{ old('owner_pan', $business->owner_pan ?? '') }}"
-                                            class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
-                                    </div>
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-600">Owner Aadhaar Number</label>
-                                        <input type="text" name="owner_aadhar" placeholder="12-digit Aadhaar Number"
-                                            value="{{ old('owner_aadhar', $business->owner_aadhar ?? '') }}"
-                                            class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
-                                    </div>
-                                    <div>
-                                        <div class="flex items-center justify-between mb-2">
-                                            <label class="text-sm font-medium text-gray-600">
-                                                Business PAN Image
-                                            </label>
-                                            @if (!empty($business->pan_image))
-                                                <button type="button"
-                                                    class="previewImage text-cyan-600 hover:text-cyan-800"
-                                                    data-title="Business PAN Image"
-                                                    data-src="{{ asset('storage/' . $business->pan_image) }}">
-                                                    <i class="bi bi-eye-fill"></i>
-                                                </button>
-                                            @endif
+
+                                @if (($user->status ?? 1) == 1)
+                                    <span
+                                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                        Active
+                                    </span>
+                                @else
+                                    <span
+                                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-600 border border-rose-100">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                        Inactive
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="border-t border-slate-100 my-4"></div>
+                            <div class="space-y-3">
+                                <div class="rounded-xl border border-slate-100 bg-slate-50/70 p-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                                                Payin Wallet</p>
+                                            <p class="mt-1 text-lg font-bold text-cyan-600">
+                                                ₹ {{ number_format(auth()->user()->payin_wallet ?? 0, 2) }}
+                                            </p>
                                         </div>
-                                        <input type="file" name="pan_image"
-                                            class="w-full border rounded-lg p-1.5 text-sm
+                                        <div
+                                            class="w-9 h-9 rounded-lg bg-cyan-50 text-cyan-600 flex items-center justify-center">
+                                            <i class="bi bi-wallet2"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="rounded-xl border border-slate-100 bg-slate-50/70 p-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                                                Payout Wallet</p>
+                                            <p class="mt-1 text-lg font-bold text-cyan-600">
+                                                ₹ {{ number_format(auth()->user()->payout_wallet ?? 0, 2) }}
+                                            </p>
+                                        </div>
+                                        <div
+                                            class="w-9 h-9 rounded-lg bg-cyan-50 text-cyan-600  flex items-center justify-center">
+                                            <i class="bi bi-cash-stack"></i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="rounded-xl border border-cyan-100 bg-cyan-50/50 p-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p
+                                                class="text-[11px] font-semibold  uppercase tracking-wider
+                                                  text-slate-400">
+                                                Main Wallet
+                                            </p>
+                                            <p class="mt-1 text-lg font-bold text-cyan-600">
+                                                ₹ {{ number_format(auth()->user()->main_wallet ?? 0, 2) }}
+                                            </p>
+                                        </div>
+                                        <div
+                                            class="w-9 h-9 rounded-lg bg-white text-cyan-600 flex items-center justify-center
+                                                shadow-sm">
+                                            <i class="bi bi-wallet-fill"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="min-w-0">
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="border-b border-slate-100">
+                            <div class="flex items-center gap-1 overflow-x-auto px-4 sm:px-6 scrollbar-hide">
+                                <button type="button"
+                                    class="profile-tab active whitespace-nowrap flex items-center gap-2 px-4 py-4
+                                        text-sm font-medium border-b-2 border-cyan-500 text-cyan-600 transition-all duration-200"
+                                    data-tab="business-details"><span>Business Info</span>
+                                </button>
+                                <button type="button"
+                                    class="profile-tab whitespace-nowrap flex items-center gap-2 px-4 py-4
+                                        text-sm font-medium border-b-2 border-transparent text-slate-400
+                                        hover:text-cyan-600 transition-all duration-200"
+                                    data-tab="bank-details">
+                                    <span>Bank Details</span>
+                                </button>
+                                <button type="button"
+                                    class="profile-tab whitespace-nowrap flex items-center gap-2 px-4 py-4
+                                        text-sm font-medium border-b-2 border-transparent text-slate-400
+                                        hover:text-cyan-600 transition-all duration-200"
+                                    data-tab="user-onboarding">
+                                    <span>User Onboarding</span>
+                                </button>
+
+                                <button type="button"
+                                    class="profile-tab whitespace-nowrap flex items-center gap-2 px-4 py-4
+                                        text-sm font-medium border-b-2 border-transparent text-slate-400
+                                        hover:text-cyan-600 transition-all duration-200"
+                                    data-tab="webhook-url">
+                                    <span>WebHooks</span>
+                                </button>
+                                <button type="button"
+                                    class="profile-tab whitespace-nowrap flex items-center gap-2 px-4 py-4
+                                        text-sm font-medium border-b-2 border-transparent text-slate-400
+                                        hover:text-cyan-600 transition-all duration-200"
+                                    data-tab="kyc-details">
+                                    <span>KYC Verification</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="p-5 sm:p-6 lg:p-7">
+                            <div id="business-details" class="tab-content">
+                                @include('user.business-details')
+                            </div>
+                            <div id="bank-details" class="tab-content hidden">
+                                @include('user.bank-details')
+                            </div>
+                            <div id="webhook-url" class="tab-content hidden">
+                                @include('user.webhook-url')
+                            </div>
+                            <div id="kyc-details" class="tab-content hidden">
+                                @include('user.kyc-details')
+                            </div>
+
+                            <div id="user-onboarding" class="tab-content hidden">
+                                <form id="profileForm" action="" method="POST" enctype="multipart/form-data">
+                                    @csrf
+                                    <div
+                                        class="px-5 py-4 bg-amber-300 border-l-4 border-amber-500 my-4 rounded-r-lg shadow-sm transition-all duration-300 hover:shadow-md animate-pulse">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="flex-shrink-0 text-amber-500">
+                                                <svg class="w-6 h-6 animate-bounce" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                                    </path>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-semibold text-amber-800 tracking-wide">
+                                                    Important Notice
+                                                </p>
+                                                <p class="text-xs text-amber-800 mt-0.5">
+                                                    You will not be able to change any fields after KYC is approved.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white rounded-2xl shadow-md mb-6">
+                                        <div class="px-5 py-3 border-b border-gray-100">
+                                            <h3 class="text-lg font-bold text-gray-700">Business Details</h3>
+                                        </div>
+                                        <div class="p-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
+                                            <div>
+                                                <label class="text-sm font-medium text-gray-600">Business Name</label>
+                                                <input type="text" name="business_name"
+                                                    placeholder="e.g. Acme Corporation"
+                                                    value="{{ old('business_name', $business->business_name ?? '') }}"
+                                                    class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
+                                            </div>
+                                            <div>
+                                                <label class="text-sm font-medium text-gray-600">Business Email</label>
+                                                <input type="email" name="business_email"
+                                                    placeholder="e.g. contact@acme.com"
+                                                    value="{{ old('business_email', $business->business_email ?? '') }}"
+                                                    class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
+                                            </div>
+                                            <div>
+                                                <label class="text-sm font-medium text-gray-600">Business Phone</label>
+                                                <input type="text" name="business_phone"
+                                                    placeholder="e.g. +91 98765 43210"
+                                                    value="{{ old('business_phone', $business->business_phone ?? '') }}"
+                                                    class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
+                                            </div>
+                                            <div>
+                                                <label class="text-sm font-medium text-gray-600">Business Type</label>
+                                                <select name="business_type"
+                                                    class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
+                                                    <option value="">Select Business Type</option>
+                                                    <option value="Proprietorship"
+                                                        {{ old('business_type', $business->business_type ?? '') == 'Proprietorship' ? 'selected' : '' }}>
+                                                        Proprietorship
+                                                    </option>
+                                                    <option value="Partnership"
+                                                        {{ old('business_type', $business->business_type ?? '') == 'Partnership' ? 'selected' : '' }}>
+                                                        Partnership
+                                                    </option>
+                                                    <option value="Private Limited"
+                                                        {{ old('business_type', $business->business_type ?? '') == 'Private Limited' ? 'selected' : '' }}>
+                                                        Private Limited
+                                                    </option>
+                                                    <option value="LLP"
+                                                        {{ old('business_type', $business->business_type ?? '') == 'LLP' ? 'selected' : '' }}>
+                                                        LLP
+                                                    </option>
+                                                </select>
+                                            </div>
+
+                                            <div>
+                                                <label class="text-sm font-medium text-gray-600">Business Category</label>
+                                                <input type="text" name="business_category"
+                                                    placeholder="e.g. Retail, E-commerce, IT"
+                                                    value="{{ old('business_category', $business->business_category ?? '') }}"
+                                                    class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
+                                            </div>
+                                            <div>
+                                                <label class="text-sm font-medium text-gray-600">Website URL</label>
+                                                <input type="url" name="website_url"
+                                                    placeholder="e.g. https://www.acme.com"
+                                                    value="{{ old('website_url', $business->website_url ?? '') }}"
+                                                    class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white rounded-2xl shadow-md mb-6">
+                                        <div class="px-5 py-3 border-b border-gray-100">
+                                            <h3 class="text-lg font-bold text-gray-700">KYC Details</h3>
+                                        </div>
+                                        <div class="p-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
+                                            <div>
+                                                <label class="text-sm font-medium text-gray-600">Business PAN
+                                                    Number</label>
+                                                <input type="text" name="pan"
+                                                    placeholder="10-digit PAN (e.g. ABCDE1234F)"
+                                                    value="{{ old('pan', $business->pan ?? '') }}"
+                                                    class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
+                                            </div>
+                                            <div>
+                                                <label class="text-sm font-medium text-gray-600">GST Number</label>
+                                                <input type="text" name="gst" placeholder="15-digit GSTIN"
+                                                    value="{{ old('gst', $business->gst ?? '') }}"
+                                                    class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
+                                            </div>
+                                            <div>
+                                                <label class="text-sm font-medium text-gray-600">Owner PAN</label>
+                                                <input type="text" name="owner_pan" placeholder="Owner's 10-digit PAN"
+                                                    value="{{ old('owner_pan', $business->owner_pan ?? '') }}"
+                                                    class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
+                                            </div>
+                                            <div>
+                                                <label class="text-sm font-medium text-gray-600">Owner Aadhaar
+                                                    Number</label>
+                                                <input type="text" name="owner_aadhar"
+                                                    placeholder="12-digit Aadhaar Number"
+                                                    value="{{ old('owner_aadhar', $business->owner_aadhar ?? '') }}"
+                                                    class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
+                                            </div>
+                                            <div>
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <label class="text-sm font-medium text-gray-600">
+                                                        Business PAN Image
+                                                    </label>
+                                                    @if (!empty($business->pan_image))
+                                                        <button type="button"
+                                                            class="previewImage text-cyan-600 hover:text-cyan-800"
+                                                            data-title="Business PAN Image"
+                                                            data-src="{{ asset('storage/' . $business->pan_image) }}">
+                                                            <i class="bi bi-eye-fill"></i>
+                                                        </button>
+                                                    @endif
+                                                </div>
+                                                <input type="file" name="pan_image"
+                                                    class="w-full border rounded-lg p-1.5 text-sm
                                             file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold
                                             file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100">
-                                    </div>
-                                    <div>
-                                        <div class="flex items-center justify-between mb-2">
-                                            <label for="owner_pan_image" class="text-sm font-medium text-gray-600">
-                                                Owner PAN Image
-                                            </label>
-                                            @if (!empty($business->owner_pan_image))
-                                                <button type="button"
-                                                    class="previewImage text-cyan-600 hover:text-cyan-800"
-                                                    data-title="Owner PAN Image"
-                                                    data-src="{{ asset('storage/' . $business->owner_pan_image) }}">
-                                                    <i class="bi bi-eye-fill"></i>
-                                                </button>
-                                            @endif
-                                        </div>
-                                        <input id="owner_pan_image" type="file" name="owner_pan_image"
-                                            class="w-full border rounded-lg p-1.5 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold
+                                            </div>
+                                            <div>
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <label for="owner_pan_image"
+                                                        class="text-sm font-medium text-gray-600">
+                                                        Owner PAN Image
+                                                    </label>
+                                                    @if (!empty($business->owner_pan_image))
+                                                        <button type="button"
+                                                            class="previewImage text-cyan-600 hover:text-cyan-800"
+                                                            data-title="Owner PAN Image"
+                                                            data-src="{{ asset('storage/' . $business->owner_pan_image) }}">
+                                                            <i class="bi bi-eye-fill"></i>
+                                                        </button>
+                                                    @endif
+                                                </div>
+                                                <input id="owner_pan_image" type="file" name="owner_pan_image"
+                                                    class="w-full border rounded-lg p-1.5 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold
                                             file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100">
-                                    </div>
-                                    <div>
-                                        <div class="flex items-center justify-between mb-2">
-                                            <label for="owner_aadhar_image_front"
-                                                class="text-sm font-medium text-gray-600">
-                                                Aadhaar Front Image
-                                            </label>
-                                            @if (!empty($business->owner_aadhar_image_front))
-                                                <button type="button"
-                                                    class="previewImage text-cyan-600 hover:text-cyan-800"
-                                                    data-title="Aadhaar Front Image"
-                                                    data-src="{{ asset('storage/' . $business->owner_aadhar_image_front) }}">
-                                                    <i class="bi bi-eye-fill"></i>
-                                                </button>
-                                            @endif
-                                        </div>
-                                        <input id="owner_aadhar_image_front" type="file"
-                                            name="owner_aadhar_image_front"
-                                            class="w-full border rounded-lg p-1.5 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-cyan-50 file:text-cyan-700
+                                            </div>
+                                            <div>
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <label for="owner_aadhar_image_front"
+                                                        class="text-sm font-medium text-gray-600">
+                                                        Aadhaar Front Image
+                                                    </label>
+                                                    @if (!empty($business->owner_aadhar_image_front))
+                                                        <button type="button"
+                                                            class="previewImage text-cyan-600 hover:text-cyan-800"
+                                                            data-title="Aadhaar Front Image"
+                                                            data-src="{{ asset('storage/' . $business->owner_aadhar_image_front) }}">
+                                                            <i class="bi bi-eye-fill"></i>
+                                                        </button>
+                                                    @endif
+                                                </div>
+                                                <input id="owner_aadhar_image_front" type="file"
+                                                    name="owner_aadhar_image_front"
+                                                    class="w-full border rounded-lg p-1.5 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-cyan-50 file:text-cyan-700
                                            hover:file:bg-cyan-100">
-                                    </div>
-                                    <div>
-                                        <div class="flex items-center justify-between mb-2">
-                                            <label for="owner_aadhar_image_back"
-                                                class="text-sm font-medium text-gray-600">
-                                                Aadhaar Back Image
-                                            </label>
-                                            @if (!empty($business->owner_aadhar_image_back))
-                                                <button type="button"
-                                                    class="previewImage text-cyan-600 hover:text-cyan-800"
-                                                    data-title="Aadhaar Back Image"
-                                                    data-src="{{ asset('storage/' . $business->owner_aadhar_image_back) }}">
-                                                    <i class="bi bi-eye-fill"></i>
-                                                </button>
-                                            @endif
+                                            </div>
+                                            <div>
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <label for="owner_aadhar_image_back"
+                                                        class="text-sm font-medium text-gray-600">
+                                                        Aadhaar Back Image
+                                                    </label>
+                                                    @if (!empty($business->owner_aadhar_image_back))
+                                                        <button type="button"
+                                                            class="previewImage text-cyan-600 hover:text-cyan-800"
+                                                            data-title="Aadhaar Back Image"
+                                                            data-src="{{ asset('storage/' . $business->owner_aadhar_image_back) }}">
+                                                            <i class="bi bi-eye-fill"></i>
+                                                        </button>
+                                                    @endif
+                                                </div>
+                                                <input id="owner_aadhar_image_back" type="file"
+                                                    name="owner_aadhar_image_back"
+                                                    class="w-full border rounded-lg p-1.5 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100">
+                                            </div>
                                         </div>
-                                        <input id="owner_aadhar_image_back" type="file" name="owner_aadhar_image_back"
-                                            class="w-full border rounded-lg p-1.5 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 3. Address Details -->
-                            <div class="bg-white rounded-2xl shadow-md mb-6">
-                                <div class="px-5 py-3 border-b border-gray-100">
-                                    <h3 class="text-lg font-bold text-gray-700">Address Details</h3>
-                                </div>
-                                <div class="p-5 grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-600">City</label>
-                                        <input type="text" name="city" placeholder="e.g. Mumbai"
-                                            value="{{ old('city', $business->city ?? '') }}"
-                                            class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
                                     </div>
 
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-600">State</label>
-                                        <input type="text" name="state" placeholder="e.g. Maharashtra"
-                                            value="{{ old('state', $business->state ?? '') }}"
-                                            class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
-                                    </div>
-
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-600">Pin Code</label>
-                                        <input type="text" name="pin_code" placeholder="6-digit ZIP/Pin code"
-                                            value="{{ old('pin_code', $business->pin_code ?? '') }}"
-                                            class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
-                                    </div>
-
-                                    <div class="md:col-span-3">
-                                        <label class="text-sm font-medium text-gray-600">Full Address</label>
-                                        <textarea name="full_address" rows="2" class="w-full mt-1 border rounded-lg px-3 py-2 text-sm">{{ old('full_address', $business->full_address ?? '') }}</textarea>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 4. Bank Details -->
-                            <div class="bg-white rounded-2xl shadow-md mb-6">
-                                <div class="px-5 py-3 border-b border-gray-100">
-                                    <h3 class="text-lg font-bold text-gray-700">Bank Details</h3>
-                                </div>
-                                <div class="p-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-600">Bank Name</label>
-                                        <input type="text" name="bank_name" placeholder="e.g. HDFC Bank"
-                                            value="{{ old('bank_name', $bank->bank_name ?? '') }}"
-                                            class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
-                                    </div>
-
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-600">Account Holder Name</label>
-                                        <input type="text" name="account_holder_name"
-                                            placeholder="Name as per bank records"
-                                            value="{{ old('account_holder_name', $bank->account_holder_name ?? '') }}"
-                                            class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
-                                    </div>
-
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-600">Account Number</label>
-                                        <input type="text" name="account_number"
-                                            placeholder="Enter bank account number"
-                                            value="{{ old('account_number', $bank->account_number ?? '') }}"
-                                            class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
-                                    </div>
-
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-600">IFSC Code</label>
-                                        <input type="text" name="ifsc_code"
-                                            placeholder="11-digit IFSC (e.g. HDFC0001234)"
-                                            value="{{ old('ifsc_code', $bank->ifsc_code ?? '') }}"
-                                            class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
-                                    </div>
-
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-600">Branch Name</label>
-                                        <input type="text" name="branch_name" placeholder="e.g. Connaught Place"
-                                            value="{{ old('branch_name', $bank->branch_name ?? '') }}"
-                                            class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
-                                    </div>
-
-                                    <div>
-                                        <div class="flex items-center justify-between mb-2">
-                                            <label for="bank_docs" class="text-sm font-medium text-gray-600">
-                                                Cancelled Cheque / Passbook
-                                            </label>
-                                            @if (!empty($bank->bank_docs))
-                                                <button type="button"
-                                                    class="previewImage text-cyan-600 hover:text-cyan-800"
-                                                    data-title="Cancelled Cheque / Passbook"
-                                                    data-src="{{ asset('storage/' . $bank->bank_docs) }}">
-                                                    <i class="bi bi-eye-fill"></i>
-                                                </button>
-                                            @endif
+                                    <div class="bg-white rounded-2xl shadow-md mb-6">
+                                        <div class="px-5 py-3 border-b border-gray-100">
+                                            <h3 class="text-lg font-bold text-gray-700">Address Details</h3>
                                         </div>
-                                        <input id="bank_docs" type="file" name="bank_docs"
-                                            class="w-full border rounded-lg p-1.5 text-sm
+                                        <div class="p-5 grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
+                                            <div>
+                                                <label class="text-sm font-medium text-gray-600">City</label>
+                                                <input type="text" name="city" placeholder="e.g. Mumbai"
+                                                    value="{{ old('city', $business->city ?? '') }}"
+                                                    class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
+                                            </div>
+
+                                            <div>
+                                                <label class="text-sm font-medium text-gray-600">State</label>
+                                                <input type="text" name="state" placeholder="e.g. Maharashtra"
+                                                    value="{{ old('state', $business->state ?? '') }}"
+                                                    class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
+                                            </div>
+
+                                            <div>
+                                                <label class="text-sm font-medium text-gray-600">Pin Code</label>
+                                                <input type="text" name="pin_code" placeholder="6-digit ZIP/Pin code"
+                                                    value="{{ old('pin_code', $business->pin_code ?? '') }}"
+                                                    class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
+                                            </div>
+
+                                            <div class="md:col-span-3">
+                                                <label class="text-sm font-medium text-gray-600">Full Address</label>
+                                                <textarea name="full_address" rows="2" class="w-full mt-1 border rounded-lg px-3 py-2 text-sm">{{ old('full_address', $business->full_address ?? '') }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-white rounded-2xl shadow-md mb-6">
+                                        <div class="px-5 py-3 border-b border-gray-100">
+                                            <h3 class="text-lg font-bold text-gray-700">Bank Details</h3>
+                                        </div>
+                                        <div class="p-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
+                                            <div>
+                                                <label class="text-sm font-medium text-gray-600">Bank Name</label>
+                                                <input type="text" name="bank_name" placeholder="e.g. HDFC Bank"
+                                                    value="{{ old('bank_name', $bank->bank_name ?? '') }}"
+                                                    class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
+                                            </div>
+
+                                            <div>
+                                                <label class="text-sm font-medium text-gray-600">Account Holder
+                                                    Name</label>
+                                                <input type="text" name="account_holder_name"
+                                                    placeholder="Name as per bank records"
+                                                    value="{{ old('account_holder_name', $bank->account_holder_name ?? '') }}"
+                                                    class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
+                                            </div>
+
+                                            <div>
+                                                <label class="text-sm font-medium text-gray-600">Account Number</label>
+                                                <input type="text" name="account_number"
+                                                    placeholder="Enter bank account number"
+                                                    value="{{ old('account_number', $bank->account_number ?? '') }}"
+                                                    class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
+                                            </div>
+
+                                            <div>
+                                                <label class="text-sm font-medium text-gray-600">IFSC Code</label>
+                                                <input type="text" name="ifsc_code"
+                                                    placeholder="11-digit IFSC (e.g. HDFC0001234)"
+                                                    value="{{ old('ifsc_code', $bank->ifsc_code ?? '') }}"
+                                                    class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
+                                            </div>
+
+                                            <div>
+                                                <label class="text-sm font-medium text-gray-600">Branch Name</label>
+                                                <input type="text" name="branch_name"
+                                                    placeholder="e.g. Connaught Place"
+                                                    value="{{ old('branch_name', $bank->branch_name ?? '') }}"
+                                                    class="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
+                                            </div>
+
+                                            <div>
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <label for="bank_docs" class="text-sm font-medium text-gray-600">
+                                                        Cancelled Cheque / Passbook
+                                                    </label>
+                                                    @if (!empty($bank->bank_docs))
+                                                        <button type="button"
+                                                            class="previewImage text-cyan-600 hover:text-cyan-800"
+                                                            data-title="Cancelled Cheque / Passbook"
+                                                            data-src="{{ asset('storage/' . $bank->bank_docs) }}">
+                                                            <i class="bi bi-eye-fill"></i>
+                                                        </button>
+                                                    @endif
+                                                </div>
+                                                <input id="bank_docs" type="file" name="bank_docs"
+                                                    class="w-full border rounded-lg p-1.5 text-sm
                                     file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-cyan-50 file:text-cyan-700
                                 hover:file:bg-cyan-100">
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
+
+
+                                    @if ($business?->kyc_status !== 'approved')
+                                        <div class="mt-6 flex justify-end">
+                                            <button type="submit"
+                                                class="bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-2.5 rounded-xl font-semibold shadow-md text-sm transition-colors duration-200">
+                                                Save Profile
+                                            </button>
+                                        </div>
+                                    @endif
+                                </form>
                             </div>
-
-
-                            @if ($business?->kyc_status !== 'approved')
-                                <div class="mt-6 flex justify-end">
-                                    <button type="submit"
-                                        class="bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-2.5 rounded-xl font-semibold shadow-md text-sm transition-colors duration-200">
-                                        Save Profile
-                                    </button>
-                                </div>
-                            @endif
-                        </form>
+                        </div>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -388,17 +495,17 @@
 
 @section('scripts')
     <script>
-        $(document).ready(function() {
-            $('.profile-tab').click(function() {
-                $('.profile-tab')
-                    .removeClass('bg-cyan-600 text-white shadow-md')
-                    .addClass('bg-gray-100 text-gray-700');
-                $(this)
-                    .removeClass('bg-gray-100 text-gray-700')
-                    .addClass('bg-cyan-600 text-white shadow-md');
-                $('.tab-content').addClass('hidden');
-                $('#' + $(this).data('tab')).removeClass('hidden');
-            });
+        $('.profile-tab').on('click', function() {
+            let tab = $(this).data('tab');
+            $('.profile-tab')
+                .removeClass('text-cyan-600 border-cyan-500')
+                .addClass('text-slate-400 border-transparent');
+            $(this)
+                .removeClass('text-slate-400 border-transparent')
+                .addClass('text-cyan-600 border-cyan-500');
+            $('.tab-content').addClass('hidden');
+            $('#' + tab).removeClass('hidden');
+
         });
     </script>
 
