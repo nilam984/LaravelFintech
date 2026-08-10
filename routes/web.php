@@ -33,6 +33,7 @@ Route::controller(AuthController::class)->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/datatable/{table}', [DataTableController::class, 'index'])->name('datatable');
     Route::post('/profile', [ProfileController::class, 'businessinfo'])->name('businessinfo.profile');
+    Route::get('dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
 });
 
 // Admin routes
@@ -81,6 +82,13 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('/cost-setup/update/{id}', [AdminController::class, 'updateCostSetup'])->name('cost.setup.update');
     Route::get('bank-update-request', [AdminController::class, 'bankUpdateRequest'])->name('admin.bank.update.request');
     Route::post('bank.request.update', [AdminController::class, 'bankRequestUpdate'])->name('admin.bank.request.update');
+
+    Route::post('/verification/store', [AuthController::class, 'storeVerificationUser'])->name('verification.user.store');
+    Route::post('/verification/update/{id}', [AuthController::class, 'updateverificationUser'])->name('verification.user.update');
+
+    Route::get('/menus', [AdminController::class, 'menus'])->name('admin.menus');
+    Route::put('/menus', [AdminController::class, 'updateMenu'])->name('admin.menus.update');
+   
 });
 
 // User routes
@@ -101,4 +109,5 @@ Route::prefix('user')->middleware('auth')->group(function () {
     Route::post('delete-ip', [OauthUserController::class, 'deleteIpWhitelist'])->name('delete.ip');
     Route::get('bank-update-request', [UserController::class, 'bankUpdateRequest'])->name('user.bank.update.request');
     Route::post('raise-request-bank-updation', [UserController::class, 'raiseRequestBankUpdation'])->name('raise.request.bank.updation');
+    Route::post('update-user-bank', [UserController::class, 'updateUserBank'])->name('update.user.bank');
 });
