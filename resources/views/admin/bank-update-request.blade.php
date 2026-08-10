@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Services Request')
+@section('title', 'Bank Update Request')
 
 @section('content')
     <main class="p-4 sm:p-8 space-y-6">
@@ -10,11 +10,11 @@
 
             <div>
                 <h1 class="text-2xl font-bold text-fintechDarkText">
-                    Service Request
+                   Bank Update Request
                 </h1>
 
                 <p class="text-sm text-fintechMutedText mt-1">
-                    Manage Service request.
+                    Manage Bank Update Request.
                 </p>
             </div>
 

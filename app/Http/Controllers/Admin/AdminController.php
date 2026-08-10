@@ -10,6 +10,7 @@ use App\Models\CostSetup;
 use App\Models\GatewayRouting;
 use App\Models\GlobalService;
 use App\Models\LoadMoney;
+use App\Models\Menu;
 use App\Models\OauthUser;
 use App\Models\PaymentGateway;
 use App\Models\ServiceProduct;
@@ -580,5 +581,64 @@ class AdminController extends Controller
                 'message' => 'Something went wrong.',
             ]);
         }
+    }
+
+    public function menus()
+    {
+        $menus = Menu::query()
+            ->whereNull('parent_id')
+            ->with([
+                'children' => function ($query) {
+                    $query->orderBy('sort_order');
+                }
+            ])
+            ->orderBy('sort_order')
+            ->get();
+
+        $roles = [
+            'admin' => 'Admin',
+            'user' => 'User',
+            'reseller' => 'Reseller',
+            'verification' => 'Verification',
+        ];
+
+        return view('admin.menu', compact('menus',  'roles'));
+    }
+
+
+    public function updateMenu(Request $request)
+    {
+        $request->validate([
+            'menus' => ['required', 'array'],
+            'menus.*' => ['nullable', 'array'],
+            'menus.*.visible_for' => ['nullable', 'array'],
+            'menus.*.visible_for.*' => [
+                'in:default,admin,user,reseller,verification'
+            ],
+        ]);
+
+
+        DB::transaction(function () use ($request) {
+
+            foreach ($request->input('menus', []) as $menuId => $menuData) {
+
+                $visibleFor = $menuData['visible_for'] ?? [];
+
+                if (in_array('default', $visibleFor)) {
+                    $visibleFor = ['default'];
+                } else {
+                    $visibleFor = array_unique($visibleFor);
+                }
+
+                Menu::whereKey($menuId)->update([
+                    'visible_for' => implode(',', $visibleFor),
+                ]);
+            }
+        });
+
+
+        return redirect()
+            ->back()
+            ->with('success', 'Menu permissions updated successfully.');
     }
 }

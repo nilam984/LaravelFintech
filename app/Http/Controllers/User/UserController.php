@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Helper\WebHelper;
 use App\Http\Controllers\Controller;
 use App\Models\BankDetail;
 use App\Models\BankUpdateRequest;
@@ -18,6 +19,14 @@ use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
+
+    protected $webHelper;
+
+    public function __construct(WebHelper $webHelper)
+    {
+        $this->webHelper = $webHelper;
+    }
+
     public function serviceRequest()
     {
         $services = GlobalService::with('serviceRequest')->where('status', 1)->get();
@@ -383,6 +392,75 @@ class UserController extends Controller
                 'status' => false,
                 'message' => 'Something went wrong.',
             ]);
+        }
+    }
+
+
+    public function updateUserBank(Request $request)
+    {
+        $userId = Auth::id();
+        $bank = BankDetail::where('user_id', $userId)->first();
+
+        if (!$bank) {
+            return redirect()->back()->with('error', 'Bank Details not found');
+        }
+
+        $bankUpdateRequest = BankUpdateRequest::find($request->bank_request_id);
+
+        if (!$bankUpdateRequest) {
+            return redirect()->back()->with('error', 'Bank update request not found');
+        }
+
+        if ($bankUpdateRequest->status !== 'approved') {
+            return redirect()->back()->with('error', 'Only approved requests are allowed to update the bank.');
+        }
+
+        $bankImageExists = $bank?->bank_docs ?? null;
+
+        $validator = Validator::make($request->all(), [
+            'bank_name' => 'required|string|max:255',
+            'account_holder_name' => 'required|string|max:255',
+            'account_number' => 'required|string|max:50',
+            'ifsc_code' => ['required', 'string', 'regex:/^[A-Z]{4}0[A-Z0-9]{6}$/'],
+            'branch_name' => 'required|string|max:255',
+            'bank_docs' => [$bankImageExists ? 'nullable' : 'required', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048']
+        ], [
+            'bank_name.required' => 'Bank name is required.',
+            'account_holder_name.required' => 'Account holder name is required.',
+            'account_number.required' => 'Account number is required.',
+            'ifsc_code.required' => 'IFSC code is required.',
+            'ifsc_code.regex' => 'Please enter a valid IFSC code.',
+            'branch_name.required' => 'Branch name is required.',
+            'bank_docs.required' => 'Bank document is required.',
+            'bank_docs.image' => 'Bank document must be an image.',
+            'bank_docs.mimes' => 'Bank document must be a JPG, JPEG, PNG, or WEBP image.',
+            'bank_docs.max' => 'Bank document may not be larger than 2 MB.'
+        ]);
+
+        if ($validator->fails()) {
+            $errorMessage = $validator->errors()->first();
+            return redirect()->back()->withInput()->with('error', $errorMessage);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $update = $this->webHelper->createOrUpdateBankDetail($request, $userId, $bank?->business_info_id);
+
+            if ($update) {
+                $bankUpdateRequest->status = 'updated';
+                $bankUpdateRequest->save();
+
+                DB::commit();
+
+                return redirect()->back()->with('success', 'Bank Updated Successfully');
+            } else {
+                DB::rollBack();
+                return redirect()->back()->with('error', 'Bank not Updated');
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
         }
     }
 }
