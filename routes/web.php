@@ -88,7 +88,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     Route::get('/menus', [AdminController::class, 'menus'])->name('admin.menus');
     Route::put('/menus', [AdminController::class, 'updateMenu'])->name('admin.menus.update');
-   
 });
 
 // User routes

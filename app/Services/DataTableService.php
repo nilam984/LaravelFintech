@@ -117,7 +117,7 @@ class DataTableService
 
             'model' => User::class,
 
-            'with' => [],
+            'with' => ['reseller'],
 
             'query' => function ($query, $request) {
 

@@ -74,7 +74,7 @@
                         };
                     @endphp
 
-                    <div class="border border-slate-200 rounded-lg  {{$roleColor}}  px-3 py-2">
+                    <div class="border border-slate-200 rounded-lg  {{ $roleColor }}  px-3 py-2">
 
                         <div class="flex items-center gap-2">
                             <span class="text-sm font-medium text-slate-700">
@@ -184,7 +184,7 @@
 
                                             <div
                                                 class="w-8 h-8 rounded-lg
-                                                   bg-fintechCyan/10
+                                                   bg-fintechCyan/20
                                                    flex items-center
                                                    justify-center
                                                    flex-shrink-0">
@@ -311,8 +311,7 @@
                                                         <span
                                                             class="px-1.5 py-0.5
                                                                rounded
-                                                               bg-slate-100
-                                                               text-slate-400
+                                                               bg-yellow-400
                                                                text-[9px]
                                                                font-medium">
 
