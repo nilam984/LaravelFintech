@@ -79,4 +79,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(BussinessInfo::class, 'user_id');
     }
+
+    public function reseller()
+    {
+        return $this->belongsTo(User::class, 'reseller_id', 'id');
+    }
 }

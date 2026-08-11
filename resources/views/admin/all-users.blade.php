@@ -86,6 +86,8 @@
                         <th>Status</th>
                         <th>Created</th>
                         <th>Email Verified</th>
+                        <th>Registered By</th>
+                        <th>Reseller Name</th>
                         <th>View</th>
                         <th>Action</th>
                     </tr>
@@ -158,6 +160,30 @@
                                 '<span class="px-2 py-1 rounded bg-yellow-100 text-yellow-700 text-xs">NO</span>' :
                                 formatDateTime(data);
                         }
+                    },
+                    {
+                        data: 'registered_by',
+                        name: 'registered_by',
+                        render: function(data) {
+                            if (!data) return '';
+
+                            let capitalized = data.charAt(0).toUpperCase() + data.slice(1);
+
+                            let badgeClass = 'bg-gray-100 text-gray-800';
+                            if (data === 'admin') {
+                                badgeClass = 'bg-yellow-200 text-yellow-800';
+                            } else if (data === 'reseller') {
+                                badgeClass = 'bg-blue-200 text-blue-800';
+                            } else if (data === 'self') {
+                                badgeClass = 'bg-green-200 text-green-800';
+                            }
+
+                            return `<span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${badgeClass}">${capitalized}</span>`;
+                        }
+                    },
+                    {
+                        data: 'reseller.name',
+                        name: 'reseller.name'
                     },
                     {
                         data: null,

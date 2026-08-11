@@ -23,7 +23,7 @@ class MenuSeeder extends Seeder
             'name' => 'Dashboard',
             'slug' => 'dasboard',
             'route' => 'dashboard',
-            'icon' => 'bi-people',
+            'icon' => 'bi bi-speedometer',
             'visible_for' => 'default',
             'sort_order' => 1,
             'is_active' => true,
@@ -56,7 +56,7 @@ class MenuSeeder extends Seeder
             'slug' => 'load-money',
             'route' => 'admin.load.money',
             'icon' => null,
-            'visible_for' => 'admin,verification',
+            'visible_for' => 'admin',
             'sort_order' => 2,
             'is_active' => true,
         ]);
@@ -78,7 +78,7 @@ class MenuSeeder extends Seeder
             'slug' => 'service',
             'route' => null,
             'icon' => 'bi-gear-fill',
-            'visible_for' => 'admin,reseller',
+            'visible_for' => 'admin,user',
             'sort_order' => 3,
             'is_active' => true,
         ]);
@@ -97,11 +97,23 @@ class MenuSeeder extends Seeder
         Menu::create([
             'parent_id' => $service->id,
             'name' => 'Service Request',
-            'slug' => 'service-request',
+            'slug' => 'admiin-service-request',
             'route' => 'admin.service-request',
             'icon' => null,
             'visible_for' => 'admin,reseller',
             'sort_order' => 2,
+            'is_active' => true,
+        ]);
+
+
+        Menu::create([
+            'parent_id' => $service->id,
+            'name' => 'Service Request',
+            'slug' => 'user-service-request',
+            'route' => 'user.service-request',
+            'icon' => null,
+            'visible_for' => 'user',
+            'sort_order' => 3,
             'is_active' => true,
         ]);
 
@@ -212,24 +224,13 @@ class MenuSeeder extends Seeder
         ]);
 
 
-        $userService =  Menu::create([
-            'name' => 'Service',
-            'slug' => 'user-service',
-            'route' => null,
-            'icon' => 'bi-gear-fill',
-            'visible_for' => 'user',
-            'sort_order' => 10,
-            'is_active' => true,
-        ]);
-
         Menu::create([
-            'parent_id' => $userService->id,
-            'name' => 'Service Request',
-            'slug' => 'user-service-request',
-            'route' => 'user.service-request',
-            'icon' => null,
-            'visible_for' => 'user',
-            'sort_order' => 1,
+            'name' => 'Sidebar Menu',
+            'slug' => 'sidebar-menu',
+            'route' => 'admin.menus',
+            'icon' => 'bi bi-list',
+            'visible_for' => 'admin',
+            'sort_order' => 13,
             'is_active' => true,
         ]);
 
@@ -252,16 +253,6 @@ class MenuSeeder extends Seeder
             'icon' => 'bi-bank',
             'visible_for' => 'user',
             'sort_order' => 12,
-            'is_active' => true,
-        ]);
-
-        Menu::create([
-            'name' => 'Menu',
-            'slug' => 'menu',
-            'route' => 'admin.menus',
-            'icon' => 'bi-bank',
-            'visible_for' => 'admin',
-            'sort_order' => 13,
             'is_active' => true,
         ]);
     }
