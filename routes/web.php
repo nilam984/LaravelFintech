@@ -109,4 +109,8 @@ Route::prefix('user')->middleware('auth')->group(function () {
     Route::get('bank-update-request', [UserController::class, 'bankUpdateRequest'])->name('user.bank.update.request');
     Route::post('raise-request-bank-updation', [UserController::class, 'raiseRequestBankUpdation'])->name('raise.request.bank.updation');
     Route::post('update-user-bank', [UserController::class, 'updateUserBank'])->name('update.user.bank');
+
+    Route::get('upi-initiation', [UserController::class, 'upiInitiation'])->name('user.upi.initiation');
+    Route::get('upi-collection', [UserController::class, 'upiCollection'])->name('user.upi.collection');
+    Route::get('all-upi-transaction', [UserController::class, 'allUpitransaction'])->name('user.upi.transaction');
 });
