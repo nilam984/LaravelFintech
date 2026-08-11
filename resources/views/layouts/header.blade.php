@@ -69,43 +69,6 @@
 
         </div>
 
-
-
-        <!-- Notifications Menu Menu Dropdown Anchor -->
-        {{-- <div class="relative">
-            <button onclick="toggleNotificationMenu()"
-                class="w-10 h-10 rounded-full flex items-center justify-center relative hover:bg-white/5 transition text-white/80 hover:text-white">
-                <i class="bi bi-bell text-xl"></i>
-                <span class="absolute top-2 right-2.5 w-2 h-2 bg-fintechCyan rounded-full"></span>
-            </button>
-
-            <!-- Popover Menu Box Content -->
-            <div id="notificationMenu"
-                class="hidden absolute right-0 mt-3 w-80 sm:w-96 bg-fintechDropdownBg border border-white/10 rounded-2xl shadow-2xl p-4 z-50">
-                <div class="flex justify-between items-center pb-3 border-b border-white/10 mb-2">
-                    <h4 class="font-bold text-sm text-white">System Alerts</h4>
-                    <span class="text-xs text-fintechCyan cursor-pointer hover:underline">Clear Logs</span>
-                </div>
-                <div class="space-y-2 max-h-64 overflow-y-auto custom-scrollbar pr-1">
-                    <div class="p-2.5 rounded-xl hover:bg-white/5 transition flex gap-3 text-xs">
-                        <i class="bi bi-shield-fill-check text-fintechGreen text-base"></i>
-                        <div>
-                            <p class="text-white/90 font-medium">IP Authorization Verified</p>
-                            <p class="text-white/40 mt-0.5">Device authenticated securely from 192.168.1.90</p>
-                        </div>
-                    </div>
-                    <div class="p-2.5 rounded-xl hover:bg-white/5 transition flex gap-3 text-xs">
-                        <i class="bi bi-arrow-repeat text-fintechCyan text-base animate-spin"></i>
-                        <div>
-                            <p class="text-white/90 font-medium">Rebalancing Auto-Portfolio</p>
-                            <p class="text-white/40 mt-0.5">Asset distributions optimized successfully.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div> --}}
-
-        <!-- Custom User Profile Menu Dropdown Anchor -->
         <div class="relative">
             <button onclick="toggleProfileMenu()"
                 class="flex items-center gap-3 p-1.5 rounded-xl hover:bg-white/5 transition text-left">

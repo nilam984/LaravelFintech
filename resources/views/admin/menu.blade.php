@@ -16,19 +16,12 @@
             </div>
 
             <button type="submit" form="menuPermissionsForm"
-                class="inline-flex items-center gap-2
-                   bg-fintechCyan hover:bg-fintechCyanHover
-                   text-white px-4 py-2 rounded-lg
-                   transition">
+                class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg">
                 <i class="bi bi-check2-circle"></i>
                 Save Changes
             </button>
         </div>
 
-
-        {{-- ========================================================= --}}
-        {{-- PERMISSION LEGEND --}}
-        {{-- ========================================================= --}}
 
         <div class="bg-white border border-slate-200 rounded-xl p-4">
 
@@ -90,11 +83,6 @@
             </div>
         </div>
 
-
-        {{-- ========================================================= --}}
-        {{-- MENU PERMISSION TABLE --}}
-        {{-- ========================================================= --}}
-
         <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
 
             <form id="menuPermissionsForm" action="{{ route('admin.menus.update') }}" method="POST">
@@ -154,12 +142,6 @@
                                 </th>
                             </tr>
                         </thead>
-
-
-                        {{-- ================================================= --}}
-                        {{-- TABLE BODY --}}
-                        {{-- ================================================= --}}
-
                         <tbody class="divide-y divide-slate-100">
 
                             @foreach ($menus as $menu)
@@ -172,9 +154,6 @@
                                 @endphp
 
 
-                                {{-- ================================================= --}}
-                                {{-- PARENT MENU --}}
-                                {{-- ================================================= --}}
 
                                 <tr class="bg-slate-50/70 hover:bg-slate-100 transition">
 
@@ -265,10 +244,6 @@
 
                                 </tr>
 
-
-                                {{-- ================================================= --}}
-                                {{-- CHILD MENUS --}}
-                                {{-- ================================================= --}}
 
                                 @foreach ($menu->children as $child)
                                     @php
@@ -382,9 +357,6 @@
                             @endforeach
 
 
-                            {{-- ================================================= --}}
-                            {{-- EMPTY STATE --}}
-                            {{-- ================================================= --}}
 
                             @if ($menus->isEmpty())
                                 <tr>
