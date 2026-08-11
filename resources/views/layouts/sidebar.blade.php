@@ -16,7 +16,6 @@
         $menus = app(\App\Services\MenuService::class)->getMenusForCurrentUser();
     @endphp
 
-    <!-- Navigation Links Container -->
     <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto custom-scrollbar">
 
         @foreach ($menus as $menu)
@@ -42,10 +41,6 @@
 
                 $isActive = $menuActive || $childActive;
             @endphp
-
-            {{-- ========================================================= --}}
-            {{-- PARENT MENU WITH SUBMENUS --}}
-            {{-- ========================================================= --}}
 
             @if ($hasChildren)
                 <div class="space-y-1">
@@ -78,10 +73,6 @@
                     </button>
 
 
-                    {{-- ================================================= --}}
-                    {{-- SUBMENU CONTAINER --}}
-                    {{-- ================================================= --}}
-
                     <div
                         class="pl-9 pr-2 space-y-1
                     overflow-hidden transition-all duration-300
@@ -102,10 +93,6 @@
                         @endforeach
                     </div>
                 </div>
-
-                {{-- ========================================================= --}}
-                {{-- NORMAL MENU WITHOUT SUBMENUS --}}
-                {{-- ========================================================= --}}
             @else
                 @if ($menu->route)
                     <a href="{{ route($menu->route) }}"
