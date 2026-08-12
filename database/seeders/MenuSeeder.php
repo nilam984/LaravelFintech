@@ -123,7 +123,7 @@ class MenuSeeder extends Seeder
             'slug' => 'upi-services',
             'route' => null,
             'icon' => 'bi-upc-scan',
-            'visible_for' => 'admin',
+            'visible_for' => 'admin,user',
             'sort_order' => 4,
             'is_active' => true,
         ]);
@@ -160,6 +160,41 @@ class MenuSeeder extends Seeder
             'sort_order' => 3,
             'is_active' => true,
         ]);
+
+
+        Menu::create([
+            'parent_id' => $upi->id,
+            'name' => 'UPI Initiation',
+            'slug' => 'user-upi-initiation',
+            'route' => 'user.upi.initiation',
+            'icon' => null,
+            'visible_for' => 'user',
+            'sort_order' => 4,
+            'is_active' => true,
+        ]);
+
+        Menu::create([
+            'parent_id' => $upi->id,
+            'name' => 'UPI Collection',
+            'slug' => 'user-upi-collection',
+            'route' => 'user.upi.collection',
+            'icon' => null,
+            'visible_for' => 'user',
+            'sort_order' => 5,
+            'is_active' => true,
+        ]);
+
+        Menu::create([
+            'parent_id' => $upi->id,
+            'name' => 'All UPI Transaction',
+            'slug' => 'user-all-upi-transaction',
+            'route' => 'user.upi.transaction',
+            'icon' => null,
+            'visible_for' => 'user',
+            'sort_order' => 6,
+            'is_active' => true,
+        ]);
+
 
         $payout = Menu::create([
             'name' => 'Payout',
