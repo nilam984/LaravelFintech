@@ -12,6 +12,8 @@ use App\Models\ServiceRequest;
 use App\Models\WebHookUrl;
 use App\Models\LoadMoney;
 use Illuminate\Http\Request;
+use App\Models\PayinTransaction;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -462,5 +464,21 @@ class UserController extends Controller
             DB::rollBack();
             return redirect()->back()->withInput()->with('error', $e->getMessage());
         }
+    }
+
+
+    public function upiInitiation(){
+        $users = User::whereIn('id', PayinTransaction::select('user_id')->distinct())->orderBy('name')->get();
+        return view('user.upi-services.upi-initiation', compact('users'));
+    }
+
+    public function upiCollection(){
+        $users = User::whereIn('id', PayinTransaction::select('user_id')->distinct())->orderBy('name')->get();
+        return view('user.upi-services.payment-collection', compact('users'));
+    }
+
+    public function allUpitransaction(){
+        $users = User::whereIn('id', PayinTransaction::select('user_id')->distinct())->orderBy('name')->get();
+        return view('user.upi-services.all-upi-transaction', compact('users'));
     }
 }
