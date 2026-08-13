@@ -28,6 +28,8 @@ class User extends Authenticatable
         'main_wallet',
         'payin_wallet',
         'payout_wallet',
+        'registered_by',
+        'reseller_id',
         'email_otp',
         'email_otp_expire_at',
         'email_verified_at',

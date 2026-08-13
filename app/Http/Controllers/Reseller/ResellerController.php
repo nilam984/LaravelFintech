@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Reseller;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendUserOnboardingInitiatedMail;
 use App\Models\BussinessInfo;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\GlobalService;
 use App\Models\ResellerUser;
+use App\Models\ServiceRequest;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -25,7 +27,7 @@ class ResellerController extends Controller
             'name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'email', 'max:150'],
             'mobile' => ['required', 'regex:/^[6-9][0-9]{9}$/'],
-            'pan_no' => ['required', 'regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/'],
+            'pan_no' => ['required', 'regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/', 'unique:business_infos,pan', 'unique:business_infos,owner_pan'],
             'pan_image' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
         ], [
             'name.required' => 'Please enter the user name.',
@@ -69,23 +71,6 @@ class ResellerController extends Controller
         ]);
     }
 
-    public function getServices()
-    {
-        $services = GlobalService::with('costSetup')
-            ->whereHas('costSetup')
-            ->where('status', 1)
-            ->latest()
-            ->get();
-
-        $html = view('reseller.partials.services', compact('services'))->render();
-
-        return response()->json([
-            'status' => true,
-            'html' => $html,
-        ]);
-    }
-
-
     public function createPayment(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -93,7 +78,7 @@ class ResellerController extends Controller
             'email' => ['required', 'email', 'max:150'],
             'mobile' => ['required', 'regex:/^[6-9][0-9]{9}$/'],
             'pan_no' => ['required', 'regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/'],
-            // 'pan_image' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'pan_image' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
 
             'services' => ['required', 'array', 'min:1'],
             'services.*' => [
@@ -151,17 +136,25 @@ class ResellerController extends Controller
             }
 
 
-            $totalAmount = $services->sum(function ($service) {
+            $baseAmount = $services->sum(function ($service) {
                 return (float) ($service->costSetup->cost ?? 0);
             });
 
-            if ($totalAmount <= 0) {
+            if ($baseAmount <= 0) {
                 DB::rollBack();
                 return response()->json([
                     'status' => false,
                     'message' => 'Invalid payment amount.',
                 ], 422);
             }
+
+
+            // GST Calculation
+            $gstRate = 18;
+            $gstAmount = ($baseAmount * $gstRate) / 100;
+
+            // Final amount including GST
+            $grandTotal = $baseAmount + $gstAmount;
 
 
             $panImage = null;
@@ -178,7 +171,6 @@ class ResellerController extends Controller
                 strtoupper(Str::random(8));
 
             $order = SetupCostOrder::create([
-
                 'reseller_id' => Auth::id(),
                 'user_id' => null,
                 'name' => $request->name,
@@ -186,9 +178,10 @@ class ResellerController extends Controller
                 'mobile' => $request->mobile,
                 'pan_no' => strtoupper($request->pan_no),
                 'pan_image' => $panImage,
-
                 'service_ids' => $serviceIds->values()->toJson(),
-                'total_amount' => $totalAmount,
+                'amount' => $baseAmount,
+                'gst_amount' => $gstAmount,
+                'total_amount' => $grandTotal,
                 'status' => 'pending',
                 'gateway' => 'sabpaisa',
                 'gateway_order_id' => $merchantTxnId,
@@ -202,12 +195,12 @@ class ResellerController extends Controller
                 throw new \Exception('Unable to create payment order.');
             }
 
-            $merchantId = env('SABPAISA_MERCHANT_ID');
-            $apiKey = env('SABPAISA_API_KEY');
-            $secretKey = env('SABPAISA_SECRET_KEY');
-            $baseUrl = env('SABPAISA_BASE_URL');
+            $merchantId = config('sabpaisa.merchant_id');
+            $apiKey =     config('sabpaisa.api_key');
+            $secretKey =  config('sabpaisa.secret_key');
+            $baseUrl =    config('sabpaisa.base_url');
 
-            $amountInPaise = (int) round($totalAmount * 100);
+            $amountInPaise = (int) round($grandTotal * 100);
             $timestamp = time();
 
             $checksumString =
@@ -302,7 +295,7 @@ class ResellerController extends Controller
                 'order_id' => $order->id,
                 'merchant_txn_id' => $merchantTxnId,
                 'payment_id' => $paymentData['paymentId'],
-                'amount' => $totalAmount,
+                'amount' => $grandTotal,
 
                 'checkout_url' => $paymentData['checkoutUrl'],
                 'client_secret' => $paymentData['clientSecret'],
@@ -326,58 +319,279 @@ class ResellerController extends Controller
     }
 
 
-    public function storeUserAfterPayment(Request $request)
+    public function resellerReturn(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'payment_id' => ['required', 'string'],
-            'services' => ['required', 'array', 'min:1'],
-            'services.*' => ['required', 'integer', 'exists:global_services,id'],
+        $merchantTxnId = $request->input('merchant_txn_id');
 
-            'name' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'email', 'max:150'],
-            'mobile' => ['required', 'regex:/^[6-9][0-9]{9}$/'],
-            'pan_no' => ['required', 'regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/'],
-            'pan_image' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
-        ]);
+        if (!$merchantTxnId) {
+            Log::error('SabPaisa return: merchant transaction ID missing.', [
+                'response' => $request->all(),
+            ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => $validator->errors()->first(),
-            ], 422);
+            return redirect()
+                ->route('reseller.payment.result')
+                ->with([
+                    'payment_status' => 'failed',
+                    'message' => 'Invalid payment response received.',
+                ]);
         }
 
-        /*
-    |--------------------------------------------------------------------------
-    | IMPORTANT
-    |--------------------------------------------------------------------------
-    | Before creating the user, verify the payment with your payment gateway.
-    |
-    | Example:
-    |
-    | $payment = PaymentService::verify($request->payment_id);
-    |
-    | if (!$payment->successful) {
-    |     return response()->json(...);
-    | }
-    |
-    |--------------------------------------------------------------------------
-    */
+        $order = SetupCostOrder::where('gateway_order_id', $merchantTxnId)->first();
+
+        if (!$order) {
+            Log::error('SabPaisa return: order not found.', [
+                'merchant_txn_id' => $merchantTxnId,
+                'response' => $request->all(),
+            ]);
+
+            return redirect()
+                ->route('reseller.payment.result')
+                ->with([
+                    'payment_status' => 'failed',
+                    'message' => 'Payment order could not be found.',
+                    'merchant_txn_id' => $merchantTxnId,
+                ]);
+        }
+
+        if ($order->status === 'success' && $order->user_id) {
+            return redirect()
+                ->route('reseller.payment.result', ['order' => $order->id])
+                ->with([
+                    'payment_status' => 'success',
+                    'message' => 'Payment was already processed successfully.',
+                ]);
+        }
+
+        // Verify payment with SabPaisa
+        try {
+            $merchantId = config('sabpaisa.merchant_id');
+            $apiKey = config('sabpaisa.api_key');
+            $baseUrl = config('sabpaisa.base_url');
+            $clientCode = config('sabpaisa.client_code');
+
+            $enquiryResponse = Http::timeout(30)
+                ->withHeaders([
+                    'X-Api-Key' => $apiKey,
+                    'X-Merchant-Id' => $merchantId,
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                ])
+                ->post($baseUrl . '/api/v2/payments/enquiry', [
+                    'clientCode' => $clientCode,
+                    'merchantTxnId' => $merchantTxnId,
+                ]);
+
+            if (!$enquiryResponse->successful()) {
+                Log::error('SabPaisa payment enquiry failed.', [
+                    'order_id' => $order->id,
+                    'merchant_txn_id' => $merchantTxnId,
+                    'http_status' => $enquiryResponse->status(),
+                    'response' => $enquiryResponse->body(),
+                ]);
+
+                return redirect()
+                    ->route('reseller.payment.result', ['order' => $order->id])
+                    ->with([
+                        'payment_status' => 'failed',
+                        'message' => 'Unable to verify payment with payment gateway. Please contact support.',
+                    ]);
+            }
+
+            $payment = $enquiryResponse->json();
+        } catch (\Throwable $e) {
+            Log::error('SabPaisa enquiry exception.', [
+                'order_id' => $order->id,
+                'merchant_txn_id' => $merchantTxnId,
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()
+                ->route('reseller.payment.result', ['order' => $order->id])
+                ->with([
+                    'payment_status' => 'failed',
+                    'message' => 'Unable to verify payment at this time.',
+                ]);
+        }
+
+        // Validate merchant transaction ID
+        if (
+            empty($payment['merchantTxnId']) ||
+            $payment['merchantTxnId'] !== $order->gateway_order_id
+        ) {
+            Log::critical('SabPaisa merchant transaction ID mismatch.', [
+                'order_id' => $order->id,
+                'our_merchant_txn_id' => $order->gateway_order_id,
+                'gateway_merchant_txn_id' => $payment['merchantTxnId'] ?? null,
+            ]);
+
+            return redirect()
+                ->route('reseller.payment.result', ['order' => $order->id])
+                ->with([
+                    'payment_status' => 'failed',
+                    'message' => 'Payment verification failed. Please contact support.',
+                ]);
+        }
+
+        // Validate merchant ID
+        if (
+            empty($payment['merchantId']) ||
+            $payment['merchantId'] !== $merchantId
+        ) {
+            Log::critical('SabPaisa merchant ID mismatch.', [
+                'order_id' => $order->id,
+                'expected_merchant_id' => $merchantId,
+                'gateway_merchant_id' => $payment['merchantId'] ?? null,
+            ]);
+
+            return redirect()
+                ->route('reseller.payment.result', ['order' => $order->id])
+                ->with([
+                    'payment_status' => 'failed',
+                    'message' => 'Payment merchant verification failed. Please contact support.',
+                ]);
+        }
+
+        // Validate metadata
+        $metadata = $payment['metadata'] ?? [];
+
+        $gatewayOrderId = isset($metadata['order_id'])
+            ? (int) $metadata['order_id']
+            : null;
+
+        $gatewayResellerId = isset($metadata['reseller_id'])
+            ? (int) $metadata['reseller_id']
+            : null;
+
+        if ($gatewayOrderId !== (int) $order->id) {
+            Log::critical('SabPaisa order metadata mismatch.', [
+                'order_id' => $order->id,
+                'gateway_metadata_order_id' => $gatewayOrderId,
+            ]);
+
+            return redirect()
+                ->route('reseller.payment.result', ['order' => $order->id])
+                ->with([
+                    'payment_status' => 'failed',
+                    'message' => 'Payment order verification failed. Please contact support.',
+                ]);
+        }
+
+        if ($gatewayResellerId !== (int) $order->reseller_id) {
+            Log::critical('SabPaisa reseller metadata mismatch.', [
+                'order_id' => $order->id,
+                'order_reseller_id' => $order->reseller_id,
+                'gateway_reseller_id' => $gatewayResellerId,
+            ]);
+
+            return redirect()
+                ->route('reseller.payment.result', ['order' => $order->id])
+                ->with([
+                    'payment_status' => 'failed',
+                    'message' => 'Payment reseller verification failed. Please contact support.',
+                ]);
+        }
+
+        // Check final payment status
+        $gatewayStatus = strtoupper($payment['status'] ?? 'FAILED');
+
+        if ($gatewayStatus !== 'SUCCESS') {
+            $failureReason =
+                $payment['bankResponseMessage']
+                ?? $payment['statusMessage']
+                ?? $payment['message']
+                ?? $request->input('message')
+                ?? 'Payment was not successful.';
+
+            $order->update([
+                'status' => 'failed',
+                'gateway_payment_id' => $payment['txnId'] ?? $order->gateway_payment_id,
+                'gateway_signature' => $request->input('signature'),
+                'failure_reason' => $failureReason,
+            ]);
+
+            return redirect()
+                ->route('reseller.payment.result', ['order' => $order->id])
+                ->with([
+                    'payment_status' => 'failed',
+                    'message' => $failureReason,
+                ]);
+        }
+
+        // Verify payment amount
+        $gatewayAmountPaise = $payment['amountPaise'] ?? null;
+
+        if ($gatewayAmountPaise === null) {
+            Log::critical('SabPaisa amount missing from enquiry response.', [
+                'order_id' => $order->id,
+                'merchant_txn_id' => $merchantTxnId,
+                'payment_response' => $payment,
+            ]);
+
+            return redirect()
+                ->route('reseller.payment.result', ['order' => $order->id])
+                ->with([
+                    'payment_status' => 'failed',
+                    'message' => 'Payment amount could not be verified. Please contact support.',
+                ]);
+        }
+
+        $expectedAmountPaise = (int) round((float) $order->total_amount * 100);
+
+        if ((int) $gatewayAmountPaise !== $expectedAmountPaise) {
+            Log::critical('SabPaisa amount mismatch.', [
+                'order_id' => $order->id,
+                'merchant_txn_id' => $merchantTxnId,
+                'expected_amount' => $order->total_amount,
+                'expected_amount_paise' => $expectedAmountPaise,
+                'gateway_amount_paise' => $gatewayAmountPaise,
+            ]);
+
+            $order->update([
+                'status' => 'failed',
+                'failure_reason' => 'Payment amount mismatch.',
+            ]);
+
+            return redirect()
+                ->route('reseller.payment.result', ['order' => $order->id])
+                ->with([
+                    'payment_status' => 'failed',
+                    'message' => 'Payment amount verification failed. Please contact support.',
+                ]);
+        }
 
         DB::beginTransaction();
 
         try {
+            $order = SetupCostOrder::where('id', $order->id)
+                ->lockForUpdate()
+                ->first();
 
-            $password = substr($request->mobile, 2, 6);
+            if (!$order) {
+                throw new \Exception('Payment order no longer exists.');
+            }
+
+            if ($order->status === 'success' && $order->user_id) {
+                DB::commit();
+
+                return redirect()
+                    ->route('reseller.payment.result', ['order' => $order->id])
+                    ->with([
+                        'payment_status' => 'success',
+                        'message' => 'Payment was already processed successfully.',
+                    ]);
+            }
+
+            // Create user
+            $password = substr($order->mobile, 2, 6);
 
             $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'mobile' => $request->mobile,
+                'name' => $order->name,
+                'email' => $order->email,
+                'mobile' => $order->mobile,
                 'password' => Hash::make($password),
                 'role' => 'user',
                 'registered_by' => 'reseller',
-                'reseller_id' => Auth::id(),
+                'reseller_id' => $order->reseller_id,
                 'status' => true,
                 'email_verified_at' => now(),
             ]);
@@ -386,67 +600,102 @@ class ResellerController extends Controller
                 throw new \Exception('Unable to create user.');
             }
 
-            $panImage = null;
-
-            if ($request->hasFile('pan_image')) {
-                $panImage = $request->file('pan_image')
-                    ->store('uploads/user_pan', 'public');
-            }
-
+            // Save PAN information
             $business = BussinessInfo::updateOrCreate(
+                ['user_id' => $user->id],
                 [
-                    'user_id' =>  $user->id
-                ],
-                [
-                    'owner_pan' => $request->pan_no,
-                    'owner_pan_image' => $panImage,
+                    'owner_pan' => $order->pan_no,
+                    'owner_pan_image' => $order->pan_image,
                 ]
             );
 
             if (!$business) {
-                throw new \Exception('Unable to create user details.');
+                throw new \Exception('Unable to create user business information.');
             }
 
-            foreach ($request->services as $serviceId) {
+            // Get services
+            $serviceIds = json_decode($order->service_ids, true);
 
-                // Your service-user pivot table logic goes here.
-
-                // Example:
-                //
-                // UserService::create([
-                //     'user_id' => $user->id,
-                //     'service_id' => $serviceId,
-                // ]);
+            if (!is_array($serviceIds) || empty($serviceIds)) {
+                throw new \Exception('No services found for this payment order.');
             }
+
+            $serviceIds = collect($serviceIds)
+                ->map(fn($id) => (int) $id)
+                ->filter()
+                ->unique()
+                ->values();
+
+            // Assign services
+            foreach ($serviceIds as $serviceId) {
+
+                $data = [
+                    'user_id' => $user->id,
+                    'service_id' => $serviceId,
+                    'updated_by' => $user->id,
+                ];
+
+                ServiceRequest::create($data);
+            }
+
+            // Update payment order
+            $order->update([
+                'user_id' => $user->id,
+                'status' => 'success',
+                'gateway_payment_id' => $payment['txnId'] ?? $order->gateway_payment_id,
+                'gateway_signature' => $request->input('signature'),
+                'paid_at' => now(),
+                'failure_reason' => null,
+            ]);
 
             DB::commit();
 
-            return response()->json([
-                'status' => true,
-                'message' => 'User created successfully.',
-                'user_id' => $user->id,
-            ]);
-        } catch (\Throwable $e) {
+            // Send onboarding email through queue
+            SendUserOnboardingInitiatedMail::dispatch($order->id);
 
+            return redirect()
+                ->route('reseller.payment.result', ['order' => $order->id])
+                ->with([
+                    'payment_status' => 'success',
+                    'message' => 'Payment successful and customer onboarding has been initiated.',
+                ]);
+        } catch (\Throwable $e) {
             DB::rollBack();
 
-            Log::error('Reseller user creation failed.', [
-                'reseller_id' => Auth::id(),
-                'email' => $request->email,
+            Log::error('Reseller user creation after payment failed.', [
+                'order_id' => $order->id,
+                'merchant_txn_id' => $merchantTxnId,
+                'reseller_id' => $order->reseller_id,
                 'error' => $e->getMessage(),
                 'line' => $e->getLine(),
                 'file' => $e->getFile(),
             ]);
 
-            return response()->json([
-                'status' => false,
-                'message' => 'Unable to create user. Please try again.',
-            ], 500);
+            return redirect()
+                ->route('reseller.payment.result', ['order' => $order->id])
+                ->with([
+                    'payment_status' => 'failed',
+                    'message' => 'Payment was successful, but customer onboarding could not be completed. Please contact support.',
+                    'merchant_txn_id' => $merchantTxnId,
+                ]);
         }
     }
 
-    public function resellerReturn(Request $request)
+
+    public function paymentResult($order = null)
     {
-        dd($request->all());
+        $setupOrder = null;
+
+        if ($order) {
+            $setupOrder = SetupCostOrder::where('id', $order)
+                ->where('reseller_id', Auth::id())
+                ->first();
+        }
+
+        return view('reseller.payment-result', [
+            'order' => $setupOrder,
+            'status' => session('payment_status', 'failed'),
+            'message' => session('message', 'Unable to process payment.'),
+        ]);
     }
 }
