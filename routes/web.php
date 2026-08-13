@@ -11,8 +11,7 @@ use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\OauthUserController;
 use App\Http\Controllers\Admin\UpiServicesController;
 use App\Http\Controllers\Admin\PayoutController;
-
-
+use App\Http\Controllers\Reseller\ResellerController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -88,6 +87,13 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     Route::get('/menus', [AdminController::class, 'menus'])->name('admin.menus');
     Route::put('/menus', [AdminController::class, 'updateMenu'])->name('admin.menus.update');
+
+
+    // Reseller User 
+    Route::get('reseller-users', [AdminController::class, 'resellerUsers'])->name('admin.reseller.users');
+    Route::post('onboard-reseller', [AdminController::class, 'onboardReseller'])->name('admin.onboard.reseller');
+    Route::post('updated-reseller', [AdminController::class, 'updateReseller'])->name('admin.reseller.update');
+    Route::get('get-reseller/{id}', [AdminController::class, 'getReseller'])->name('get.reseller');
 });
 
 // User routes
@@ -114,3 +120,14 @@ Route::prefix('user')->middleware('auth')->group(function () {
     Route::get('upi-collection', [UserController::class, 'upiCollection'])->name('user.upi.collection');
     Route::get('all-upi-transaction', [UserController::class, 'allUpitransaction'])->name('user.upi.transaction');
 });
+
+
+Route::middleware(['auth'])->prefix('reseller')->middleware('auth')->group(function () {
+
+    Route::post('user/validate', [ResellerController::class, 'validateUser'])->name('reseller.user.validate');
+    Route::post('payment/create', [ResellerController::class, 'createPayment'])->name('reseller.payment.create');
+    Route::post('user/store', [ResellerController::class, 'storeUserAfterPayment'])->name('reseller.user.store');
+});
+
+
+Route::post('reseller-payment-return', [ResellerController::class, 'resellerReturn'])->name('reseller.payment.return');
