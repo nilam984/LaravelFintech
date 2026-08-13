@@ -85,7 +85,7 @@
 
             <p style="margin-top:25px; color:#475569; font-size:14px; line-height:1.6;">
                 We will continue processing your onboarding. You will receive further
-                communication once your account setup is completed.
+                communication once your account setup is completed. Please <a href="{{route('login.page')}}">Login</a> and change your Password for security reason.
             </p>
 
             <p style="margin-top:25px; color:#334155; font-size:14px;">

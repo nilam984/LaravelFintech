@@ -71,6 +71,23 @@ class ResellerController extends Controller
         ]);
     }
 
+
+    public function getServices()
+    {
+        $services = GlobalService::with('costSetup')
+            ->whereHas('costSetup')
+            ->where('status', 1)
+            ->latest()
+            ->get();
+
+        $html = view('reseller.partials.services', compact('services'))->render();
+
+        return response()->json([
+            'status' => true,
+            'html' => $html,
+        ]);
+    }
+
     public function createPayment(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -282,12 +299,6 @@ class ResellerController extends Controller
             ]);
 
             DB::commit();
-
-
-            $checkoutUrl =
-                $paymentData['checkoutUrl'] .
-                '?clientSecret=' .
-                urlencode($paymentData['clientSecret']);
 
             return response()->json([
                 'status' => true,
