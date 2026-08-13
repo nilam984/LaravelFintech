@@ -41,12 +41,35 @@ class MenuSeeder extends Seeder
 
         Menu::create([
             'parent_id' => $userManagement->id,
-            'name' => 'All Users',
-            'slug' => 'all-users',
+            'name' => 'Users',
+            'slug' => 'users',
             'route' => 'admin.all-users',
             'icon' => null,
-            'visible_for' => 'admin,verification',
+            'visible_for' => 'admin,verification,reseller',
             'sort_order' => 1,
+            'is_active' => true,
+        ]);
+
+
+        Menu::create([
+            'parent_id' => $userManagement->id,
+            'name' => 'Verification User',
+            'slug' => 'verification-user',
+            'route' => 'verification.user',
+            'icon' => null,
+            'visible_for' => 'admin',
+            'sort_order' => 2,
+            'is_active' => true,
+        ]);
+
+        Menu::create([
+            'parent_id' => $userManagement->id,
+            'name' => 'Reseller User',
+            'slug' => 'reseller-user',
+            'route' => 'admin.reseller.users',
+            'icon' => null,
+            'visible_for' => 'admin',
+            'sort_order' => 3,
             'is_active' => true,
         ]);
 
@@ -57,7 +80,7 @@ class MenuSeeder extends Seeder
             'route' => 'admin.load.money',
             'icon' => null,
             'visible_for' => 'admin',
-            'sort_order' => 2,
+            'sort_order' => 4,
             'is_active' => true,
         ]);
 
@@ -68,7 +91,7 @@ class MenuSeeder extends Seeder
             'route' => 'admin.bank.update.request',
             'icon' => null,
             'visible_for' => 'admin',
-            'sort_order' => 3,
+            'sort_order' => 5,
             'is_active' => true,
         ]);
 
@@ -100,7 +123,7 @@ class MenuSeeder extends Seeder
             'slug' => 'admiin-service-request',
             'route' => 'admin.service-request',
             'icon' => null,
-            'visible_for' => 'admin,reseller',
+            'visible_for' => 'admin',
             'sort_order' => 2,
             'is_active' => true,
         ]);
@@ -245,16 +268,6 @@ class MenuSeeder extends Seeder
             'icon' => 'bi-shuffle',
             'visible_for' => 'admin',
             'sort_order' => 8,
-            'is_active' => true,
-        ]);
-
-        Menu::create([
-            'name' => 'Verification Officer',
-            'slug' => 'verification-officer',
-            'route' => 'verification.user',
-            'icon' => 'bi-person-check-fill',
-            'visible_for' => 'admin',
-            'sort_order' => 9,
             'is_active' => true,
         ]);
 

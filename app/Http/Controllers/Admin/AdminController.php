@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\WelcomeResellerMail;
 use App\Models\BankDetail;
 use App\Models\BankUpdateRequest;
 use App\Models\BussinessInfo;
@@ -13,22 +14,28 @@ use App\Models\LoadMoney;
 use App\Models\Menu;
 use App\Models\OauthUser;
 use App\Models\PaymentGateway;
+use App\Models\ResellerDetail;
 use App\Models\ServiceProduct;
 use App\Models\User;
 use App\Models\WebHookUrl;
+use App\Services\MailService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
     public function allusers()
     {
-        return view('admin.all-users');
+        $services = GlobalService::with('costSetup')->whereHas('costSetup')->where('status', 1)->latest()->get();
+        return view('admin.all-users', compact('services'));
     }
 
     public function globalServices()
@@ -640,5 +647,365 @@ class AdminController extends Controller
         return redirect()
             ->back()
             ->with('success', 'Menu permissions updated successfully.');
+    }
+
+    public function resellerUsers()
+    {
+        return view('admin.reseller-user');
+    }
+
+    public function onboardReseller(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => ['required', 'string', 'max:100'],
+            'email' => ['required', 'email', 'max:150', Rule::unique('users')->where(function ($query) {
+                return $query->whereNotNull('email_verified_at');
+            })],
+            'mobile' => ['required', 'regex:/^[6-9][0-9]{9}$/'],
+            'aadhar_no' => ['required', 'digits:12'],
+            'pan_no' => ['required', 'regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/'],
+            'aadhar_front_image' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'aadhar_back_image' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'pan_image' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+        ], [
+            'name.required' => 'Please enter the reseller name.',
+            'name.string' => 'Name must be a valid text.',
+            'name.max' => 'Name cannot exceed 100 characters.',
+            'email.required' => 'Please enter an email address.',
+            'email.email' => 'Please enter a valid email address.',
+            'email.max' => 'Email cannot exceed 150 characters.',
+            'mobile.required' => 'Please enter the mobile number.',
+            'mobile.regex' => 'Mobile number must be a valid 10-digit Indian mobile number.',
+            'aadhar_no.required' => 'Please enter the Aadhaar number.',
+            'aadhar_no.digits' => 'Aadhaar number must be exactly 12 digits.',
+            'pan_no.required' => 'Please enter the PAN number.',
+            'pan_no.regex' => 'Please enter a valid PAN number. Example: ABCDE1234F.',
+            'aadhar_front_image.required' => 'Please upload the Aadhaar front image.',
+            'aadhar_front_image.image' => 'Aadhaar front must be a valid image.',
+            'aadhar_front_image.mimes' => 'Aadhaar front image must be JPG, JPEG, or PNG.',
+            'aadhar_front_image.max' => 'Aadhaar front image cannot be larger than 2 MB.',
+            'aadhar_back_image.required' => 'Please upload the Aadhaar back image.',
+            'aadhar_back_image.image' => 'Aadhaar back must be a valid image.',
+            'aadhar_back_image.mimes' => 'Aadhaar back image must be JPG, JPEG, or PNG.',
+            'aadhar_back_image.max' => 'Aadhaar back image cannot be larger than 2 MB.',
+            'pan_image.required' => 'Please upload the PAN image.',
+            'pan_image.image' => 'PAN image must be a valid image.',
+            'pan_image.mimes' => 'PAN image must be JPG, JPEG, or PNG.',
+            'pan_image.max' => 'PAN image cannot be larger than 2 MB.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+            $password = substr($request->mobile, 2, 6);
+
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'mobile' => $request->mobile,
+                'password' => Hash::make($password),
+                'role' => 'reseller',
+                'registered_by' => 'admin',
+                'status' => true,
+                'email_verified_at' => now(),
+            ]);
+
+            if (!$user) {
+                throw new \Exception('Unable to create reseller user.');
+            }
+
+            $resellerData = [
+                'reseller_id' => $user->id,
+                'aadhar_no' => $request->aadhar_no,
+                'pan_no' => $request->pan_no,
+                'updated_by' => Auth::id(),
+            ];
+
+            // Aadhaar Front
+            if ($request->hasFile('aadhar_front_image')) {
+                $resellerData['aadhar_front_image'] =
+                    $request->file('aadhar_front_image')
+                    ->store('uploads/reseller_images', 'public');
+            }
+
+            // Aadhaar Back
+            if ($request->hasFile('aadhar_back_image')) {
+                $resellerData['aadhar_back_image'] =
+                    $request->file('aadhar_back_image')
+                    ->store('uploads/reseller_images', 'public');
+            }
+
+            // PAN
+            if ($request->hasFile('pan_image')) {
+                $resellerData['pan_image'] =
+                    $request->file('pan_image')
+                    ->store('uploads/reseller_images', 'public');
+            }
+
+            $reseller = ResellerDetail::create($resellerData);
+
+            if (!$reseller) {
+                throw new \Exception('Unable to create reseller details.');
+            }
+
+            DB::commit();
+
+            try {
+                app(MailService::class)->send(
+                    to: $user->email,
+                    mailable: new WelcomeResellerMail(
+                        user: $user,
+                        password: $password
+                    ),
+                    name: $user->name
+                );
+            } catch (\Throwable $mailException) {
+                Log::error('Reseller welcome email failed.', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'error' => $mailException->getMessage(),
+                ]);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Reseller Onboarded Successfully'
+            ]);
+        } catch (\Throwable $e) {
+
+            DB::rollBack();
+
+            Log::error('Reseller onboarding failed.', [
+                'email' => $request->email,
+                'error' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+            ]);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Unable to onboard reseller : ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function updateReseller(Request $request)
+    {
+
+        $user = User::find($request->user_id);
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Reseller user not found.'
+            ], 422);
+        }
+
+        $reseller = ResellerDetail::where('reseller_id', $user->id)->first();
+
+        if (!$reseller) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Reseller details not found.'
+            ], 422);
+        }
+
+        $aadharFrontRule = $reseller->aadhar_front_image  ? ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048']  : ['required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'];
+        $aadharBackRule = $reseller->aadhar_back_image  ? ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048']  : ['required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'];
+        $panImageRule = $reseller->pan_image   ? ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048']   : ['required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'];
+
+        $validator = Validator::make($request->all(), [
+            'user_id' => ['required', 'exists:users,id'],
+            'name' => ['required', 'string', 'max:100'],
+            'email' => [
+                'required',
+                'email',
+                'max:150',
+                Rule::unique('users')
+                    ->ignore($request->user_id)
+                    ->where(function ($query) {
+                        return $query->whereNotNull('email_verified_at');
+                    })
+            ],
+
+            'mobile' => ['required', 'regex:/^[6-9][0-9]{9}$/'],
+            'aadhar_no' => ['required', 'digits:12'],
+            'pan_no' => ['required', 'regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/'],
+            'aadhar_front_image' => $aadharFrontRule,
+            'aadhar_back_image' => $aadharBackRule,
+            'pan_image' => $panImageRule,
+        ], [
+
+            'user_id.required' => 'Invalid reseller user.',
+            'user_id.exists' => 'Reseller user not found.',
+
+            'name.required' => 'Please enter the reseller name.',
+            'name.string' => 'Name must be a valid text.',
+            'name.max' => 'Name cannot exceed 100 characters.',
+
+            'email.required' => 'Please enter an email address.',
+            'email.email' => 'Please enter a valid email address.',
+            'email.max' => 'Email cannot exceed 150 characters.',
+            'email.unique' => 'This email is already registered.',
+
+            'mobile.required' => 'Please enter the mobile number.',
+            'mobile.regex' => 'Mobile number must be a valid 10-digit Indian mobile number.',
+
+            'aadhar_no.required' => 'Please enter the Aadhaar number.',
+            'aadhar_no.digits' => 'Aadhaar number must be exactly 12 digits.',
+
+            'pan_no.required' => 'Please enter the PAN number.',
+            'pan_no.regex' => 'Please enter a valid PAN number. Example: ABCDE1234F.',
+
+            'aadhar_front_image.required' => 'Please upload the Aadhaar front image.',
+            'aadhar_front_image.image' => 'Aadhaar front must be a valid image.',
+            'aadhar_front_image.mimes' => 'Aadhaar front image must be JPG, JPEG, or PNG.',
+            'aadhar_front_image.max' => 'Aadhaar front image cannot be larger than 2 MB.',
+
+            'aadhar_back_image.required' => 'Please upload the Aadhaar back image.',
+            'aadhar_back_image.image' => 'Aadhaar back must be a valid image.',
+            'aadhar_back_image.mimes' => 'Aadhaar back image must be JPG, JPEG, or PNG.',
+            'aadhar_back_image.max' => 'Aadhaar back image cannot be larger than 2 MB.',
+
+            'pan_image.required' => 'Please upload the PAN image.',
+            'pan_image.image' => 'PAN image must be a valid image.',
+            'pan_image.mimes' => 'PAN image must be JPG, JPEG, or PNG.',
+            'pan_image.max' => 'PAN image cannot be larger than 2 MB.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+            $user->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'mobile' => $request->mobile,
+            ]);
+
+            $reseller->aadhar_no = $request->aadhar_no;
+            $reseller->pan_no = $request->pan_no;
+            $reseller->updated_by = Auth::id();
+
+            if ($request->hasFile('aadhar_front_image')) {
+
+                if ($reseller->aadhar_front_image && Storage::disk('public')->exists($reseller->aadhar_front_image)) {
+                    Storage::disk('public')->delete(
+                        $reseller->aadhar_front_image
+                    );
+                }
+
+                $reseller->aadhar_front_image = $request->file('aadhar_front_image')->store('uploads/reseller_images', 'public');
+            }
+
+            if ($request->hasFile('aadhar_back_image')) {
+
+                if ($reseller->aadhar_back_image &&  Storage::disk('public')->exists($reseller->aadhar_back_image)) {
+                    Storage::disk('public')->delete(
+                        $reseller->aadhar_back_image
+                    );
+                }
+
+                $reseller->aadhar_back_image =  $request->file('aadhar_back_image')->store('uploads/reseller_images', 'public');
+            }
+
+            if ($request->hasFile('pan_image')) {
+
+                if ($reseller->pan_image && Storage::disk('public')->exists($reseller->pan_image)) {
+                    Storage::disk('public')->delete(
+                        $reseller->pan_image
+                    );
+                }
+
+                $reseller->pan_image =  $request->file('pan_image')->store('uploads/reseller_images', 'public');
+            }
+
+            $reseller->save();
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Reseller updated successfully.'
+            ]);
+        } catch (\Throwable $e) {
+
+            DB::rollBack();
+
+            Log::error('Reseller update failed.', [
+                'user_id' => $request->user_id,
+                'email' => $request->email,
+                'error' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+            ]);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Unable to update reseller : ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getReseller($id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Reseller user not found.'
+            ], 404);
+        }
+
+        $reseller = ResellerDetail::where('reseller_id', $user->id)->first();
+
+        if (!$reseller) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Reseller details not found.'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'mobile' => $user->mobile,
+
+                'aadhar_no' => $reseller->aadhar_no,
+                'pan_no' => $reseller->pan_no,
+
+                'aadhar_front_image' => $reseller->aadhar_front_image
+                    ? asset('storage/' . $reseller->aadhar_front_image)
+                    : null,
+
+                'aadhar_back_image' => $reseller->aadhar_back_image
+                    ? asset('storage/' . $reseller->aadhar_back_image)
+                    : null,
+
+                'pan_image' => $reseller->pan_image
+                    ? asset('storage/' . $reseller->pan_image)
+                    : null,
+            ]
+        ]);
     }
 }

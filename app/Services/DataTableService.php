@@ -121,7 +121,16 @@ class DataTableService
 
             'query' => function ($query, $request) {
 
-                return $query->where('role', 'user');
+                $role = Auth::user()->role;
+                $Id = Auth::id();
+
+                if ($role === 'reseller') {
+                    $query =  $query->where('role', 'user')->where('reseller_id', $Id);
+                } elseif ($role === 'admin' || $role === 'verification') {
+                    $query =  $query->where('role', 'user');
+                }
+
+                return $query;
             },
 
         ];
@@ -441,6 +450,22 @@ class DataTableService
             'query' => function ($query, $request) {
 
                 return $query->where('role', 'verification');
+            },
+
+        ];
+    }
+
+    protected function resellerUser()
+    {
+        return [
+
+            'model' => User::class,
+
+            'with' => [],
+
+            'query' => function ($query, $request) {
+
+                return $query->where('role', 'reseller');
             },
 
         ];

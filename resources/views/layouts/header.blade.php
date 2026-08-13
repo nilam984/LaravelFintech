@@ -96,6 +96,8 @@
                     $route = route('user.user-profile');
                 } elseif (auth()->check() && auth()->user()->role == 'verification') {
                     $route = route('admin.profile');
+                } elseif (auth()->check() && auth()->user()->role == 'reseller') {
+                    $route = route('admin.profile');
                 }
             @endphp
 
