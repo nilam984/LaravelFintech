@@ -15,6 +15,8 @@ class SetupCostOrder extends Model
         'pan_no',
         'pan_image',
         'service_ids',
+        'amount',
+        'gst_amount',
         'total_amount',
         'status',
         'gateway',
@@ -27,6 +29,8 @@ class SetupCostOrder extends Model
 
     protected $casts = [
         'service_ids' => 'array',
+        'amount' => 'decimal:2',
+        'gst_amount' => 'decimal:2',
         'total_amount' => 'decimal:2',
         'paid_at' => 'datetime',
     ];

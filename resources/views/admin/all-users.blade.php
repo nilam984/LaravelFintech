@@ -290,12 +290,45 @@
                                 <h4 class="text-sm font-semibold text-slate-800">Selected Services</h4>
                             </div>
                             <div id="finalServiceList" class="divide-y divide-slate-100">{{-- JS will populate this --}}</div>
-                            {{-- Total --}}
-                            <div class="bg-slate-50 px-5 py-4">
+
+                            {{-- Payment Summary --}}
+                            <div class="bg-slate-50 px-5 py-4 space-y-3">
+
+                                {{-- Service Setup Cost --}}
                                 <div class="flex items-center justify-between">
-                                    <span class="text-sm font-semibold text-slate-700"> Total Setup Cost </span>
-                                    <span id="finalTotal" class="text-xl font-bold text-cyan-600"> ₹0.00 </span>
+                                    <span class="text-sm text-slate-600">
+                                        Service Setup Cost
+                                    </span>
+
+                                    <span id="finalSetupCost" class="text-sm font-semibold text-slate-800">
+                                        ₹0.00
+                                    </span>
                                 </div>
+
+                                {{-- GST --}}
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-slate-600">
+                                        GST (18%)
+                                    </span>
+
+                                    <span id="finalGst" class="text-sm font-semibold text-slate-800">
+                                        ₹0.00
+                                    </span>
+                                </div>
+
+                                {{-- Total Payable --}}
+                                <div class="border-t border-slate-200 pt-3">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm font-semibold text-slate-700">
+                                            Total Payable
+                                        </span>
+
+                                        <span id="finalTotal" class="text-xl font-bold text-cyan-600">
+                                            ₹0.00
+                                        </span>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                         {{-- Payment Notice --}}
@@ -1051,11 +1084,8 @@
                 // CUSTOMER VALIDATION
 
                 function validateCustomerStep() {
-
                     clearUserErrors();
-
                     let valid = true;
-
                     let name = $('#user_name').val().trim();
                     let email = $('#user_email').val().trim();
                     let mobile = $('#user_mobile').val().trim();
@@ -1127,26 +1157,20 @@
                 //  SERVICE VALIDATION
 
                 function validateServiceStep() {
-
                     let selectedServices =
                         $('.service-checkbox:checked').length;
-
                     if (selectedServices === 0) {
                         ToastEngine.show(
                             'Please select at least one service.',
                             'error'
                         );
-
                         return false;
                     }
                     return true;
                 }
 
 
-
                 //    PREPARE FINAL SUMMARY
-
-
                 function prepareFinalSummary() {
 
                     $('#summaryName')
@@ -1210,20 +1234,32 @@
 
                     $('#finalServiceList').html(html);
 
-                    $('#finalTotal').text(
+                    // GST Calculation
+                    const gstRate = 18;
+                    const gstAmount = total * gstRate / 100;
+                    const grandTotal = total + gstAmount;
+
+                    // Service Setup Cost
+                    $('#finalSetupCost').text(
                         formatCurrency(total)
+                    );
+
+                    // GST Amount
+                    $('#finalGst').text(
+                        formatCurrency(gstAmount)
+                    );
+
+                    // Final Payable Amount
+                    $('#finalTotal').text(
+                        formatCurrency(grandTotal)
                     );
 
                     $('#payButtonAmount').text(
-                        formatCurrency(total)
+                        formatCurrency(grandTotal)
                     );
                 }
 
-
-
                 //    UPDATE WIZARD UI
-
-
                 function updateUserWizard() {
 
                     // Hide all steps
@@ -1238,7 +1274,6 @@
                         .removeClass('bg-cyan-600 text-white')
                         .addClass('bg-slate-200 text-slate-500');
 
-
                     // Activate indicators
                     for (let i = 1; i <= currentStep; i++) {
                         $('#stepIndicator' + i)
@@ -1250,7 +1285,6 @@
                     $('#stepLine1, #stepLine2')
                         .removeClass('bg-cyan-600')
                         .addClass('bg-slate-200');
-
 
                     if (currentStep >= 2) {
                         $('#stepLine1')
@@ -1296,32 +1330,19 @@
                     }
                 }
 
-
-                //    PAY BUTTON
-
-
+                //  PAY BUTTON
                 $('#payUserBtn').on('click', function() {
 
                     let button = $(this);
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | 1. Validate Customer Details
-                    |--------------------------------------------------------------------------
-                    */
-
+                    // 1. Validate Customer Details
                     if (!validateCustomerStep()) {
                         currentStep = 1;
                         updateUserWizard();
                         return;
                     }
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | 2. Validate Services
-                    |--------------------------------------------------------------------------
-                    */
-
+                    // 2. Validate Services
                     let selectedServices = [];
 
                     $('.service-checkbox:checked').each(function() {
@@ -1329,32 +1350,19 @@
                     });
 
                     if (selectedServices.length === 0) {
-
                         ToastEngine.show(
                             'Please select at least one service.',
                             'error'
                         );
-
                         currentStep = 2;
                         updateUserWizard();
-
                         return;
                     }
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | 3. Calculate Total For UI
-                    |--------------------------------------------------------------------------
-                    |
-                    | Backend will calculate the actual amount again.
-                    | Never trust this frontend amount for payment.
-                    |
-                    */
+                    // 3. Calculate Total For UI
 
                     let totalAmount = 0;
-
                     $('.service-checkbox:checked').each(function() {
-
                         totalAmount += parseFloat(
                             $(this).data('service-amount')
                         ) || 0;
@@ -1362,153 +1370,87 @@
                     });
 
                     if (totalAmount <= 0) {
-
                         ToastEngine.show(
                             'Invalid payment amount.',
                             'error'
                         );
-
                         return;
                     }
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | 4. Create FormData
-                    |--------------------------------------------------------------------------
-                    */
-
+                    // 4. Create FormData
                     let form = $('#addUserForm')[0];
-
                     let formData = new FormData(form);
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | 5. Add Selected Services
-                    |--------------------------------------------------------------------------
-                    */
-
+                    // 5. Add Selected Services
                     // Remove any existing services first
                     formData.delete('services[]');
 
                     $('.service-checkbox:checked').each(function() {
-
                         formData.append(
                             'services[]',
                             $(this).val()
                         );
-
                     });
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | 6. Disable Payment Button
-                    |--------------------------------------------------------------------------
-                    */
+                    // 6. Disable Payment Button
+                    button.prop('disabled', true).html(
+                        '<i class="bi bi-arrow-repeat animate-spin"></i> Initiating Payment...'
+                    );
 
-                    button
-                        .prop('disabled', true)
-                        .html(
-                            '<i class="bi bi-arrow-repeat animate-spin"></i> Initiating Payment...'
-                        );
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | 7. Create SabPaisa Payment
-                    |--------------------------------------------------------------------------
-                    */
-
+                    // 7. Create SabPaisa Payment
                     $.ajax({
 
                         url: "{{ route('reseller.payment.create') }}",
-
                         type: "POST",
-
                         data: formData,
-
                         processData: false,
-
                         contentType: false,
-
                         success: function(response) {
-
-                            console.log(
-                                'Payment Response:',
-                                response
-                            );
-
+                            console.log('Payment Response:', response);
                             if (response.status) {
 
-                                /*
-                                |--------------------------------------------------------------------------
-                                | SabPaisa Checkout URL
-                                |--------------------------------------------------------------------------
-                                */
+                                // SabPaisa Checkout URL
 
-                                let checkoutUrl =
-                                    response.checkout_url +
+                                let checkoutUrl = response.checkout_url +
                                     '?clientSecret=' +
                                     encodeURIComponent(
                                         response.client_secret
                                     );
+                                console.log('SabPaisa Checkout URL:', checkoutUrl);
 
-                                console.log(
-                                    'SabPaisa Checkout URL:',
-                                    checkoutUrl
-                                );
-
-                                /*
-                                |--------------------------------------------------------------------------
-                                | Redirect To SabPaisa
-                                |--------------------------------------------------------------------------
-                                */
-
+                                // Redirect To SabPaisa
                                 window.location.href = checkoutUrl;
-
                             } else {
-
                                 ToastEngine.show(
                                     response.message ||
                                     'Unable to initiate payment.',
                                     'error'
                                 );
-
                                 resetPayButton();
                             }
                         },
 
                         error: function(xhr) {
-
                             console.error(
                                 'Payment Error:',
                                 xhr
                             );
-
                             let message =
                                 xhr.responseJSON?.message ||
                                 'Unable to initiate payment.';
-
                             ToastEngine.show(
                                 message,
                                 'error'
                             );
-
                             resetPayButton();
                         }
                     });
                 });
 
-
                 function resetPayButton() {
-
                     let button = $('#payUserBtn');
-
-                    button
-                        .prop('disabled', false)
-                        .html(
-                            'Pay <span id="payButtonAmount">' +
-                            $('#finalTotal').text() +
-                            '</span>'
-                        );
+                    button.prop('disabled', false).html('Pay <span id="payButtonAmount">' + $('#finalTotal').text() +
+                        '</span>');
                 }
 
                 function clearUserErrors() {
@@ -1526,12 +1468,13 @@
                     $('.service-checkbox').prop('checked', false);
                     $('#selectedServiceCount').text('0 Services');
                     $('#serviceSelectionTotal').text('₹0.00');
+                    $('#finalSetupCost').text('₹0.00');
+                    $('#finalGst').text('₹0.00');
                     $('#finalTotal').text('₹0.00');
                     $('#payButtonAmount').text('₹0.00');
                     $('#finalServiceList').html('');
                     updateUserWizard();
                 }
-
 
                 function formatCurrency(amount) {
                     return '₹' + Number(amount).toLocaleString(
@@ -1546,14 +1489,9 @@
 
                 function validateUserOnServer() {
                     let button = $('#nextUserStep');
-
                     let form = $('#addUserForm')[0];
                     let formData = new FormData(form);
-
-                    button
-                        .prop('disabled', true)
-                        .html('<i class="bi bi-hourglass-split"></i> Checking...');
-
+                    button.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Checking...');
                     $.ajax({
                         url: "{{ route('reseller.user.validate') }}",
                         type: "POST",
@@ -1578,13 +1516,11 @@
                             ToastEngine.show(message, 'error');
                         },
                         complete: function() {
-                            button
-                                .prop('disabled', false)
-                                .html('Continue <i class="bi bi-arrow-right"></i>');
+                            button.prop('disabled', false).html(
+                                'Continue <i class="bi bi-arrow-right"></i>');
                         }
                     });
                 }
-
             });
         </script>
 

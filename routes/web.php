@@ -126,8 +126,8 @@ Route::middleware(['auth'])->prefix('reseller')->middleware('auth')->group(funct
 
     Route::post('user/validate', [ResellerController::class, 'validateUser'])->name('reseller.user.validate');
     Route::post('payment/create', [ResellerController::class, 'createPayment'])->name('reseller.payment.create');
-    Route::post('user/store', [ResellerController::class, 'storeUserAfterPayment'])->name('reseller.user.store');
+    Route::get('/reseller/payment/result/{order?}', [ResellerController::class, 'paymentResult'])->name('reseller.payment.result');
 });
 
 
-Route::post('reseller-payment-return', [ResellerController::class, 'resellerReturn'])->name('reseller.payment.return');
+Route::get('reseller-payment-return', [ResellerController::class, 'resellerReturn'])->name('reseller.payment.return');
