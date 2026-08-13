@@ -12,11 +12,24 @@ use App\Http\Controllers\User\OauthUserController;
 use App\Http\Controllers\Admin\UpiServicesController;
 use App\Http\Controllers\Admin\PayoutController;
 use App\Http\Controllers\Reseller\ResellerController;
+use Illuminate\Support\Facades\Artisan;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
+
+Route::get('/clear-cache', function () {
+    Artisan::call('cache:clear');
+    Artisan::call('route:clear');
+    Artisan::call('config:clear');
+    Artisan::call('view:clear');
+
+    return response()->json([
+        'status'  => 'success',
+        'message' => 'Application cache cleared successfully.'
+    ]);
+});
 Route::post('/register', [AuthController::class, 'register'])->name('register');
 
 Route::controller(AuthController::class)->group(function () {
@@ -127,6 +140,7 @@ Route::middleware(['auth'])->prefix('reseller')->middleware('auth')->group(funct
     Route::post('user/validate', [ResellerController::class, 'validateUser'])->name('reseller.user.validate');
     Route::post('payment/create', [ResellerController::class, 'createPayment'])->name('reseller.payment.create');
     Route::get('/reseller/payment/result/{order?}', [ResellerController::class, 'paymentResult'])->name('reseller.payment.result');
+    Route::get('/get/service', [ResellerController::class, 'getServices'])->name('get.services');
 });
 
 
