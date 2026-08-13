@@ -14,12 +14,9 @@
 
         <div class="overflow-x-auto">
 
-            <!-- Filters -->
-            <!-- Filters -->
             <div class="bg-white border border-slate-200 rounded-xl p-4 mb-3">
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
 
-                    <!-- User -->
                     <select id="user_id" class="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm bg-white">
                         <option value="">All Users</option>
 
@@ -30,19 +27,15 @@
                         @endforeach
                     </select>
 
-                    <!-- Search -->
                     <input type="text" id="search_key" placeholder="Search..."
                         class="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm">
 
-                    <!-- From Date -->
                     <input type="date" id="from_date"
                         class="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm">
 
-                    <!-- To Date -->
                     <input type="date" id="to_date"
                         class="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm">
 
-                    <!-- Reset -->
                     <button id="resetBtn" class="border border-slate-300 hover:bg-slate-100 rounded-lg">
                         Reset
                     </button>
@@ -50,7 +43,6 @@
                 </div>
             </div>
 
-            <!-- Table -->
             <div class="bg-white border rounded-xl overflow-hidden p-3">
 
                 <table class="min-w-full" id="upiInitiationTable">
@@ -68,21 +60,15 @@
                         </tr>
                     </thead>
                 </table>
-
             </div>
-
         </div>
-
     </div>
-
 @endsection
 
 
 @section('scripts')
-
     <script>
         let table;
-
         $(function() {
             table = $('#upiInitiationTable').DataTable({
                 processing: true,
@@ -101,7 +87,6 @@
 
                     }
                 },
-
                 columns: [{
                         data: null,
                         orderable: false,
@@ -110,28 +95,12 @@
                             return meta.row + meta.settings._iDisplayStart + 1;
                         }
                     },
-                    {
-                        data: 'payer_name'
-                    },
-                    {
-                        data: 'payer_email'
-                    },
-                    {
-                        data: 'user_order_id'
-                    },
-
-                    {
-                        data: 'payment_reference_id'
-                    },
-
-                    {
-                        data: 'payer_mobile'
-                    },
-
-                    {
-                        data: 'amount'
-                    },
-
+                    {data: 'payer_name'},
+                    {data: 'payer_email'},
+                    {data: 'user_order_id'},
+                    {data: 'payment_reference_id'},
+                    {data: 'payer_mobile'},
+                    {data: 'amount'},
                     {
                         data: 'status',
                         render: function() {
@@ -139,9 +108,7 @@
                             return `
                         <span class="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
                             Initiated
-                        </span>
-                    `;
-
+                        </span> `;
                         }
                     },
 

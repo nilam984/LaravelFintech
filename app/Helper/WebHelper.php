@@ -80,6 +80,31 @@ class WebHelper
                 'max:2048'
             ],
 
+            'inside_image' => [
+                $existingBusiness && $existingBusiness->inside_image ? 'nullable' : 'required',
+                'image',
+                'mimes:jpg,jpeg,png',
+                'max:2048'
+            ],
+            'outside_image' => [
+                $existingBusiness && $existingBusiness->outside_image ? 'nullable' : 'required',
+                'image',
+                'mimes:jpg,jpeg,png',
+                'max:2048'
+            ],
+            'signed_moa_image' => [
+                $existingBusiness && $existingBusiness->signed_moa_image ? 'nullable' : 'required',
+                'image',
+                'mimes:jpg,jpeg,png',
+                'max:2048'
+            ],
+            'signed_aoa_image' => [
+                $existingBusiness && $existingBusiness->signed_aoa_image ? 'nullable' : 'required',
+                'image',
+                'mimes:jpg,jpeg,png',
+                'max:2048'
+            ],
+
 
             // Bank Details
             'bank_name' => 'required|string|max:255',
@@ -143,6 +168,10 @@ class WebHelper
             $businessData['owner_pan_image'] = $existingBusiness?->owner_pan_image;
             $businessData['owner_aadhar_image_front'] = $existingBusiness?->owner_aadhar_image_front;
             $businessData['owner_aadhar_image_back'] = $existingBusiness?->owner_aadhar_image_back;
+            $businessData['inside_image'] = $existingBusiness?->inside_image;
+            $businessData['outside_image'] = $existingBusiness?->outside_image;
+            $businessData['signed_moa_image'] = $existingBusiness?->signed_moa_image;
+            $businessData['signed_aoa_image'] = $existingBusiness?->signed_aoa_image;
 
             if ($request->hasFile('pan_image')) {
                 $businessData['pan_image'] = $request->file('pan_image')->store('uploads/pan_images', 'public');
@@ -158,6 +187,22 @@ class WebHelper
 
             if ($request->hasFile('owner_aadhar_image_back')) {
                 $businessData['owner_aadhar_image_back'] = $request->file('owner_aadhar_image_back')->store('uploads/owner_aadhar_images', 'public');
+            }
+
+            if ($request->hasFile('inside_image')) {
+                $businessData['inside_image'] = $request->file('inside_image')->store('uploads/inside_images', 'public');
+            }
+
+            if ($request->hasFile('outside_image')) {
+                $businessData['outside_image'] = $request->file('outside_image')->store('uploads/outside_images', 'public');
+            }
+
+            if ($request->hasFile('signed_moa_image')) {
+                $businessData['signed_moa_image'] = $request->file('signed_moa_image')->store('uploads/signed_moa_images', 'public');
+            }
+
+            if ($request->hasFile('signed_aoa_image')) {
+                $businessData['signed_aoa_image'] = $request->file('signed_aoa_image')->store('uploads/signed_aoa_images', 'public');
             }
 
             $business = BussinessInfo::updateOrCreate(

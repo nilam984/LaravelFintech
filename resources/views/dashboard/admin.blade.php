@@ -4,12 +4,7 @@
 
 @section('content')
 
-
-
-    <!-- ==================== MAIN CONTENT MASTER COMPONENT ==================== -->
     <main class="p-4 sm:p-8 space-y-6">
-
-        <!-- Welcome Title Area -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
                 <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-fintechDarkText">Admin Dashboard</h1>
@@ -198,7 +193,4 @@
         </div> --}}
 
     </main>
-
-
-
 @endsection

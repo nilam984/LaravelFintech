@@ -9,10 +9,6 @@
             </div>
         </div>
         <div class="bg-white rounded-xl shadow">
-            <div class="bg-white rounded-2xl  p-3 mb-6">
-                <div class="flex flex-wrap gap-3">
-                </div>
-            </div>
             <div class="p-5">
                 <div id="user-details" class="tab-content">
                     @include('user.user-details')
@@ -20,5 +16,4 @@
             </div>
         </div>
     </div>
-
 @endsection

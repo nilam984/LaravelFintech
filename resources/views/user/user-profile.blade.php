@@ -331,7 +331,7 @@
                                                 </div>
                                                 <input id="owner_pan_image" type="file" name="owner_pan_image"
                                                     class="w-full border rounded-lg p-1.5 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold
-                                            file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100">
+                                                  file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100">
                                             </div>
                                             <div>
                                                 <div class="flex items-center justify-between mb-2">
@@ -351,7 +351,7 @@
                                                 <input id="owner_aadhar_image_front" type="file"
                                                     name="owner_aadhar_image_front"
                                                     class="w-full border rounded-lg p-1.5 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-cyan-50 file:text-cyan-700
-                                           hover:file:bg-cyan-100">
+                                                    hover:file:bg-cyan-100">
                                             </div>
                                             <div>
                                                 <div class="flex items-center justify-between mb-2">
@@ -372,6 +372,80 @@
                                                     name="owner_aadhar_image_back"
                                                     class="w-full border rounded-lg p-1.5 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100">
                                             </div>
+                                            <div>
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <label for="inside_image"
+                                                        class="text-sm font-medium text-gray-600">
+                                                        Inside Image
+                                                    </label>
+                                                    @if (!empty($business->inside_image))
+                                                        <button type="button"
+                                                            class="previewImage text-cyan-600 hover:text-cyan-800"
+                                                            data-title="Inside Image"
+                                                            data-src="{{ asset('storage/' . $business->inside_image) }}">
+                                                            <i class="bi bi-eye-fill"></i>
+                                                        </button>
+                                                    @endif
+                                                </div>
+                                                <input id="inside_image" type="file" name="inside_image"
+                                                    class="w-full border rounded-lg p-1.5 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100">
+                                            </div>
+                                            <div>
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <label for="outside_image"
+                                                        class="text-sm font-medium text-gray-600">
+                                                        Outside Image
+                                                    </label>
+                                                    @if (!empty($business->outside_image))
+                                                        <button type="button"
+                                                            class="previewImage text-cyan-600 hover:text-cyan-800"
+                                                            data-title="Outside Image"
+                                                            data-src="{{ asset('storage/' . $business->outside_image) }}">
+                                                            <i class="bi bi-eye-fill"></i>
+                                                        </button>
+                                                    @endif
+                                                </div>
+                                                <input id="outside_image" type="file" name="outside_image"
+                                                    class="w-full border rounded-lg p-1.5 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100">
+                                            </div>
+                                            <div>
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <label for="signed_moa_image"
+                                                        class="text-sm font-medium text-gray-600">
+                                                        Signed MOA Image
+                                                    </label>
+                                                    @if (!empty($business->signed_moa_image))
+                                                        <button type="button"
+                                                            class="previewImage text-cyan-600 hover:text-cyan-800"
+                                                            data-title="Signed MOA Image"
+                                                            data-src="{{ asset('storage/' . $business->signed_moa_image) }}">
+                                                            <i class="bi bi-eye-fill"></i>
+                                                        </button>
+                                                    @endif
+                                                </div>
+                                                <input id="signed_moa_image" type="file" name="signed_moa_image"
+                                                    class="w-full border rounded-lg p-1.5 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100">
+                                            </div>
+                                            <div>
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <label for="signed_aoa_image"
+                                                        class="text-sm font-medium text-gray-600">
+                                                        Signed AOA Image
+                                                    </label>
+                                                    @if (!empty($business->signed_aoa_image))
+                                                        <button type="button"
+                                                            class="previewImage text-cyan-600 hover:text-cyan-800"
+                                                            data-title="Signed AOA Image"
+                                                            data-src="{{ asset('storage/' . $business->signed_aoa_image) }}">
+                                                            <i class="bi bi-eye-fill"></i>
+                                                        </button>
+                                                    @endif
+                                                </div>
+                                                <input id="signed_aoa_image" type="file" name="signed_aoa_image"
+                                                    class="w-full border rounded-lg p-1.5 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100">
+                                            </div>
+
+
                                         </div>
                                     </div>
 

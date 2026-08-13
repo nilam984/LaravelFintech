@@ -114,8 +114,8 @@
                             <th>Reference ID</th>
                             <th>Mobile</th>
                             <th>Amount</th>
-                            <th>Fee</th>
-                            <th>Tax</th>
+                            {{-- <th>Fee</th>
+                            <th>Tax</th> --}}
                             <th>Status</th>
                             <th>Gateway Type</th>
                             <th class="min-w-[180px]">Created At</th>
@@ -183,8 +183,8 @@
                         }
                     },
 
-                    {data: 'fee'},
-                    {data: 'tax'},
+                    // {data: 'fee'},
+                    // {data: 'tax'},
                     {
                         data: 'status',
                         render: function(data) {
