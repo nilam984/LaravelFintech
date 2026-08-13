@@ -47,8 +47,8 @@
                             <th>Reference ID</th>
                             <th>Mobile</th>
                             <th>Amount</th>
-                            <th>Fee</th>
-                            <th>Tax</th>
+                            {{-- <th>Fee</th>
+                            <th>Tax</th> --}}
                             <th>Utr</th>
                             <th>Status</th>
                             <th class="min-w-[180px]">Created At</th>
@@ -57,7 +57,6 @@
                 </table>
             </div>
         </div>
-
     </div>
 
 
@@ -98,37 +97,20 @@
                     //     defaultContent: '--'
                     // },
 
-                    {
-                        data: 'payer_name'
-                    },
+                    {data: 'payer_name'},
+                    {data: 'payer_email'},
+                    {data: 'user_order_id'},
+                    {data: 'payment_reference_id'},
+                    {data: 'payer_mobile'},
+                    {data: 'amount'},
 
-                    {
-                        data: 'payer_email'
-                    },
+                    // {
+                    //     data: 'fee'
+                    // },
 
-                    {
-                        data: 'user_order_id'
-                    },
-
-                    {
-                        data: 'payment_reference_id'
-                    },
-
-                    {
-                        data: 'payer_mobile'
-                    },
-
-                    {
-                        data: 'amount'
-                    },
-
-                    {
-                        data: 'fee'
-                    },
-
-                    {
-                        data: 'tax'
-                    },
+                    // {
+                    //     data: 'tax'
+                    // },
 
                     {
                         data: 'utr',
@@ -141,8 +123,7 @@
                             return `
                             <span class="px-2 py-1 rounded bg-green-100 text-green-700 text-xs">
                                 Success
-                            </span>
-                        `;
+                            </span>`;
                         }
                     },
 
@@ -152,9 +133,7 @@
                             return formatDateTime(data);
                         }
                     }
-
                 ]
-
             });
 
             // Auto Filters
@@ -172,16 +151,12 @@
 
             // Reset
             $('#resetBtn').click(function() {
-
                 $('#user_id').val('');
                 $('#search_key').val('');
                 $('#from_date').val('');
                 $('#to_date').val('');
-
                 table.ajax.reload();
-
             });
-
         });
     </script>
 

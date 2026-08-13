@@ -33,7 +33,11 @@ class BussinessInfo extends Model
         'city',
         'state',
         'pin_code',
-        'full_address'
+        'full_address',
+        'inside_image',
+        'outside_image',
+        'signed_moa_image',
+        'signed_aoa_image',
     ];
 
     public function user()
