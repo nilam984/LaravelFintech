@@ -136,12 +136,11 @@ Route::prefix('user')->middleware('auth')->group(function () {
 
 
 Route::middleware(['auth'])->prefix('reseller')->middleware('auth')->group(function () {
-
+    Route::get('/dashboard', [AuthController::class, 'resellerDashboard'])->name('reseller.dashboard');
     Route::post('user/validate', [ResellerController::class, 'validateUser'])->name('reseller.user.validate');
     Route::post('payment/create', [ResellerController::class, 'createPayment'])->name('reseller.payment.create');
     Route::get('/reseller/payment/result/{order?}', [ResellerController::class, 'paymentResult'])->name('reseller.payment.result');
     Route::get('/get/service', [ResellerController::class, 'getServices'])->name('get.services');
 });
-
 
 Route::get('reseller-payment-return', [ResellerController::class, 'resellerReturn'])->name('reseller.payment.return');
