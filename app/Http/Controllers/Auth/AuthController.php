@@ -220,7 +220,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -235,6 +235,11 @@ class AuthController extends Controller
         return view('dashboard.user');
     }
 
+    public function resellerDashboard()
+    {
+        return view('dashboard.reseller');
+    }
+
     public function adminDashboard()
     {
         return view('dashboard.admin')->with('success', 'Test');
@@ -242,7 +247,16 @@ class AuthController extends Controller
     public function dashboard()
     {
         $user = Auth::user();
-        return redirect()->route($user->role === 'admin' ? 'admin.dashboard' : 'user.dashboard');
+        $route = 'user.dashboard';
+
+        if ($user->role === 'admin') {
+            $route = 'admin.dashboard';
+        } elseif ($user->role === 'admin') {
+            $route = 'user.dashboard';
+        } elseif ($user->role === 'reseller') {
+            $route = 'reseller.dashboard';
+        }
+        return redirect()->route($route);
     }
 
     public function logout(Request $request)
@@ -347,7 +361,6 @@ class AuthController extends Controller
                 'message' => 'Verification user created successfully.',
                 'data' => $user,
             ], 201);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
@@ -361,14 +374,14 @@ class AuthController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email,'.$id],
-            'mobile' => ['required', 'digits:10', 'unique:users,mobile,'.$id],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $id],
+            'mobile' => ['required', 'digits:10', 'unique:users,mobile,' . $id],
             'password' => ['nullable', 'string', 'min:8'],
         ]);
 
         try {
 
-            $user = User::where('id', $id)->where('role', 'verification') ->first();
+            $user = User::where('id', $id)->where('role', 'verification')->first();
             if (! $user) {
                 return response()->json([
                     'status' => false,
