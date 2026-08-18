@@ -107,6 +107,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('onboard-reseller', [AdminController::class, 'onboardReseller'])->name('admin.onboard.reseller');
     Route::post('updated-reseller', [AdminController::class, 'updateReseller'])->name('admin.reseller.update');
     Route::get('get-reseller/{id}', [AdminController::class, 'getReseller'])->name('get.reseller');
+
+    Route::get('ledger', [AdminController::class, 'ledger'])->name('admin.ledger');
 });
 
 // User routes

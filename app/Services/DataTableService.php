@@ -42,6 +42,12 @@ class DataTableService
         // return DataTables::eloquent($query)->toJson();
 
         return DataTables::eloquent($query)
+            ->addColumn('user_name', function ($row) {
+                return $row->user?->name ?? '-';
+                })
+            ->editColumn('type', function ($row) {
+                return ucfirst($row->transaction_type);
+            })
             ->filter(function ($query) use ($request, $table) {
 
                 if ($request->filled('status')) {
@@ -72,24 +78,26 @@ class DataTableService
 
                     $query->where(function ($q) use ($key, $table) {
 
-                        if ($table == 'payoutTransactions') {
+                        if ($table === 'ledgerTransactions') {
 
                             $q->where('beneficiary_name', 'like', "%{$key}%")
-                                ->orWhere('beneficiary_email', 'like', "%{$key}%")
-                                ->orWhere('beneficiary_mobile', 'like', "%{$key}%")
-                                ->orWhere('client_ref_id', 'like', "%{$key}%")
-                                ->orWhere('utr', 'like', "%{$key}%")
-                                ->orWhere('bank_reference', 'like', "%{$key}%")
+                               ->orWhere('reference_id', 'like', "%{$key}%")
                                 ->orWhere('account_number', 'like', "%{$key}%")
-                                ->orWhere('bank_name', 'like', "%{$key}%")
-                                ->orWhere('ifsc_code', 'like', "%{$key}%")
-                                ->orWhere('status', 'like', "%{$key}%")
-
+                                ->orWhere('order_id', 'like', "%{$key}%")
+                                ->orWhere('transaction_type', 'like', "%{$key}%")
+                                ->orWhere('narration', 'like', "%{$key}%")
+                                ->orWhere('transaction_identifier', 'like', "%{$key}%")
+                                ->orWhere('service_id', 'like', "%{$key}%")
+                                ->orWhere('amount', 'like', "%{$key}%")
+                                ->orWhere('fee', 'like', "%{$key}%")
+                                ->orWhere('tax', 'like', "%{$key}%")
                                 ->orWhereHas('user', function ($user) use ($key) {
+
                                     $user->where('name', 'like', "%{$key}%")
                                         ->orWhere('email', 'like', "%{$key}%")
                                         ->orWhere('mobile', 'like', "%{$key}%");
-                                });
+
+                            });
                         } else {
 
                             $q->where('payer_name', 'like', "%{$key}%")
@@ -108,7 +116,7 @@ class DataTableService
                     });
                 }
             }, true)
-            ->toJson();
+        ->toJson();
     }
 
     protected function users()
@@ -497,4 +505,29 @@ class DataTableService
 
         ];
     }
+
+ protected function ledgerTransactions()
+{
+    return [
+        'model' => \App\Models\LedgerTransaction::class,
+
+        'with' => ['user'],
+
+        'query' => function ($query, $request) {
+
+            $user = Auth::user();
+
+            if ($user->role === 'admin') {
+
+                if ($request->filled('user_id')) {
+                    $query->where('user_id', $request->user_id);
+                }
+
+                return $query;
+            }
+
+            return $query->where('user_id', $user->id);
+        },
+    ];
+}
 }
