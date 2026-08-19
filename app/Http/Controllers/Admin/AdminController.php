@@ -16,6 +16,7 @@ use App\Models\OauthUser;
 use App\Models\PaymentGateway;
 use App\Models\ResellerDetail;
 use App\Models\ServiceProduct;
+use App\Models\LedgerTransaction;
 use App\Models\User;
 use App\Models\WebHookUrl;
 use App\Services\MailService;
@@ -1007,5 +1008,12 @@ class AdminController extends Controller
                     : null,
             ]
         ]);
+    }
+
+
+    public function ledger()
+    {
+        $users = User::whereIn('id', LedgerTransaction::distinct()->pluck('user_id'))->orderBy('name')->get();
+        return view('admin.ledger-transaction', compact('users'));
     }
 }

@@ -252,6 +252,16 @@ class MenuSeeder extends Seeder
         ]);
 
         Menu::create([
+            'name' => 'Ledger',
+            'slug' => 'ledger',
+            'route' => 'admin.ledger',
+            'icon' => 'bi-journal-text',
+            'visible_for' => 'admin',
+            'sort_order' => 9,
+            'is_active' => true,
+        ]);
+
+        Menu::create([
             'name' => 'Scheme',
             'slug' => 'scheme',
             'route' => 'scheme',
