@@ -80,12 +80,13 @@
                         <th>Email</th>
                         <th>Mobile</th>
                         <th>Status</th>
-                        <th>Created</th>
-                        <th>Email Verified</th>
-                        <th>Registered By</th>
-                        <th>Reseller Name</th>
+                        <th class="min-w-[180px]">Email Verified</th>
+                        <th class="min-w-[150px]">Registered By</th>
+                        <th class="min-w-[150px]">Reseller Name</th>
                         <th>View</th>
-                        <th>Action</th>
+                        <th class="min-w-[180px]">Created</th>
+                        <th class="min-w-[180px]">Updated</th>
+                        <th class="min-w-[100px]">Action</th>
                     </tr>
                 </thead>
             </table>
@@ -395,13 +396,7 @@
                                 '<span class="px-2 py-1 rounded bg-red-100 text-red-700 text-xs">Inactive</span>';
                         }
                     },
-                    {
-                        data: 'created_at',
-                        name: 'created_at',
-                        render: function(data) {
-                            return formatDateTime(data);
-                        }
-                    },
+                    
                     {
                         data: 'email_verified_at',
                         name: 'email_verified_at',
@@ -448,6 +443,20 @@
                                     <i class="bi bi-eye-fill text-lg text-cyan-600"></i>
                                 </a>
                             `;
+                        }
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'created_at',
+                        render: function(data) {
+                            return formatDateTime(data);
+                        }
+                    },
+                    {
+                        data: 'updated_at',
+                        name: 'updated_at',
+                        render: function(data) {
+                            return formatDateTime(data);
                         }
                     },
                     {

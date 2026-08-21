@@ -480,5 +480,5 @@ class UserController extends Controller
     public function allUpitransaction(){
         $users = User::whereIn('id', PayinTransaction::select('user_id')->distinct())->orderBy('name')->get();
         return view('user.upi-services.all-upi-transaction', compact('users'));
-    }
+    }   
 }
