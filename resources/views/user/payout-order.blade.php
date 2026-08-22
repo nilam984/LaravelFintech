@@ -18,8 +18,7 @@
 
         <div class="bg-white border border-slate-200 rounded-xl p-4">
             <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                <input type="text" id="search_key"
-                    placeholder="Search..."class="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm">
+                <input type="text" id="search_key" placeholder="Search..."class="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm">
                 <select id="status" class="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm">
                     <option value="">All Status</option>
                     <option value="initiated">Initiated</option>
@@ -43,14 +42,14 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th class="min-w-[150px]">User</th>
-                        <th class="min-w-[180px]">Beneficiary Name</th>
+                        {{-- <th class="min-w-[150px]">User</th>
+                        <th class="min-w-[180px]">Beneficiary</th> --}}
                         <th class="min-w-[100px]">Client Ref</th>
-                        <th class="min-w-[100px]">Bank</th>
+                        {{-- <th class="min-w-[100px]">Bank</th>
                         <th class="min-w-[150px]">Account</th>
-                        <th class="min-w-[100px]">IFSC</th>
-                        <th>Payout Mode</th>
+                        <th class="min-w-[100px]">IFSC</th> --}}
                         <th>Amount</th>
+                        <th>Payout Mode</th>
                         <th>Fee</th>
                         <th>GST</th>
                         <th class="min-w-[120px]">Final Amount</th>
@@ -58,8 +57,7 @@
                         <th>Status</th>
                         <th class="min-w-[200px]">Created At</th>
                         <th class="min-w-[200px]">Updated At</th>
-                        <th>Action</th>
-
+                        {{-- <th>View</th> --}}
                     </tr>
                 </thead>
             </table>
@@ -93,53 +91,27 @@
                     }
                 },
 
-                columns: [{
-                        data: 'id'
-                    },
-                    {
-                        data: 'user.name',
-                        defaultContent: '--'
-                    },
-                    {
-                        data: 'beneficiary_name'
-                    },
-                    {
-                        data: 'client_ref_id',
-                        defaultContent: '--'
-                    },
-                    {
-                        data: 'bank_name'
-                    },
-                    {
-                        data: 'account_number',
-                        render: function(data) {
-                            if (data == null) return "--";
-                            return "XXXXXX" + data.slice(-4);
+                columns: [
+                    {data: 'id'},
+                    // {data: 'user.name', defaultContent: '--'},
+                    // {data: 'beneficiary_name'},
+                    {data: 'client_ref_id', defaultContent: '--'},
+                    // {data: 'bank_name'},
+                    // {
+                    //     data: 'account_number',
+                    //     render: function(data) {
+                    //         if (data == null) return "--";
+                    //         return "XXXXXX" + data.slice(-4);
 
-                        }
-                    },
-                    {
-                        data: 'ifsc_code'
-                    },
-                    {
-                        data: 'mode'
-                    },
-                    {
-                        data: 'amount'
-                    },
-                    {
-                        data: 'fee'
-                    },
-                    {
-                        data: 'tax'
-                    },
-                    {
-                        data: 'final_amount'
-                    },
-                    {
-                        data: 'utr',
-                        defaultContent: '--'
-                    },
+                    //     }
+                    // },
+                    // {data: 'ifsc_code'},
+                    {data: 'amount'},
+                    {data: 'mode'},
+                    {data: 'fee'},
+                    {data: 'tax'},
+                    {data: 'final_amount'},
+                    {data: 'utr', defaultContent: '--'},
 
                     {
                         data: 'status',
@@ -167,31 +139,9 @@
                         data: 'updated_at',
                         render: function(data) {
                             return formatDateTime(data);
-                        }
-                    },
 
-
-                    {
-                        data: null,
-                        orderable: false,
-                        searchable: false,
-                        render: function(data, type, row) {
-
-                            if (row.status === 'success') {
-                                let url = "{{ route('admin.payout.receipt.download', ':id') }}";
-                                url = url.replace(':id', row.id);
-
-                                return `
-                                    <a href="${url}" class="text-green-600 hover:text-green-800" title="Download Receipt">
-                                        <i class="bi bi-download fs-5"></i>
-                                    </a>
-                                `;
-                            }
-
-                            return '--';
                         }
                     }
-
 
                     // {
                     //     data: null,

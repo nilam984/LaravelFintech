@@ -107,8 +107,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('onboard-reseller', [AdminController::class, 'onboardReseller'])->name('admin.onboard.reseller');
     Route::post('updated-reseller', [AdminController::class, 'updateReseller'])->name('admin.reseller.update');
     Route::get('get-reseller/{id}', [AdminController::class, 'getReseller'])->name('get.reseller');
-
     Route::get('ledger', [AdminController::class, 'ledger'])->name('admin.ledger');
+    
+    Route::get('/payout/{id}/receipt/download', [PayoutController::class, 'downloadReceipt'])->name('admin.payout.receipt.download');
 });
 
 // User routes
@@ -134,6 +135,7 @@ Route::prefix('user')->middleware('auth')->group(function () {
     Route::get('upi-initiation', [UserController::class, 'upiInitiation'])->name('user.upi.initiation');
     Route::get('upi-collection', [UserController::class, 'upiCollection'])->name('user.upi.collection');
     Route::get('all-upi-transaction', [UserController::class, 'allUpitransaction'])->name('user.upi.transaction');
+    Route::get('payout-orders', [PayoutController::class, 'userpayout'])->name('user.payout');
 });
 
 

@@ -185,27 +185,27 @@ class MenuSeeder extends Seeder
         ]);
 
 
-        Menu::create([
-            'parent_id' => $upi->id,
-            'name' => 'UPI Initiation',
-            'slug' => 'user-upi-initiation',
-            'route' => 'user.upi.initiation',
-            'icon' => null,
-            'visible_for' => 'user',
-            'sort_order' => 4,
-            'is_active' => true,
-        ]);
+        // Menu::create([
+        //     'parent_id' => $upi->id,
+        //     'name' => 'UPI Initiation',
+        //     'slug' => 'user-upi-initiation',
+        //     'route' => 'user.upi.initiation',
+        //     'icon' => null,
+        //     'visible_for' => 'user',
+        //     'sort_order' => 4,
+        //     'is_active' => true,
+        // ]);
 
-        Menu::create([
-            'parent_id' => $upi->id,
-            'name' => 'UPI Collection',
-            'slug' => 'user-upi-collection',
-            'route' => 'user.upi.collection',
-            'icon' => null,
-            'visible_for' => 'user',
-            'sort_order' => 5,
-            'is_active' => true,
-        ]);
+        // Menu::create([
+        //     'parent_id' => $upi->id,
+        //     'name' => 'UPI Collection',
+        //     'slug' => 'user-upi-collection',
+        //     'route' => 'user.upi.collection',
+        //     'icon' => null,
+        //     'visible_for' => 'user',
+        //     'sort_order' => 5,
+        //     'is_active' => true,
+        // ]);
 
         Menu::create([
             'parent_id' => $upi->id,
@@ -237,6 +237,17 @@ class MenuSeeder extends Seeder
             'icon' => null,
             'visible_for' => 'admin',
             'sort_order' => 1,
+            'is_active' => true,
+        ]);
+
+        Menu::create([
+            'parent_id' => $payout->id,
+            'name' => 'Payout',
+            'slug' => 'user-payout',
+            'route' => 'user.payout',
+            'icon' => null,
+            'visible_for' => 'user',
+            'sort_order' => 2,
             'is_active' => true,
         ]);
 
