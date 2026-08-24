@@ -9,13 +9,8 @@
         <div class="flex items-center justify-between">
 
             <div>
-                <h1 class="text-2xl font-bold text-fintechDarkText">
-                    Users
-                </h1>
-
-                <p class="text-sm text-fintechMutedText mt-1">
-                    Manage all registered users.
-                </p>
+                <h1 class="text-2xl font-bold text-fintechDarkText"> Users </h1>
+                <p class="text-sm text-fintechMutedText mt-1">Manage all registered users.</p>
             </div>
 
             @if (Auth::user()->role === 'reseller')
@@ -29,22 +24,15 @@
         {{-- Filters --}}
 
         <div class="bg-white border border-slate-200 rounded-xl p-4">
-
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-
                 <div>
-                    <input type="text" id="search" placeholder="Search..."
-                        class="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm focus:border-fintechCyan focus:ring-2 focus:ring-fintechCyan/20 outline-none">
+                    <input type="text" id="search" placeholder="Search..." class="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm focus:border-fintechCyan focus:ring-2 focus:ring-fintechCyan/20 outline-none">
                 </div>
-
                 <div>
-                    <select id="status"
-                        class="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm bg-white focus:border-fintechCyan focus:ring-2 focus:ring-fintechCyan/20 outline-none">
-
+                    <select id="status" class="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm bg-white focus:border-fintechCyan focus:ring-2 focus:ring-fintechCyan/20 outline-none">
                         <option value="">All Status</option>
                         <option value="1">Active</option>
                         <option value="0">Inactive</option>
-
                     </select>
                 </div>
 
@@ -57,17 +45,12 @@
 
                     </button> --}}
 
-                    <button id="btnReset"
-                        class="border border-slate-300 hover:bg-slate-100 px-5 py-2 rounded-lg transition">
+                    <button id="btnReset" class="border border-slate-300 hover:bg-slate-100 px-5 py-2 rounded-lg transition">
                         Reset
                     </button>
-
                 </div>
-
             </div>
-
         </div>
-
 
         {{-- DataTable --}}
 

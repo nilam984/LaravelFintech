@@ -31,9 +31,8 @@
          </div>
 
          <div class="flex justify-end px-6 py-4 border-t">
-             <button id="closeRemarkBtn" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
-                 Close
-             </button>
+             <button id="closeRemarkBtn"
+                 class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Close</button>
          </div>
      </div>
 
@@ -225,8 +224,8 @@
              cancelButtonText: 'No',
              confirmButtonColor: '#06B6D4',
              didOpen: () => {
-            document.body.classList.remove('swal2-height-auto');
-        }
+                 document.body.classList.remove('swal2-height-auto');
+             }
          }).then((result) => {
              if (!result.isConfirmed) {
                  $(element).val(oldStatus);

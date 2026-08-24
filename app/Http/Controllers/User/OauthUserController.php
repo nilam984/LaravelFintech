@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\OauthUser;
 use App\Models\GlobalService;
 use App\Models\IpWhitelist;
+use App\Models\OauthUser;
 use App\Models\ServiceRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -18,10 +18,9 @@ class OauthUserController extends Controller
     {
         $userId = Auth::user()->id;
         $services = ServiceRequest::with('service')->where('user_id', $userId)->where('status', 'active')->latest()->get();
+
         return view('user.oauthUser', compact('services'));
     }
-
-
 
     public function generateClientCredentials(Request $request)
     {
@@ -107,14 +106,13 @@ class OauthUserController extends Controller
         }
     }
 
-
     public function saveOrUpdateIpWhitelist(Request $request)
     {
 
         $request->validate([
             'service' => 'required|string',
             'ip_address' => 'required|ip',
-            'id' => 'nullable|exists:ip_whitelists,id'
+            'id' => 'nullable|exists:ip_whitelists,id',
         ]);
 
         $serviceId = $request->input('service');
@@ -133,7 +131,7 @@ class OauthUserController extends Controller
                 if ($existingCount >= 1) {
                     return response()->json([
                         'status' => false,
-                        'message' => 'Limit exceeded: A maximum of 5 IP addresses are allowed per service.'
+                        'message' => 'Limit exceeded: A maximum of 5 IP addresses are allowed per service.',
                     ]);
                 }
             }
@@ -144,7 +142,7 @@ class OauthUserController extends Controller
 
             return response()->json([
                 'status' => true,
-                'message' => 'IP Whitelist Updated Successfully.'
+                'message' => 'IP Whitelist Updated Successfully.',
             ]);
         } else {
 
@@ -153,7 +151,7 @@ class OauthUserController extends Controller
             if ($existingCount >= 1) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Limit exceeded: A maximum of 1 IP addresses are allowed per service.'
+                    'message' => 'Limit exceeded: A maximum of 1 IP addresses are allowed per service.',
                 ]);
             }
 
@@ -165,16 +163,15 @@ class OauthUserController extends Controller
 
             return response()->json([
                 'status' => true,
-                'message' => 'IP Whitelist added successfully.'
+                'message' => 'IP Whitelist added successfully.',
             ]);
         }
     }
 
-
     public function deleteIpWhitelist(Request $request)
     {
         $request->validate([
-            'id' => 'required|exists:ip_whitelists,id'
+            'id' => 'required|exists:ip_whitelists,id',
         ]);
 
         $whitelist = IpWhitelist::findOrFail($request->input('id'));
@@ -182,7 +179,7 @@ class OauthUserController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'IP Whitelist deleted successfully.'
+            'message' => 'IP Whitelist deleted successfully.',
         ]);
     }
 }
