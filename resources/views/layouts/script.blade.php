@@ -75,16 +75,12 @@
          }
      }
 
-     window.onclick = function(event) {
-         if (!event.target.closest('#notificationMenu') && !event.target.closest(
-                 'button[onclick="toggleNotificationMenu()"]')) {
-             notificationMenu.classList.add("hidden");
-         }
-         if (!event.target.closest('#profileMenu') && !event.target.closest(
-                 'button[onclick="toggleProfileMenu()"]')) {
-             profileMenu.classList.add("hidden");
-         }
-     }
+    document.addEventListener("click", function (event) {
+        if (!event.target.closest("#profileMenu") &&
+            !event.target.closest('[onclick="toggleProfileMenu()"]')) {
+            profileMenu.classList.add("hidden");
+        }
+    });
 
      /**
       * Official Tailwind UI Specification Toast Engine

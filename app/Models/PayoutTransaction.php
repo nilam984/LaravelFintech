@@ -72,4 +72,9 @@ class PayoutTransaction extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
+
+    public function bussiness_info()
+    {
+        return $this->belongsTo(BussinessInfo::class, 'user_id', 'user_id');
+    }
 }

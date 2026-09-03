@@ -30,7 +30,7 @@
                     <div class="mb-4">
                         <label class="block mb-2">Service</label>
                         <select name="service_id" id="service_id" class="w-full border rounded-lg p-2">
-                            <option value="">Select Service</option>
+                            <option value="Select Service">Select Service</option>
                             @foreach ($services as $service)
                                 <option value="{{ $service->id }}">
                                     {{ $service->service_name }}

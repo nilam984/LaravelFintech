@@ -2,14 +2,15 @@
     class="fixed inset-y-0 left-0 z-40 w-64 h-full fintech-gradient text-white border-r border-white/10 transform -translate-x-full lg:translate-x-0 lg:static flex flex-col transition-transform duration-300 ease-in-out flex-shrink-0">
     <!-- Brand Area -->
     <div class="h-20 flex items-center justify-between px-6 border-b border-white/10 flex-shrink-0">
-        <div class="flex items-center gap-2">
-            <i class="bi bi-cpu text-fintechCyan text-2xl"></i>
-            <span class="text-xl font-bold tracking-tight">Fintech<span class="text-fintechCyan"></span></span>
-        </div>
-        <button onclick="toggleSidebar()"
-            class="lg:hidden text-white/80 hover:text-white p-1 rounded-lg hover:bg-white/10">
+
+        <a href="{{ route('dashboard') }}" class="group flex items-center">
+            <img src="{{ asset('assets/groscope-logo1.png') }}" alt="Logo" class="h-12 w-auto object-contain transition-all duration-300 group-hover:scale-105">
+        </a>
+
+        <button onclick="toggleSidebar()" class="lg:hidden text-white/80 hover:text-white p-1 rounded-lg hover:bg-white/10">
             <i class="bi bi-x-lg text-lg"></i>
         </button>
+
     </div>
 
     @php
@@ -17,34 +18,25 @@
     @endphp
 
     <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto custom-scrollbar">
-
         @foreach ($menus as $menu)
-
             @php
-
                 $hasChildren = $menu->children->isNotEmpty();
-
                 $menuActive = false;
-
                 if ($menu->route) {
                     $menuActive = request()->routeIs($menu->route);
                 }
-
                 $childActive = false;
-
                 foreach ($menu->children as $child) {
                     if ($child->route && request()->routeIs($child->route)) {
                         $childActive = true;
                         break;
                     }
                 }
-
                 $isActive = $menuActive || $childActive;
             @endphp
 
             @if ($hasChildren)
                 <div class="space-y-1">
-
                     <button type="button" onclick="toggleSubmenu(this)"
                         class="w-full flex items-center justify-between
                     px-3 py-2.5 rounded-xl transition duration-200 group
